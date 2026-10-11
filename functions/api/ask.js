@@ -4,7 +4,7 @@ import { parseAsk, cleanFilters, sorts } from '../../src/lib/ask.js'
 // filter set; cleanFilters throws away anything that is not one, and the rules
 // parser answers when the model is missing, slow or wrong.
 // ponytail: no auth or rate limit. The Workers AI free daily allowance is the
-// ceiling; put Turnstile or a Supabase JWT check here if it gets hammered.
+// ceiling; put Turnstile or a sign-in token check here if it gets hammered.
 
 const SYSTEM = `You turn a home search request into JSON filters. Reply with one JSON object and nothing else.
 Keys, all optional: priceMax (number), priceMin (number), beds (minimum bedrooms, number), propertyType ("house" | "condo" | "townhouse"), sort (${sorts.map(s => `"${s}"`).join(' | ')}).

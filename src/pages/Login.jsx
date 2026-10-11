@@ -6,7 +6,7 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const { login, loginWithOAuth } = useAuth()
+  const { login } = useAuth()
   const navigate = useNavigate()
 
   async function handleSubmit(e) {
@@ -20,11 +20,6 @@ export default function Login() {
     navigate('/')
   }
 
-  async function handleOAuth(provider) {
-    setError('')
-    const result = await loginWithOAuth(provider)
-    if (result.error) setError(result.error)
-  }
 
   return (
     <div className="page-auth">
@@ -61,13 +56,6 @@ export default function Login() {
             Sign in
           </button>
         </form>
-        <div className="auth-or">or</div>
-        <button type="button" className="btn btn-ghost" style={{ width: '100%', marginBottom: '0.5rem' }} onClick={() => handleOAuth('apple')}>
-          Continue with Apple
-        </button>
-        <button type="button" className="btn btn-ghost" style={{ width: '100%' }} onClick={() => handleOAuth('google')}>
-          Continue with Google
-        </button>
         <div className="auth-footer">
           <Link to="/forgot-password">Forgot password?</Link>
           <span style={{ margin: '0 0.5rem', color: 'var(--muted)' }}>|</span>

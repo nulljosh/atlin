@@ -8,21 +8,16 @@ export default function Register() {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
-  const { register, loginWithOAuth } = useAuth()
+  const { register } = useAuth()
   const navigate = useNavigate()
 
-  async function handleOAuth(provider) {
-    setError('')
-    const result = await loginWithOAuth(provider)
-    if (result.error) setError(result.error)
-  }
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
     if (!name.trim()) return setError('Name is required')
     if (!email.trim()) return setError('Email is required')
-    if (password.length < 6) return setError('Password must be at least 6 characters')
+    if (password.length < 8) return setError('Password must be at least 8 characters')
     if (password !== confirm) return setError('Passwords do not match')
 
     const result = await register(name.trim(), email.trim(), password)
@@ -85,13 +80,6 @@ export default function Register() {
             Create account
           </button>
         </form>
-        <div className="auth-or">or</div>
-        <button type="button" className="btn btn-ghost" style={{ width: '100%', marginBottom: '0.5rem' }} onClick={() => handleOAuth('apple')}>
-          Continue with Apple
-        </button>
-        <button type="button" className="btn btn-ghost" style={{ width: '100%' }} onClick={() => handleOAuth('google')}>
-          Continue with Google
-        </button>
         <div className="auth-footer">
           Already have an account? <Link to="/login">Sign in</Link>
         </div>

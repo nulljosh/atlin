@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { supabase, authConfigured } from '../lib/supabase.js'
+import { spark, authConfigured } from '../lib/spark.js'
 
 function generatePixelArtSVG() {
   const palettes = [['#B5836A','#7C93A6','#4A5A68'],['#7C8B6B','#A8B99A','#CBD8BE'],['#0077b6','#00b4d8','#90e0ef'],['#A5735C','#D2A88E','#E3B778'],['#2d6a4f','#52b788','#b7e4c7']]
@@ -51,16 +51,18 @@ export function AuthProvider({ children }) {
   // getSession is async, so until it answers we do not know whether there is a
   // session. Routing on `user` alone bounced signed-in people to /login on any
   // refresh or deep link.
+  const [recovering, setRecovering] = useState(false)
   const [ready, setReady] = useState(!authConfigured || preview)
 
   useEffect(() => {
     if (!authConfigured || preview) return
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    spark.auth.getSession().then(({ data: { session } }) => {
       setUser(mapUser(session?.user ?? null))
       setReady(true)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = spark.auth.onAuthStateChange((_event, session) => {
+      if (_event === 'PASSWORD_RECOVERY') { setRecovering(true); return }
       setUser(mapUser(session?.user ?? null))
     })
 
@@ -69,21 +71,15 @@ export function AuthProvider({ children }) {
 
   async function login(email, password) {
     if (!authConfigured) return { error: 'Sign-in is not configured on this deployment.' }
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { error } = await spark.auth.signInWithPassword({ email, password })
     if (error) return { error: error.message }
     return { success: true }
   }
 
-  async function loginWithOAuth(provider) {
-    if (!authConfigured) return { error: 'Sign-in is not configured on this deployment.' }
-    const { error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: window.location.origin } })
-    if (error) return { error: error.message }
-    return { success: true }
-  }
 
   async function register(name, email, password) {
     if (!authConfigured) return { error: 'Sign-in is not configured on this deployment.' }
-    const { error } = await supabase.auth.signUp({
+    const { error } = await spark.auth.signUp({
       email,
       password,
       options: {
@@ -116,22 +112,46 @@ export function AuthProvider({ children }) {
     if (email !== undefined) params.email = email
 
     if (!authConfigured) return { error: 'Sign-in is not configured on this deployment.' }
-    const { data: result, error } = await supabase.auth.updateUser(params)
+    const { data: result, error } = await spark.auth.updateUser(params)
     if (!error && result.user) setUser(mapUser(result.user))
   }
 
   async function logout() {
     if (!authConfigured) return { error: 'Sign-in is not configured on this deployment.' }
-    await supabase.auth.signOut()
+    await spark.auth.signOut()
   }
 
   return (
-    <AuthContext.Provider value={{ user, ready, login, loginWithOAuth, register, updateProfile, logout }}>
+    <AuthContext.Provider value={{ user, ready, login, register, updateProfile, logout }}>
       {children}
+      {recovering && <RecoveryForm onDone={() => { setRecovering(false); window.location.assign('/') }} />}
     </AuthContext.Provider>
   )
 }
 
 export function useAuth() {
   return useContext(AuthContext)
+}
+
+// A reset link lands on the site with ?recovery_token=...; the client announces it and we ask for the new password.
+function RecoveryForm({ onDone }) {
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  async function submit(e) {
+    e.preventDefault()
+    if (password.length < 8) return setError('Password must be at least 8 characters')
+    const { error: err } = await spark.auth.updateUser({ password })
+    if (err) return setError(err.message)
+    onDone()
+  }
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+      <form onSubmit={submit} style={{ background: 'var(--bg, #fff)', color: 'inherit', padding: '1.5rem', borderRadius: 12, display: 'grid', gap: '.75rem', width: 'min(92vw, 340px)' }}>
+        <strong>Choose a new password</strong>
+        <input type="password" required minLength={8} autoComplete="new-password" placeholder="New password, 8 characters or more" value={password} onChange={e => setPassword(e.target.value)} />
+        {error && <span className="error-text">{error}</span>}
+        <button type="submit" className="btn btn-primary">Save password</button>
+      </form>
+    </div>
+  )
 }
