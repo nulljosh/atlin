@@ -22,7 +22,7 @@ func search(_ q: String) async -> [Place] {
     guard let encoded = q.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
           let url = URL(string: "https://nominatim.openstreetmap.org/search?q=\(encoded)&format=json&limit=5") else { return [] }
     var req = URLRequest(url: url)
-    req.setValue("roost-tui (heyitsmejosh.com)", forHTTPHeaderField: "User-Agent")
+    req.setValue("roost-tui (jaybulb.com)", forHTTPHeaderField: "User-Agent")
     guard let (data, _) = try? await URLSession.shared.data(for: req) else { return [] }
     return (try? JSONDecoder().decode([Place].self, from: data)) ?? []
 }
