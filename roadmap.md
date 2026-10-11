@@ -4,14 +4,6 @@
 - [ ] ASC record creation paused. Apple's web sign-in returned 503 at 13:07 and 13:32 (no verification code). Resume after 14:32 (one hour throttle window). Joshua runs asc-login at home, then asc web apps create for com.nulljosh.brick named Brick. iPhone IPA built, signed, ready to export and upload.
 - [ ] RentCast API key pending Joshua signup (US sale and rent data feeds already wired, APIFY_TOKEN for HousingFeed 30 countries already configured).
 
-## Live now 2026-10-04
-- [x] Renamed from Roost to Brick (GitHub nulljosh/brick, brick.heyitsmejosh.com).
-- [x] Landing page deployed with 27-second promo video, feature cards, honest copy.
-- [x] iPhone app built, signed, Liquid Glass sheet map, deal scoring by percent under median.
-- [x] Desktop app (tui/) and Android built in CI, tests green.
-- [x] Live listings from HousingFeed and RentCast via /api/listings, 24h KV cache.
-- [x] AI mode turns plain words to filters (Workers AI llama-3.3-70b with rules fallback).
-
 ## Worldwide build 2026-08-28
 Web app now browses anywhere on earth: Nominatim place search, real local street
 names from Overpass, per-country currency/units/price levels, sale and rent
@@ -19,8 +11,6 @@ modes, and UI strings in 25 languages with RTL.
 
 - [ ] Hero line translatable into all 26 languages (currently English-only on landing).
 - [ ] Login/Register/ForgotPassword copy localization (strings dict has keys, pages need `t()` calls).
-- [x] Landing pitch translated into all 26 languages (2026-09-06).
-- [x] Live listings replace generated inventory (2026-10-04).
 
 ## Polish and optimization
 
