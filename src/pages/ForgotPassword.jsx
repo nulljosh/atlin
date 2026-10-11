@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { supabase } from '../lib/supabase.js'
+import { spark } from '../lib/spark.js'
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('')
@@ -12,7 +12,7 @@ export default function ForgotPassword() {
     setError('')
     if (!email.trim()) return setError('Email is required')
     if (!email.includes('@')) return setError('Enter a valid email address')
-    const { error: err } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+    const { error: err } = await spark.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: 'https://roost.heyitsmejosh.com/reset-password'
     })
     if (err) return setError(err.message)
