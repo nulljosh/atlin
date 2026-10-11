@@ -109,7 +109,7 @@ export default function Landing() {
         <p className="section-label">{t('demo_label')}</p>
         <h2>{t('demo_title')}</h2>
         <div className="demo-frame">
-          <div className="demo-bar" aria-hidden="true"><i /><i /><i /><span>brick.heyitsmejosh.com</span></div>
+          <div className="demo-bar" aria-hidden="true"><i /><i /><i /><span>brick.jaybulb.com</span></div>
           <video
             ref={demoRef}
             muted

@@ -1,5 +1,5 @@
 // spark.js: the browser/Node client for spark-api, shaped like the client library the apps were already written against. No dependencies, works in browsers and Node 18+.
-//   import { createClient } from './spark.js'; const sb = createClient('https://api.heyitsmejosh.com');
+//   import { createClient } from './spark.js'; const sb = createClient('https://api.jaybulb.com');
 // Same shapes as before: { data, error } everywhere, sb.auth.*, sb.from(t)...then, sb.rpc, sb.storage.from(b), sb.functions.invoke.
 // ponytail: OAuth redirects (Google/Apple/GitHub/X web) are not here; signInWithOAuth returns an error until the Worker has them.
 
