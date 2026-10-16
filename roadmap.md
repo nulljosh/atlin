@@ -30,3 +30,11 @@ Removed the unused animate.css import and dependency. App routes load on demand;
 
 ## From Notes (2026-09-12)
 - [ ] Sync UI/color palette more with portfolio and other projects
+
+## Ingested 2026-10-16
+- [ ] Brick (ex-Roost): confirm the brown color has been removed. Refresh screenshots. Needs a demo video. QA the app and website.
+- [ ] QA the iOS and macOS apps. Ship to the App Store.
+- [ ] Website login doesn't work. We created an account, it redirected to the home page without logging in.
+- [ ] Brick (ex-Roost): confirm the brown color has been removed. Refresh screenshots. Needs a demo video. QA the app and website.
+- [ ] QA the iOS and macOS apps. Ship to the App Store.
+- [ ] Website login doesn't work. We created an account, it redirected to the home page without logging in.
