@@ -5,7 +5,7 @@
 ![version](https://img.shields.io/badge/version-v3.0.0-blue)
 ![license](https://img.shields.io/badge/license-MIT-green) [![GitHub](https://img.shields.io/badge/GitHub-nulljosh%2Fbrick-black?logo=github)](https://github.com/nulljosh/brick)
 
-**Live:** https://brick.heyitsmejosh.com
+**Live:** https://brick.jaybulb.com
 
 **Terminal:** `swift build && ./.build/debug/roost-tui "Vancouver"` — see [tui/](tui/)
 
