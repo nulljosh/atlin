@@ -361,7 +361,7 @@ struct ListingDetail: View {
                     Text(listing.statsText).font(.title3).foregroundStyle(.secondary)
                     Text(listing.address ?? listing.city ?? "")
                     if let days = listing.listedDaysAgo {
-                        Text(days == 0 ? "Listed today" : "Listed \(days) days ago").font(.footnote).foregroundStyle(.secondary)
+                        Text(days == 0 ? "Listed today" : days == 1 ? "Listed yesterday" : "Listed \(days) days ago").font(.footnote).foregroundStyle(.secondary)
                     }
                 }
                 .padding(.horizontal, Space.margin)

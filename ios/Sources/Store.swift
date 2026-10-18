@@ -134,10 +134,13 @@ final class Store {
     var visible: [Listing] {
         let rows = listings.filter { l in
             (minBeds == 0 || l.beds >= Double(minBeds)) && (type == nil || l.type == type) && (maxPrice == nil || l.price <= maxPrice!)
-                && (!UserDefaults.standard.bool(forKey: "photosOnly") || !l.photos.isEmpty) && (!dealsOnly || l.deal >= 5) && (!freshOnly || (l.listedDaysAgo ?? 99) <= 7)
+                && (!dealsOnly || l.deal >= 5) && (!freshOnly || (l.listedDaysAgo ?? 99) <= 7)
         }
+        // Screenshots only: homes with a real photo first, so the store images are not placeholders.
+        let photosFirst = UserDefaults.standard.bool(forKey: "photosOnly")
+        func order(_ a: Listing, _ b: Listing, _ by: Bool) -> Bool { photosFirst && a.photos.isEmpty != b.photos.isEmpty ? !a.photos.isEmpty : by }
         switch sort {
-        case .deal: return rows.sorted { $0.deal > $1.deal }
+        case .deal: return rows.sorted { order($0, $1, $0.deal > $1.deal) }
         case .priceLow: return rows.sorted { $0.price < $1.price }
         case .priceHigh: return rows.sorted { $0.price > $1.price }
         case .newest: return rows.sorted { ($0.listedDaysAgo ?? 99) < ($1.listedDaysAgo ?? 99) }
