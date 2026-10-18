@@ -10,7 +10,7 @@ v3.0.0, worldwide real estate browsing. Repo: https://github.com/nulljosh/atlin
 - Map markers stay as price pill SVGs
 - No emojis
 - Name is Atlin (ex-Brick). Unchangeable leftovers: bundle ID `com.nulljosh.brick`, Pages project `roost`
-- Icon: a home inside a map pin, `Atlin.icon` (Icon Composer), regenerate with the brand skill
+- Icon: a folded map with a pin, `Atlin.icon` (Icon Composer), regenerate with the brand skill
 
 ## Run
 
