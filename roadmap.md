@@ -3,7 +3,9 @@
 > Priority tier 1 (2026-10-17): live blocker, work first. Order: live blockers, ship pushes, active features, portfolio, exploratory. See ~/Documents/Code/LOOP-HANDOFF.md.
 
 ## App Store push 2026-10-04 (paused, resume at home)
-- [ ] v1.1: native sign-in and synced saves, in-app account deletion, favorites table, more Mac screenshots, light-mode shots
+- [ ] Google sign-in on native and web (server accepts it; needs an iOS client and a web origin in Google's console), Apple on web (needs the return URL on the Services ID)
+- [ ] Test Sign in with Apple on a real signed build
+- [ ] More Mac screenshots, light-mode shots, promo video
 - [ ] RentCast API key pending Joshua signup (US sale and rent data feeds already wired, APIFY_TOKEN for HousingFeed 30 countries already configured).
 
 ## Worldwide build 2026-08-28

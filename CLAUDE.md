@@ -64,3 +64,6 @@ sample homes, labeled as samples.
 - functions/api/listings.js: Live listings proxy (RentCast, HousingFeed), 24h KV cache
 - src/data/listings.js: Per-place seeded listing generation (MLS/IDX shape)
 - src/pages/: Landing, Login, Register, ForgotPassword, Listings, ListingDetail, Settings
+- ios/Sources/Auth.swift: native sign-in against jaybulb-api (Sign in with Apple, email and password, delete account, saved homes synced as the same id list the web keeps). Refresh token in the Keychain
+- ios/Sources/Locator.swift: asks for location once on first launch and starts from the town you are in
+- Photo-less listings show a grey street map thumbnail (web `staticMap` in src/lib/format.js, native `Photo(at:)`). Listings with photos rank first on both
