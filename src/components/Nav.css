@@ -80,7 +80,7 @@
   .nav { height: 112px; }
   .nav-inner { flex-wrap: wrap; align-content: center; row-gap: var(--s2); }
   .nav-links { margin-left: auto; gap: var(--s1); }
-  .nav-link, .nav-language { min-height: 36px; padding: 0 var(--s3); font-size: 0.8125rem; }
+  .nav-link, .nav-language { min-height: 44px; padding: 0 var(--s3); font-size: 0.8125rem; }
   .nav-language { max-width: 5.5rem; }
   .place-search { order: 3; flex: 0 0 100%; max-width: none; }
   .place-results { width: 100%; }

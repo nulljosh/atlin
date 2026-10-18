@@ -31,7 +31,10 @@ export function PlaceProvider({ children }) {
 
   // Street names come from Overpass once per place; the listings themselves are
   // derived, so there is nothing else to fetch when the sale/rent mode flips.
+  // Only needed when the labeled sample homes stand in; live listings carry real addresses.
+  const needStreets = live !== null && live.length < 5
   useEffect(() => {
+    if (!needStreets) { setStreets([]); setLoading(false); return }
     const controller = new AbortController()
     setLoading(true)
     streetsNear(place, controller.signal)
@@ -41,7 +44,7 @@ export function PlaceProvider({ children }) {
       })
       .finally(() => setLoading(false))
     return () => controller.abort()
-  }, [place.id])
+  }, [place.id, needStreets])
 
   // Real inventory from /api/listings. Empty when no provider covers the place
   // or no key is set, and then the sample homes below stand in, labeled as such.

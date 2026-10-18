@@ -43,3 +43,4 @@
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3); padding: var(--s4); }
 .group-body.pad .actions { padding: 0; }
 .status { color: var(--text2); font-size: 0.9375rem; }
+.group-body .btn:not(.btn-primary) { background: var(--bg); }
