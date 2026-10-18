@@ -11,13 +11,6 @@ const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const Settings = lazy(() => import('./pages/Settings'))
 import { WebMCP } from './lib/webmcp'
 
-function ProtectedRoute({ children }) {
-  const { user, ready } = useAuth()
-  if (!ready) return null
-  if (!user) return <Navigate to="/login" replace />
-  return children
-}
-
 export default function App() {
   const { user } = useAuth()
   // The landing runs the real app in a frame-less iframe: /browse?embed.
@@ -37,7 +30,7 @@ export default function App() {
         <Route path="/" element={user ? <Navigate to="/browse" replace /> : <Landing />} />
         <Route path="/browse" element={<Listings />} />
         <Route path="/listing/:id" element={<ListingDetail />} />
-        <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
       </Suspense>
     </div>
