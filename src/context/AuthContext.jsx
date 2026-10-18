@@ -27,7 +27,10 @@ function mapUser(sbUser) {
   return {
     id: sbUser.id,
     email: sbUser.email,
-    name: meta.name || '',
+    // Apple and Google sign-ins arrive with full_name, email sign-ups with name.
+    name: meta.name || meta.full_name || '',
+    provider: meta.provider || 'email',
+    searches: Array.isArray(meta.searches) ? meta.searches : null,
     avatar: meta.avatar || null,
     preferences: meta.preferences || {
       notifications: true,
@@ -113,12 +116,13 @@ export function AuthProvider({ children }) {
   }
 
   async function updateProfile(updates) {
-    const { name, email, preferences, avatar, favorites } = updates
+    const { name, email, preferences, avatar, favorites, searches } = updates
     const data = {}
     if (name !== undefined) data.name = name
     if (preferences !== undefined) data.preferences = preferences
     if (avatar !== undefined) data.avatar = avatar
     if (favorites !== undefined) data.favorites = favorites
+    if (searches !== undefined) data.searches = searches
 
     const params = { data }
     if (email !== undefined) params.email = email
@@ -128,13 +132,20 @@ export function AuthProvider({ children }) {
     if (!error && result.user) setUser(mapUser(result.user))
   }
 
+  async function deleteAccount() {
+    const { error } = await spark.auth.deleteAccount()
+    if (error) return { error: error.message }
+    setUser(null)
+    return { success: true }
+  }
+
   async function logout() {
     if (!authConfigured) return { error: 'Sign-in is not configured on this deployment.' }
     await spark.auth.signOut()
   }
 
   return (
-    <AuthContext.Provider value={{ user, ready, login, loginWithGoogle, loginWithApple, register, updateProfile, logout }}>
+    <AuthContext.Provider value={{ user, ready, login, loginWithGoogle, loginWithApple, register, updateProfile, logout, deleteAccount }}>
       {children}
       {recovering && <RecoveryForm onDone={() => { setRecovering(false); window.location.assign('/') }} />}
     </AuthContext.Provider>

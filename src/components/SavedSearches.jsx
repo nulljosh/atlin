@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useAuth } from '../context/AuthContext'
 import { useFilters } from '../context/FiltersContext'
 import { usePlace } from '../context/PlaceContext'
 
@@ -7,9 +8,22 @@ const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || [] } 
 const store = list => { try { localStorage.setItem(KEY, JSON.stringify(list)) } catch {} }
 
 // A saved search is a place, a mode and a filter set; tapping one puts all three back.
-// ponytail: this browser only. Sync through the account and add alerts when people ask.
+// Kept in this browser, and in the account when signed in, so they follow you to iPhone and Mac.
+// ponytail: no alerts yet; add an email digest when people ask.
 export function useSavedSearches() {
   const [list, setList] = useState(load)
+  const { user, updateProfile } = useAuth()
+  const merged = useRef(null)
+  // On sign-in, union this browser's searches with the account's, once per user.
+  useEffect(() => {
+    if (!user || merged.current === user.id) return
+    merged.current = user.id
+    const remote = user.searches || []
+    const next = [...remote, ...load().filter(l => !remote.some(r => r.id === l.id))].slice(0, 12)
+    setList(next); store(next)
+    if (next.length !== remote.length) updateProfile({ searches: next })
+  }, [user])
+  const save = next => { setList(next); store(next); if (user) updateProfile({ searches: next }) }
   const { place, mode } = usePlace()
   const { filters } = useFilters()
   const id = `${place.id}|${mode}|${filters.beds}|${filters.priceMin}|${filters.priceMax}|${filters.propertyType}`
@@ -17,9 +31,9 @@ export function useSavedSearches() {
   function toggle() {
     const label = [place.name, mode === 'sale' ? 'Buy' : 'Rent', filters.beds > 0 && `${filters.beds}+ bd`].filter(Boolean).join(' · ')
     const next = saved ? list.filter(s => s.id !== id) : [{ id, label, place, mode, filters }, ...list].slice(0, 12)
-    setList(next); store(next)
+    save(next)
   }
-  function remove(sid) { const next = list.filter(s => s.id !== sid); setList(next); store(next) }
+  function remove(sid) { save(list.filter(s => s.id !== sid)) }
   return { list, saved, toggle, remove }
 }
 

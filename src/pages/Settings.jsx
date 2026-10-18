@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useFavorites } from '../context/FavoritesContext'
 import { usePlace } from '../context/PlaceContext'
 import { useI18n, supportedLanguages, languageLabel } from '../i18n'
 import { marketFor, formatMoneyCompact } from '../lib/market'
@@ -17,7 +18,9 @@ function priceSteps(market) {
 }
 
 export default function Settings() {
-  const { user, updateProfile, logout } = useAuth()
+  const { user, updateProfile, logout, deleteAccount } = useAuth()
+  const { favorites } = useFavorites()
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const { place } = usePlace()
   const { language, setLanguage, t } = useI18n()
   const navigate = useNavigate()
@@ -44,6 +47,14 @@ export default function Settings() {
     setTimeout(() => setStatus(''), 2500)
   }
 
+  // Two taps, no dialog: the button asks once, then does it.
+  async function handleDelete() {
+    if (!confirmDelete) { setConfirmDelete(true); setTimeout(() => setConfirmDelete(false), 4000); return }
+    const r = await deleteAccount()
+    if (r.error) { setStatus(r.error); return }
+    navigate('/')
+  }
+
   function handleLogout() {
     logout()
     navigate('/')
@@ -54,6 +65,20 @@ export default function Settings() {
       <div className="settings-container fade-up">
         <h1>{t('settings')}</h1>
         <p className="subtitle">{t('settings_title_sub')}</p>
+
+        {user && (
+          <section className="profile" aria-label="Profile">
+            <div className="profile-avatar" aria-hidden="true">{(user.name || user.email || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase()}</div>
+            <div className="profile-text">
+              <div className="profile-name">{user.name || user.email}</div>
+              <div className="profile-sub">{user.email}{user.provider !== 'email' && ` · ${user.provider === 'apple' ? 'Apple' : 'Google'}`}</div>
+            </div>
+            <div className="profile-stats">
+              <Link to="/browse" className="profile-stat"><strong>{favorites.length}</strong><span>Saved homes</span></Link>
+              <Link to="/browse" className="profile-stat"><strong>{(user.searches || []).length}</strong><span>Saved searches</span></Link>
+            </div>
+          </section>
+        )}
 
         <section className="group" aria-labelledby="set-lang">
           <h2 id="set-lang" className="group-title">{t('language')}</h2>
@@ -105,6 +130,7 @@ export default function Settings() {
               <div className="actions">
                 <button type="submit" className="btn btn-primary">{t('save')}</button>
                 <button type="button" className="btn" onClick={handleLogout}>{t('sign_out')}</button>
+                <button type="button" className="btn btn-danger" onClick={handleDelete}>{confirmDelete ? 'Tap again to delete' : 'Delete account'}</button>
                 <span className="status" role="status" aria-live="polite">{status}</span>
               </div>
             </form>
