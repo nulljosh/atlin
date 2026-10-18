@@ -35,3 +35,7 @@ Removed the unused animate.css import and dependency. App routes load on demand;
 - [ ] Brick (ex-Roost): confirm the brown color has been removed. Refresh screenshots. Needs a demo video. QA the app and website.
 - [ ] QA the iOS and macOS apps. Ship to the App Store.
 - [ ] Website login doesn't work. We created an account, it redirected to the home page without logging in.
+
+## Ingested 2026-10-17
+- [ ] When logged in, just show listings.
+- [ ] Compare to REW + Zillow.
