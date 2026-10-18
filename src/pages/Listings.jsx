@@ -18,6 +18,10 @@ export default function Listings() {
   const { t } = useI18n()
 
   const [askCount, setAskCount] = useState(0)
+  // iPhone Safari runs out of memory drawing every card at once (and the landing
+  // page runs this view a second time in its iframe). Draw a page, add on demand.
+  const embed = document.documentElement.classList.contains('embed')
+  const [shown, setShown] = useState(embed ? 8 : 24)
   const scored = useMemo(() => scoreDeals(listings), [listings])
   const filtered = useMemo(
     () => filterListings(scored, filters, favoriteSet),
@@ -35,9 +39,12 @@ export default function Listings() {
       {!fetching && !isLive && <p className="listings-notice">{t('sample_listings')}</p>}
       {!isLive && streetsUnavailable && <p className="listings-notice">{t('approx_locations')}</p>}
       <div className="listings-grid" key={askCount}>
-        {filtered.map((listing, i) => (
+        {filtered.slice(0, shown).map((listing, i) => (
           <ListingCard key={listing.id} listing={listing} index={i} />
         ))}
+        {!embed && filtered.length > shown && (
+          <button className="btn btn-ghost listings-more" onClick={() => setShown(n => n + 24)}>Show more</button>
+        )}
         {fetching && Array.from({ length: 8 }, (_, i) => <div key={i} className="listing-card card skeleton" aria-hidden="true" />)}
         {!fetching && filtered.length === 0 && (
           <div className="listings-empty fade-up">

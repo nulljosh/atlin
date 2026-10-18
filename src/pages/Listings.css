@@ -144,3 +144,4 @@ html.embed .browse-panel { margin: var(--s4); width: min(420px, calc(100% - var(
 @media (max-width: 700px) {
   html.embed .browse-panel { margin: 38dvh 0 0; width: 100%; max-height: 62dvh; overflow-y: auto; }
 }
+.listings-more { grid-column: 1 / -1; height: 48px; border-radius: 999px; }

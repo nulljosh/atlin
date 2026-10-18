@@ -46,8 +46,24 @@ struct Listing: Codable, Identifiable, Hashable, Sendable {
             : "\(Int(sqft).formatted()) sq ft"
     }
 
+    // Same numbers as the web detail page: price per area, and for a sale a
+    // monthly estimate at 20% down, 30 years, 5.5%.
+    var perAreaText: String? {
+        guard sqft > 0 else { return nil }
+        let area = imperial == false ? sqft / 10.7639 : sqft
+        let unit = imperial == false ? "m²" : "sq ft"
+        return "\((price / area).formatted(.currency(code: currency).precision(.fractionLength(0)))) / \(unit)\(mode == "rent" ? " / mo" : "")"
+    }
+
+    var mortgageText: String? {
+        guard mode == "sale" else { return nil }
+        let r = 0.055 / 12
+        let monthly = price * 0.8 * r / (1 - pow(1 + r, -360))
+        return "Est. \(monthly.formatted(.currency(code: currency).precision(.fractionLength(0))))/mo · 20% down, 30 yr, 5.5%"
+    }
+
     var statsText: String {
-        [beds > 0 ? "\(beds.formatted()) bd" : nil, baths > 0 ? "\(baths.formatted()) ba" : nil, areaText]
+        [beds > 0 ? "\(beds.formatted()) bd" : "Studio", baths > 0 ? "\(baths.formatted()) ba" : nil, areaText]
             .compactMap { $0 }.joined(separator: " · ")
     }
 }

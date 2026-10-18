@@ -378,6 +378,13 @@ struct ListingDetail: View {
     @Environment(Store.self) private var store
     let listing: Listing
 
+    // Same rule as the web: same mode and bedroom count, within 25% on price.
+    private var similar: [Listing] {
+        Array(store.listings.filter {
+            $0.id != listing.id && $0.mode == listing.mode && floor($0.beds) == floor(listing.beds) && abs($0.price - listing.price) <= listing.price * 0.25
+        }.prefix(4))
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Space.l) {
@@ -400,6 +407,9 @@ struct ListingDetail: View {
                     }
                     Text(listing.statsText).font(.title3).foregroundStyle(.secondary)
                     Text(listing.address ?? listing.city ?? "")
+                    ForEach([listing.perAreaText, listing.mortgageText].compactMap { $0 }, id: \.self) {
+                        Text($0).font(.subheadline).foregroundStyle(.secondary)
+                    }
                     if let days = listing.listedDaysAgo {
                         Text(days == 0 ? "Listed today" : days == 1 ? "Listed yesterday" : "Listed \(days) days ago").font(.footnote).foregroundStyle(.secondary)
                     }
@@ -423,6 +433,16 @@ struct ListingDetail: View {
                     .buttonBorderShape(.capsule)
                     .padding(.horizontal, Space.margin)
                 }
+
+                if !similar.isEmpty {
+                    Text("Similar homes").font(.title2.weight(.semibold)).padding(.horizontal, Space.margin).padding(.top, Space.l)
+                    LazyVStack(spacing: Space.l) {
+                        ForEach(similar) { l in
+                            NavigationLink(value: l) { ListingCard(listing: l) }.buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, Space.margin)
+                }
             }
             .padding(.bottom, Space.l)
         }
@@ -430,6 +450,9 @@ struct ListingDetail: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .toolbar {
+            if let link = listing.url.flatMap(URL.init) {
+                ShareLink(item: link) { Image(systemName: "square.and.arrow.up") }.accessibilityLabel("Share")
+            }
             Button { store.toggle(listing); Task { await auth.saveFavorites(store.saved.map(\.id)) } } label: {
                 Image(systemName: store.isSaved(listing) ? "heart.fill" : "heart")
             }

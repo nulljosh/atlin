@@ -46,10 +46,6 @@ export default function Landing() {
         <Link to="/browse" className="btn btn-primary">{t('listings')}</Link>
       </section>
 
-      <footer className="landing-footer">
-        <a href="/privacy">Privacy</a>
-        <a href="https://github.com/nulljosh/atlin">GitHub</a>
-      </footer>
     </main>
   )
 }

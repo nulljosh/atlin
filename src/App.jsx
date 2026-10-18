@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
 import Nav from './components/Nav'
 import Onboarding from './components/Onboarding'
+import Footer from './components/Footer'
 import Landing from './pages/Landing'
 const Listings = lazy(() => import('./pages/Listings'))
 const ListingDetail = lazy(() => import('./pages/ListingDetail'))
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="/settings" element={<Settings />} />
       </Routes>
       </Suspense>
+      <Footer />
     </div>
   )
 }
