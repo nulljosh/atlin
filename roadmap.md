@@ -9,7 +9,6 @@ Open work only. Resume state lives in `docs/LOOP-HANDOFF.md`.
 - [ ] Light-mode Mac screenshots
 
 ## Gaps vs Zillow and REW
-- [ ] Native detail parity: View listing, Share, location map, similar homes, mortgage estimate (web has them)
 - [ ] Draw-on-map search
 - [ ] Baths filter (no feed gives bath counts yet)
 - [ ] Price history, school and walk scores, open houses (need a data source; no scraping REW or Zillow)
