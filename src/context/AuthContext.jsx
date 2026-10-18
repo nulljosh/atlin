@@ -32,6 +32,7 @@ function mapUser(sbUser) {
     provider: meta.provider || 'email',
     searches: Array.isArray(meta.searches) ? meta.searches : null,
     avatar: meta.avatar || null,
+    alerts: !!meta.alerts,
     preferences: meta.preferences || {
       notifications: true,
       priceMin: 0,
@@ -116,13 +117,14 @@ export function AuthProvider({ children }) {
   }
 
   async function updateProfile(updates) {
-    const { name, email, preferences, avatar, favorites, searches } = updates
+    const { name, email, preferences, avatar, favorites, searches, alerts } = updates
     const data = {}
     if (name !== undefined) data.name = name
     if (preferences !== undefined) data.preferences = preferences
     if (avatar !== undefined) data.avatar = avatar
     if (favorites !== undefined) data.favorites = favorites
     if (searches !== undefined) data.searches = searches
+    if (alerts !== undefined) data.alerts = alerts
 
     const params = { data }
     if (email !== undefined) params.email = email

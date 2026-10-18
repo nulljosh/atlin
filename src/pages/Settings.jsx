@@ -127,6 +127,13 @@ export default function Settings() {
                   <option value="townhouse">{t('townhouse')}</option>
                 </select>
               </label>
+              <label className="row" htmlFor="alerts">
+                <span>{t('settings_alerts')}</span>
+                <select id="alerts" value={user.alerts ? 'on' : 'off'} onChange={e => updateProfile({ alerts: e.target.value === 'on' })}>
+                  <option value="off">{t('alerts_off')}</option>
+                  <option value="on">{t('alerts_on')}</option>
+                </select>
+              </label>
               <div className="actions">
                 <button type="submit" className="btn btn-primary">{t('save')}</button>
                 <button type="button" className="btn" onClick={handleLogout}>{t('sign_out')}</button>
