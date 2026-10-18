@@ -3,6 +3,8 @@
 > Priority tier 1 (2026-10-17): live blocker, work first. Order: live blockers, ship pushes, active features, portfolio, exploratory. See ~/Documents/Code/LOOP-HANDOFF.md.
 
 ## App Store push 2026-10-04 (paused, resume at home)
+- [x] iOS 1.0.0 and Mac 1.0.0 submitted for review 2026-10-18
+- [ ] v1.1: native sign-in and synced saves, in-app account deletion, favorites table, more Mac screenshots, light-mode shots
 - [x] ASC record created (id 6824157219, name Atlin). Bundle ID stays com.nulljosh.brick (Apple cannot change it). Next: upload build, listing, submit.
 - [ ] RentCast API key pending Joshua signup (US sale and rent data feeds already wired, APIFY_TOKEN for HousingFeed 30 countries already configured).
 
