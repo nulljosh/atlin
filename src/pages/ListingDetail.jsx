@@ -133,7 +133,7 @@ export default function ListingDetail() {
 
           {hasPin && listing.photos.length > 0 && (
             <div className="no-photo detail-map">
-              <img src={staticMap(listing.lat, listing.lng, 800, 400)} alt="" loading="lazy" onError={e => { e.currentTarget.style.display = 'none' }} />
+              <img src={staticMap(listing.lat, listing.lng, 800, 400, 0.02)} alt="" loading="lazy" onError={e => { e.currentTarget.style.display = 'none' }} />
               <span className="no-photo-pin" />
             </div>
           )}

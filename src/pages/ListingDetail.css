@@ -207,3 +207,4 @@
 .detail-stats { border: 0; padding: 16px 0; }
 .detail-stats { grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); }
 .detail-map img { position: absolute; inset: 0; }
+.detail-map { aspect-ratio: auto; height: 240px; }
