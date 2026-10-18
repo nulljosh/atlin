@@ -5,15 +5,13 @@
 ## App Store push 2026-10-04 (paused, resume at home)
 - [ ] Google sign-in on native (needs an iOS OAuth client in Google's console, then build 10 after review)
 - [ ] Test Sign in with Apple on a real signed build
-- [ ] More Mac screenshots and light-mode shots (iPhone shots and a web promo video, docs/screenshots/atlin-promo.mp4, are done)
+- [ ] Light-mode Mac shots (new iPhone and Mac store screenshots and the web promo video are done)
 - [ ] Some NYC listings still carry ad-graphic photos. Swap for real photos or hide them.
 
 ## Worldwide build 2026-08-28
 Web app now browses anywhere on earth: Nominatim place search, real local street
 names from Overpass, per-country currency/units/price levels, sale and rent
 modes, and UI strings in 25 languages with RTL.
-
-- [ ] Hero line translatable into all 26 languages (currently English-only on landing).
 
 ## Polish and optimization
 

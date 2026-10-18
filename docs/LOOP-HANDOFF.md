@@ -1,31 +1,30 @@
-# Atlin loop handoff (2026-10-18, evening)
+# Atlin loop handoff (2026-10-18, 12:20)
 
 ## What the loop is
 
-The App Store push for Atlin (ex-Brick, ex-Roost). It watches the review queue, keeps the store listings in step with the web app, and answers Apple only with Joshua's yes. No loop is running right now.
+The App Store push for Atlin (ex-Brick, ex-Roost). It watches the review queue, keeps the store listings in step with the web app, and answers Apple only with Joshua's yes. A /loop is live in dynamic mode for this push.
 
 ## Where things stand
 
-- Build 9 is in review on iOS and Mac on ASC app 6824157219. It adds Sign in with Apple, email sign-in, account deletion, saves that sync through jaybulb-api, the location prompt, the final blue folded-map icon (Joshua graded it A+) and the privacy label.
-- Web at atlin.jaybulb.com has the same sign-in: Google and Apple on Login and Register. Broken photos hide themselves and the Atlin og image is live. Mac QA passed.
-- Web has price drops ("Dropped $X") and daily email alerts for saved searches (toggle in Settings; backend in jaybulb-api, GitHub Actions trigger). Native has the same drop line and an Account toggle for alerts.
-- Native Google sign-in, Size filter, profile, saved searches, price drops and the alerts toggle are built and compile on iOS and Mac. They ship together as build 10 (bump CURRENT_PROJECT_VERSION to 10 in project.yml) once Apple clears build 9. Not yet tested in a running app.
-- Demo account atlin-demo@jaybulb.com is created and confirmed.
-- Auth emails through authmail are Atlin blue.
+- Build 9 (iOS and Mac 1.0.0) is WAITING_FOR_REVIEW on ASC app 6824157219. It adds Sign in with Apple, email sign-in, account deletion, synced saves, the location prompt, the blue folded-map icon and the privacy label.
+- Build 10 is built and compiles on iOS and Mac: native Google sign-in, profile, saved searches, Size filter, price drops, the alerts toggle, pin culling and the Mac fixes. It ships after build 9 clears. Native Google sign-in and the Mac Return-to-search key have not been tested in a running app.
+- Web at atlin.jaybulb.com has Google and Apple sign-in, price drops, the Size filter, daily saved-search email alerts (toggle in Settings; sender in jaybulb-api, run by a GitHub Action), and translations in all 27 languages with the auth pages localized.
+- The iOS and Mac Account sheets have the email-alerts toggle. Store screenshots for iPhone and Mac are refreshed, and the web promo video (27 seconds) is live.
+- The docs (ARCHITECTURE, API, README, WHITEPAPER) were rewritten today.
+- Demo account atlin-demo@jaybulb.com is created and confirmed. Auth emails through authmail are Atlin blue.
 - Bundle ID stays com.nulljosh.brick and the Pages project stays roost. Those cannot be renamed.
 
 ## Next, in order
 
 1. Watch review for build 9. If Apple rejects, read the reason in Resolution Center, draft replies, and wait for Joshua's yes before sending anything.
 2. Real-device test of Sign in with Apple on a signed build.
-3. Native Google sign-in: iOS OAuth client, then build 10.
-4. iPhone store screenshots are refreshed in screenshots/ios (map, list, detail on the 6.9 inch size); upload them with build 10. Still to do: more Mac screenshots (only one exists) and light-mode Mac shots. Promo video after that.
+3. Native Google sign-in: confirm the iOS OAuth client exists, test it in a running app, then ship build 10.
+4. Light-mode Mac shots.
 5. Ad-graphic photos on some NYC listings: swap for real photos or hide them.
-6. Docs pass on the README.
-7. Open issues: #13 (website login), #15 (compare to REW + Zillow), #16 (v1.1 native sync and deletion), #17 (brown color check), #18 to #21 (the roadmap items above).
+6. Open issues mirror the roadmap: #13, #15, #16, #17, #18, #19, #22, #23 and #25.
 
 ## Restart prompt
 
 ```
-/loop Continue the Atlin App Store push in ~/Documents/Code/atlin. Read docs/LOOP-HANDOFF.md first. Check review status for build 9 on ASC app 6824157219 (iOS and Mac). If approved, mark live and update roadmap.md. If rejected, read the reason in Resolution Center, draft replies, and wait for Joshua's yes before sending. Then work the Next list in order, committing each step by exact path and pushing to main.
+Continue the Atlin push in ~/Documents/Code/atlin until the next major version. Read docs/LOOP-HANDOFF.md first. Check review for build 9 with `asc versions list --app 6824157219` (just the appStoreState fields). If approved, bump CURRENT_PROJECT_VERSION to 10 in project.yml, archive, upload and submit iOS and Mac. If rejected, read the reason in Resolution Center and wait for Joshua's yes before replying. Otherwise fix one gap from the roadmap (native QA in a running app, open houses, school and walk scores, draw-on-map), QA, deploy, commit, push, update the handoff. Keep replies to a TLDR.
 ```
