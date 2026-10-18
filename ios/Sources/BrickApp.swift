@@ -8,55 +8,91 @@ struct BrickApp: App {
     var body: some Scene {
         WindowGroup {
             BrowseView().environment(store)
+            #if os(macOS)
+                .frame(minWidth: 960, minHeight: 640)
+            #endif
         }
+        #if os(macOS)
+        .defaultSize(width: 1280, height: 800)
+        #endif
     }
 }
 
-// The map fills the screen. Listings live in a glass sheet that rides over it,
-// the way Maps does it: drag it down for the map, up for the list.
+// One set of numbers for both platforms, the same ones the web uses: an 8 point grid, cards 28, grouped 20.
+enum Space {
+    static let xs: CGFloat = 4, s: CGFloat = 8, m: CGFloat = 16, l: CGFloat = 24, xl: CGFloat = 32
+    static let margin: CGFloat = 20, control: CGFloat = 48, card: CGFloat = 28, grouped: CGFloat = 20
+}
+
 struct BrowseView: View {
     @Environment(Store.self) private var store
     @State private var camera: MapCameraPosition = .automatic
-    @State private var sheet = true
-    @State private var detent: PresentationDetent = .fraction(0.45)
 
-    var body: some View {
+    private var map: some View {
         Map(position: $camera) {
-            ForEach(store.listings) { l in
+            ForEach(store.visible) { l in
                 Annotation(l.priceText, coordinate: .init(latitude: l.lat, longitude: l.lng)) {
-                    PricePill(text: l.priceText, deal: l.deal >= 5)
+                    PricePill(text: l.priceText)
                 }
                 .annotationTitles(.hidden)
             }
         }
         .mapStyle(.standard(pointsOfInterest: .excludingAll))
         .ignoresSafeArea()
-        .sheet(isPresented: $sheet) {
+    }
+
+    var body: some View {
+        content
+            .task(id: "\(store.place.id)-\(store.mode)") {
+                store.listings = []
+                camera = .region(.init(center: .init(latitude: store.place.lat - 0.04, longitude: store.place.lng),
+                                       span: .init(latitudeDelta: 0.22, longitudeDelta: 0.22)))
+                await store.load()
+            }
+    }
+
+    #if os(iOS)
+    // The map fills the screen. Listings live in a glass sheet that rides over it,
+    // the way Maps does it: drag it down for the map, up for the list.
+    @State private var sheet = true
+    @State private var detent: PresentationDetent = .fraction(0.45)
+
+    private var content: some View {
+        map.sheet(isPresented: $sheet) {
             ListingSheet(detent: $detent)
                 .presentationDetents([.height(120), .fraction(0.45), .large], selection: $detent)
                 .presentationBackgroundInteraction(.enabled(upThrough: .fraction(0.45)))
-                .presentationCornerRadius(28)
+                .presentationCornerRadius(Space.card)
                 .interactiveDismissDisabled()
                 .glassSheetBackground()
         }
-        .task(id: "\(store.place.id)-\(store.mode)") {
-            store.listings = []
-            camera = .region(.init(center: .init(latitude: store.place.lat - 0.04, longitude: store.place.lng),
-                                   span: .init(latitudeDelta: 0.22, longitudeDelta: 0.22)))
-            await store.load()
+    }
+    #else
+    // The Mac gets what the web gets on a wide screen: the list on the left, the map filling the rest.
+    private var content: some View {
+        HStack(spacing: 0) {
+            ListingSheet(detent: .constant(.large))
+                .frame(width: 440)
+                .background(.regularMaterial)
+            map
         }
     }
+    #endif
 }
 
 extension View {
     // iOS 26 sheets are Liquid Glass at partial heights on their own; earlier
     // systems get the thin material so the map still shows through.
     @ViewBuilder func glassSheetBackground() -> some View {
+        #if os(iOS)
         if #available(iOS 26, *) { self } else { presentationBackground(.ultraThinMaterial) }
+        #else
+        self
+        #endif
     }
 
     @ViewBuilder func glassPill() -> some View {
-        if #available(iOS 26, *) { glassEffect(.regular, in: Capsule()) } else { background(.ultraThinMaterial, in: Capsule()) }
+        if #available(iOS 26, macOS 26, *) { glassEffect(.regular, in: Capsule()) } else { background(.ultraThinMaterial, in: Capsule()) }
     }
 }
 
@@ -71,7 +107,7 @@ struct ListingSheet: View {
         NavigationStack {
             Group {
                 if store.loading && store.listings.isEmpty {
-                    VStack(spacing: 12) {
+                    VStack(spacing: Space.m) {
                         ProgressView()
                         Text("Pulling live listings for \(store.place.name)").font(.footnote).foregroundStyle(.secondary)
                     }
@@ -83,31 +119,35 @@ struct ListingSheet: View {
                         description: Text(store.failed ? "Check your connection and pull to try again." : "Brick only shows real listings. Try a bigger town nearby.")
                     )
                 } else {
-                    List {
-                        Section {
-                            ForEach(store.listings) { l in
-                                NavigationLink(value: l) { ListingRow(listing: l) }
-                                    .listRowBackground(Color.clear)
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: Space.l) {
+                            FilterRow()
+                            Text("\(store.visible.count) listings").font(.footnote).foregroundStyle(.secondary)
+                            if store.visible.isEmpty {
+                                ContentUnavailableView("Nothing matches", systemImage: "line.3.horizontal.decrease", description: Text("Loosen a filter."))
                             }
-                        } header: {
-                            Text("\(store.listings.count) real homes, best deals first")
+                            ForEach(store.visible) { l in
+                                NavigationLink(value: l) { ListingCard(listing: l) }.buttonStyle(.plain)
+                            }
                         }
+                        .padding(.horizontal, Space.margin)
+                        .padding(.vertical, Space.m)
                     }
-                    .listStyle(.plain)
-                    .scrollContentBackground(.hidden)
                 }
             }
             .refreshable { await store.load() }
             .navigationTitle(store.place.name)
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .navigationDestination(for: Listing.self) { ListingDetail(listing: $0) }
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .navigation) {
                     NavigationLink { SavedView() } label: { Image(systemName: "heart") }
                         .accessibilityLabel("Saved homes")
                 }
-                if store.modes.count > 1 {
-                    ToolbarItem(placement: .topBarTrailing) {
+                if store.saleAvailable {
+                    ToolbarItem(placement: .primaryAction) {
                         Picker("Mode", selection: $store.mode) {
                             Text("Rent").tag("rent")
                             Text("Buy").tag("sale")
@@ -116,7 +156,11 @@ struct ListingSheet: View {
                     }
                 }
             }
+            #if os(iOS)
             .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search any town")
+            #else
+            .searchable(text: $query, prompt: "Search any town")
+            #endif
             .searchSuggestions {
                 ForEach(results) { p in
                     Button {
@@ -143,17 +187,77 @@ struct ListingSheet: View {
     }
 }
 
+// Beds, type, price and sort: one swipeable row of capsule menus, like the web filter bar.
+struct FilterRow: View {
+    @Environment(Store.self) private var store
+
+    var body: some View {
+        @Bindable var store = store
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: Space.s) {
+                FilterMenu(title: "Beds", value: store.minBeds == 0 ? "Any" : "\(store.minBeds)+", active: store.minBeds > 0) {
+                    Picker("Beds", selection: $store.minBeds) {
+                        Text("Any beds").tag(0)
+                        ForEach(1...4, id: \.self) { Text("\($0)+ beds").tag($0) }
+                    }
+                }
+                FilterMenu(title: "Type", value: store.type.map { $0 == "condo" ? "Apartment" : $0.capitalized } ?? "All", active: store.type != nil) {
+                    Picker("Type", selection: $store.type) {
+                        Text("All types").tag(String?.none)
+                        Text("House").tag(String?.some("house"))
+                        Text("Apartment").tag(String?.some("condo"))
+                        Text("Townhouse").tag(String?.some("townhouse"))
+                    }
+                }
+                FilterMenu(title: "Price", value: store.maxPrice.map { "Under \($0.formatted(.number.notation(.compactName)))" } ?? "Any", active: store.maxPrice != nil) {
+                    Picker("Price", selection: $store.maxPrice) {
+                        Text("Any price").tag(Double?.none)
+                        ForEach(store.priceSteps, id: \.self) { Text("Under \($0.formatted(.number.notation(.compactName)))").tag(Double?.some($0)) }
+                    }
+                }
+                FilterMenu(title: "Sort", value: store.sort.rawValue, active: store.sort != .deal) {
+                    Picker("Sort", selection: $store.sort) {
+                        ForEach(SortMode.allCases) { Text($0.rawValue).tag($0) }
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct FilterMenu<Content: View>: View {
+    let title: String
+    let value: String
+    let active: Bool
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        Menu { content } label: {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(title).font(.caption2).foregroundStyle(active ? Color.white.opacity(0.8) : .secondary)
+                HStack(spacing: Space.xs) {
+                    Text(value).font(.subheadline.weight(.medium))
+                    Image(systemName: "chevron.down").font(.caption2.weight(.semibold))
+                }
+            }
+            .padding(.horizontal, Space.m)
+            .frame(minHeight: Space.control)
+            .background(active ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.quaternary), in: Capsule())
+            .foregroundStyle(active ? .white : .primary)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 struct PricePill: View {
     let text: String
-    var deal = false
 
     var body: some View {
         Text(text)
             .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 8).padding(.vertical, 5)
-            .glassPill()
-            .overlay(Capsule().stroke(deal ? Color.green : Color.accentColor, lineWidth: deal ? 1.5 : 1))
-            .foregroundStyle(.primary)
+            .padding(.horizontal, Space.s).padding(.vertical, 5)
+            .background(Color.accentColor, in: Capsule())
+            .foregroundStyle(.white)
     }
 }
 
@@ -179,28 +283,31 @@ struct Photo: View {
     }
 }
 
-struct ListingRow: View {
+// The web card, on a phone: photo on top, price, stats, address.
+struct ListingCard: View {
     let listing: Listing
 
     var body: some View {
-        HStack(spacing: 12) {
-            Photo(url: listing.photos.first, width: 240)
-                .frame(width: 96, height: 72)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
-                    Text(listing.priceText).font(.headline)
-                    if listing.deal >= 5 {
-                        Text("\(listing.deal)% under typical")
-                            .font(.caption2.weight(.semibold))
-                            .padding(.horizontal, 6).padding(.vertical, 2)
-                            .background(.green.opacity(0.14), in: Capsule())
-                            .foregroundStyle(.green)
-                    }
+        VStack(alignment: .leading, spacing: Space.s) {
+            Photo(url: listing.photos.first, width: 800)
+                .aspectRatio(16.0 / 11.0, contentMode: .fit)
+                .clipShape(RoundedRectangle(cornerRadius: Space.grouped, style: .continuous))
+            HStack(spacing: Space.s) {
+                Text(listing.priceText).font(.title3.weight(.bold))
+                if listing.deal >= 5 {
+                    Text("\(listing.deal)% under typical")
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, Space.s).padding(.vertical, Space.xs)
+                        .background(.green.opacity(0.14), in: Capsule())
+                        .foregroundStyle(.green)
                 }
-                Text(listing.statsText).font(.subheadline).foregroundStyle(.secondary)
-                Text(listing.address ?? listing.city ?? "").font(.footnote).foregroundStyle(.secondary).lineLimit(1)
             }
+            .padding(.horizontal, Space.xs)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(listing.statsText).font(.subheadline).foregroundStyle(.secondary)
+                Text(listing.address ?? listing.city ?? "").font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
+            }
+            .padding(.horizontal, Space.xs)
         }
         .accessibilityElement(children: .combine)
     }
@@ -212,7 +319,8 @@ struct ListingDetail: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: Space.l) {
+                #if os(iOS)
                 TabView {
                     ForEach(listing.photos.isEmpty ? [""] : listing.photos, id: \.self) { p in
                         Photo(url: p.isEmpty ? nil : p, width: 1200).frame(maxWidth: .infinity).clipped()
@@ -220,8 +328,11 @@ struct ListingDetail: View {
                 }
                 .tabViewStyle(.page)
                 .frame(height: 280)
+                #else
+                Photo(url: listing.photos.first, width: 1200).aspectRatio(16.0 / 9.0, contentMode: .fit).clipped()
+                #endif
 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: Space.s) {
                     Text(listing.priceText).font(.largeTitle.bold())
                     if listing.deal >= 5 {
                         Text("\(listing.deal)% under typical for its size nearby").font(.subheadline.weight(.semibold)).foregroundStyle(.green)
@@ -232,29 +343,31 @@ struct ListingDetail: View {
                         Text(days == 0 ? "Listed today" : "Listed \(days) days ago").font(.footnote).foregroundStyle(.secondary)
                     }
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, Space.margin)
 
                 Map(initialPosition: .region(.init(center: .init(latitude: listing.lat, longitude: listing.lng),
                                                    span: .init(latitudeDelta: 0.02, longitudeDelta: 0.02)))) {
-                    Marker(listing.priceText, coordinate: .init(latitude: listing.lat, longitude: listing.lng))
+                    Marker(listing.priceText, coordinate: .init(latitude: listing.lat, longitude: listing.lng)).tint(Color.accentColor)
                 }
                 .frame(height: 200)
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-                .padding(.horizontal)
+                .clipShape(RoundedRectangle(cornerRadius: Space.grouped, style: .continuous))
+                .padding(.horizontal, Space.margin)
                 .allowsHitTesting(false)
 
                 if let link = listing.url.flatMap(URL.init) {
                     Link(destination: link) {
-                        Text("View original listing").frame(maxWidth: .infinity)
+                        Text("View original listing").frame(maxWidth: .infinity, minHeight: Space.control)
                     }
                     .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                    .padding(.horizontal)
+                    .buttonBorderShape(.capsule)
+                    .padding(.horizontal, Space.margin)
                 }
             }
-            .padding(.bottom)
+            .padding(.bottom, Space.l)
         }
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
         .toolbar {
             Button { store.toggle(listing) } label: {
                 Image(systemName: store.isSaved(listing) ? "heart.fill" : "heart")
@@ -272,15 +385,14 @@ struct SavedView: View {
             if store.saved.isEmpty {
                 ContentUnavailableView("Nothing saved", systemImage: "heart", description: Text("Tap the heart on a home to keep it here."))
             } else {
-                List {
-                    ForEach(store.saved) { l in
-                        NavigationLink(value: l) { ListingRow(listing: l) }
-                            .listRowBackground(Color.clear)
+                ScrollView {
+                    LazyVStack(spacing: Space.l) {
+                        ForEach(store.saved) { l in
+                            NavigationLink(value: l) { ListingCard(listing: l) }.buttonStyle(.plain)
+                        }
                     }
-                    .onDelete { store.saved.remove(atOffsets: $0) }
+                    .padding(Space.margin)
                 }
-                .listStyle(.plain)
-                .scrollContentBackground(.hidden)
             }
         }
         .navigationTitle("Saved")

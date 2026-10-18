@@ -17,7 +17,7 @@ struct Listing: Codable, Identifiable, Hashable, Sendable {
     let type: String
     let lat: Double
     let lng: Double
-    let photos: [String]
+    var photos: [String]
     let year: Int?
     let listedDaysAgo: Int?
     // Percent under the median for the same bedroom count, set by Store. Same rule as src/lib/deals.js.
@@ -25,6 +25,13 @@ struct Listing: Codable, Identifiable, Hashable, Sendable {
 
     private enum CodingKeys: String, CodingKey {
         case id, source, url, address, city, currency, imperial, mode, price, beds, baths, sqft, type, lat, lng, photos, year, listedDaysAgo
+    }
+
+    // Managers upload "Free Rent!" graphics as the first photo; a graphic is not a home.
+    var withoutPromoPhotos: Listing {
+        var l = self
+        l.photos = photos.filter { $0.range(of: #"promo|graphic|banner|free[-_ ]?rent|move[-_ ]?in|logo|flyer"#, options: [.regularExpression, .caseInsensitive]) == nil }
+        return l
     }
 
     var priceText: String {
@@ -43,6 +50,11 @@ struct Listing: Codable, Identifiable, Hashable, Sendable {
         [beds > 0 ? "\(beds.formatted()) bd" : nil, baths > 0 ? "\(baths.formatted()) ba" : nil, areaText]
             .compactMap { $0 }.joined(separator: " · ")
     }
+}
+
+enum SortMode: String, CaseIterable, Identifiable {
+    case deal = "Best deal", priceLow = "Price: low", priceHigh = "Price: high", newest = "Newest", largest = "Largest"
+    var id: String { rawValue }
 }
 
 struct Place: Codable, Hashable, Identifiable, Sendable {
@@ -83,13 +95,47 @@ final class Store {
     private static let api = "https://brick.jaybulb.com/api/listings"
     private let defaults = UserDefaults.standard
 
-    var place: Place { didSet { save(place, "place") } }
+    var place: Place { didSet { save(place, "place"); if place.countryCode != "US" { mode = "rent" } } }
     var mode = "rent"
     var modes = ["rent"]
     var listings: [Listing] = []
     var loading = false
     var failed = false
     var saved: [Listing] { didSet { save(saved, "saved") } }
+
+    // Same four filters as the web app, same defaults.
+    var minBeds = 0
+    var type: String? = nil
+    var maxPrice: Double? = nil
+    var sort = SortMode.deal
+
+    // Sale is offered only where a sale feed exists (US), the same rule as the web.
+    var saleAvailable: Bool { place.countryCode == "US" && modes.contains("sale") }
+
+    var visible: [Listing] {
+        let rows = listings.filter { l in
+            (minBeds == 0 || l.beds >= Double(minBeds)) && (type == nil || l.type == type) && (maxPrice == nil || l.price <= maxPrice!)
+        }
+        switch sort {
+        case .deal: return rows.sorted { $0.deal > $1.deal }
+        case .priceLow: return rows.sorted { $0.price < $1.price }
+        case .priceHigh: return rows.sorted { $0.price > $1.price }
+        case .newest: return rows.sorted { ($0.listedDaysAgo ?? 99) < ($1.listedDaysAgo ?? 99) }
+        case .largest: return rows.sorted { $0.sqft > $1.sqft }
+        }
+    }
+
+    // "Under X" steps cut from the prices on screen, so they mean something in any market.
+    var priceSteps: [Double] {
+        let p = listings.map(\.price).sorted()
+        guard p.count >= 4 else { return [] }
+        return [0.25, 0.5, 0.75].map { Self.nice(p[Int(Double(p.count - 1) * $0)]) }
+    }
+
+    private static func nice(_ n: Double) -> Double {
+        let mag = pow(10, floor(log10(n)))
+        return (n / (mag / 2)).rounded() * (mag / 2)
+    }
 
     init() {
         place = Self.read("place") ?? .start
@@ -115,7 +161,7 @@ final class Store {
         do {
             let (data, _) = try await URLSession.shared.data(from: c.url!)
             let feed = try JSONDecoder().decode(Feed.self, from: data)
-            listings = Self.rankByDeal(feed.listings.compactMap(\.value))
+            listings = Self.rankByDeal(feed.listings.compactMap(\.value).map(\.withoutPromoPhotos))
             if let m = feed.modes, !m.isEmpty { modes = m }
         } catch is CancellationError {
         } catch {
@@ -149,7 +195,7 @@ final class Store {
         ]
         var req = URLRequest(url: c.url!)
         // Nominatim's usage policy asks every client to identify itself.
-        req.setValue("Brick-iOS/1.0 (brick.jaybulb.com)", forHTTPHeaderField: "User-Agent")
+        req.setValue("Brick/1.0 (brick.jaybulb.com)", forHTTPHeaderField: "User-Agent")
         guard let (data, _) = try? await URLSession.shared.data(for: req),
               let hits = try? JSONDecoder().decode([NominatimHit].self, from: data) else { return [] }
         return hits.compactMap { h in

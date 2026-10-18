@@ -38,7 +38,7 @@ const sortKeys = {
 
 export default function FilterBar({ resultCount }) {
   const { filters, updateFilter } = useFilters()
-  const { place, mode, setMode } = usePlace()
+  const { place, mode, setMode, saleAvailable } = usePlace()
   const { language, t } = useI18n()
   const market = marketFor(place.countryCode)
   const money = n => formatMoneyCompact(n, market.currency, language)
@@ -55,10 +55,10 @@ export default function FilterBar({ resultCount }) {
 
   return (
     <div className="filter-bar">
-      <div className="segmented" role="group" aria-label={place.name}>
+      {saleAvailable && <div className="segmented" role="group" aria-label={place.name}>
         <button className={mode === 'sale' ? 'active' : ''} aria-pressed={mode === 'sale'} onClick={() => setMode('sale')}>{t('for_sale')}</button>
         <button className={mode === 'rent' ? 'active' : ''} aria-pressed={mode === 'rent'} onClick={() => setMode('rent')}>{t('for_rent')}</button>
-      </div>
+      </div>}
       <div className="filter-menus">
         <Menu label={t('price')} value={bandIndex} onChange={i => { updateFilter('priceMin', bands[i].min); updateFilter('priceMax', bands[i].max) }}>
           {bands.map((band, i) => <option key={i} value={i}>{bandLabel(band, i)}</option>)}

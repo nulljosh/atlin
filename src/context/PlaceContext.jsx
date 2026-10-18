@@ -17,7 +17,11 @@ function storedPlace() {
 
 export function PlaceProvider({ children }) {
   const [place, setPlaceState] = useState(storedPlace)
-  const [mode, setMode] = useState(() => localStorage.getItem('brick-mode') || 'rent')
+  const [savedMode, setMode] = useState(() => localStorage.getItem('brick-mode') || 'rent')
+  // Sale listings exist only where a sale feed does (RentCast, US). Elsewhere the
+  // app is rent only, rather than offering a toggle that shows invented homes.
+  const saleAvailable = place.countryCode === 'US'
+  const mode = saleAvailable ? savedMode : 'rent'
   const [streets, setStreets] = useState([])
   const [streetsUnavailable, setStreetsUnavailable] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -69,7 +73,7 @@ export function PlaceProvider({ children }) {
   }
 
   return (
-    <PlaceContext.Provider value={{ place, setPlace, mode, setMode: changeMode, listings, isLive, fetching, loading, streetsUnavailable }}>
+    <PlaceContext.Provider value={{ place, setPlace, mode, saleAvailable, setMode: changeMode, listings, isLive, fetching, loading, streetsUnavailable }}>
       {children}
     </PlaceContext.Provider>
   )
