@@ -55,7 +55,8 @@ struct BrowseView: View {
     // The map fills the screen. Listings live in a glass sheet that rides over it,
     // the way Maps does it: drag it down for the map, up for the list.
     @State private var sheet = true
-    @State private var detent: PresentationDetent = .fraction(0.45)
+    // QA and screenshots: `-detent large` opens the list expanded.
+    @State private var detent: PresentationDetent = UserDefaults.standard.string(forKey: "detent") == "large" ? .large : .fraction(0.45)
 
     private var content: some View {
         map.sheet(isPresented: $sheet) {
@@ -101,10 +102,11 @@ struct ListingSheet: View {
     @Binding var detent: PresentationDetent
     @State private var query = ""
     @State private var results: [Place] = []
+    @State private var path: [Listing] = []
 
     var body: some View {
         @Bindable var store = store
-        NavigationStack {
+        NavigationStack(path: $path) {
             Group {
                 if store.loading && store.listings.isEmpty {
                     VStack(spacing: Space.m) {
@@ -134,6 +136,10 @@ struct ListingSheet: View {
                         .padding(.vertical, Space.m)
                     }
                 }
+            }
+            .onChange(of: store.listings.count) { _, n in
+                // `-openFirst 1` jumps to the top listing, for screenshots.
+                if n > 0, path.isEmpty, UserDefaults.standard.bool(forKey: "openFirst"), let first = store.visible.first(where: { !$0.photos.isEmpty }) ?? store.visible.first { path = [first] }
             }
             .refreshable { await store.load() }
             .navigationTitle(store.place.name)

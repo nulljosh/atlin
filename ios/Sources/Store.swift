@@ -30,7 +30,7 @@ struct Listing: Codable, Identifiable, Hashable, Sendable {
     // Managers upload "Free Rent!" graphics as the first photo; a graphic is not a home.
     var withoutPromoPhotos: Listing {
         var l = self
-        l.photos = photos.filter { $0.range(of: #"promo|graphic|banner|free[-_ ]?rent|move[-_ ]?in|logo|flyer"#, options: [.regularExpression, .caseInsensitive]) == nil }
+        l.photos = photos.filter { $0.range(of: #"promo|graphic|banner|free[-_ ]?rent|move[-_ ]?in|logo|flyer|incentive|\.png(\?|$)"#, options: [.regularExpression, .caseInsensitive]) == nil }
         return l
     }
 
@@ -134,7 +134,7 @@ final class Store {
     var visible: [Listing] {
         let rows = listings.filter { l in
             (minBeds == 0 || l.beds >= Double(minBeds)) && (type == nil || l.type == type) && (maxPrice == nil || l.price <= maxPrice!)
-                && (!dealsOnly || l.deal >= 5) && (!freshOnly || (l.listedDaysAgo ?? 99) <= 7)
+                && (!UserDefaults.standard.bool(forKey: "photosOnly") || !l.photos.isEmpty) && (!dealsOnly || l.deal >= 5) && (!freshOnly || (l.listedDaysAgo ?? 99) <= 7)
         }
         switch sort {
         case .deal: return rows.sorted { $0.deal > $1.deal }
@@ -181,7 +181,12 @@ final class Store {
         do {
             let (data, _) = try await URLSession.shared.data(from: c.url!)
             let feed = try JSONDecoder().decode(Feed.self, from: data)
-            listings = Self.rankByDeal(feed.listings.compactMap(\.value).map(\.withoutPromoPhotos))
+            var homes = feed.listings.compactMap(\.value).map(\.withoutPromoPhotos)
+            // One photo reused by three or more homes is the building's ad or logo, not the home.
+            var uses: [String: Int] = [:]
+            for h in homes { for u in Set(h.photos) { uses[u, default: 0] += 1 } }
+            homes = homes.map { var h = $0; h.photos = h.photos.filter { (uses[$0] ?? 0) < 3 }; return h }
+            listings = Self.rankByDeal(homes)
             if let m = feed.modes, !m.isEmpty { modes = m }
         } catch is CancellationError {
         } catch {

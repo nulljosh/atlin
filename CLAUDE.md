@@ -4,13 +4,13 @@ v3.0.0, worldwide real estate browsing. Repo: https://github.com/nulljosh/atlin
 ## Rules
 
 - Mobile-first layout, horizontal filter chips on small screens
-- Palette and type come from `src/tokens.css` (white `#FFFFFF` background (cream retired 2026-10-04), bark `#3A2A20`,
-  clay `#B5836A`, tan `#C9A184`, the icon palette). Edit that file; do not add a second theme.
-  The harsh red `#E4002B` was softened to clay tones on 2026-08-31.
-- Sans-serif only, DM Sans via `var(--font)` / `var(--font-display)`. No serif
-  faces (the retired palette used Fraunces; it is gone).
+- One accent: blue `#0071e3` (dark mode `#2997ff`), never red, from `brand/tokens.css`, white and true-black surfaces, system greys. Never brown, beige, purple, teal or red. Tokens live in `src/tokens.css`; edit that file, do not add a second theme.
+- System font only (`-apple-system`, SF Pro, Helvetica), no webfonts, no serif faces
+- 8 point grid (4, 8, 12, 16, 24, 32, 48), side margin 20, controls 48 tall capsules, radii cards 28 and grouped 20
 - Map markers stay as price pill SVGs
 - No emojis
+- Name is Atlin (ex-Brick). Unchangeable leftovers: bundle ID `com.nulljosh.brick`, Pages project `roost`
+- Icon: a home inside a map pin, `Atlin.icon` (Icon Composer), regenerate with the brand skill
 
 ## Run
 
@@ -58,7 +58,9 @@ sample homes, labeled as samples.
 - src/lib/mapPins.js: Which pins survive at a given zoom
 - functions/api/ask.js: AI mode. Plain words to filters via Workers AI (`[ai]` in wrangler.toml), rules parser fallback
 - src/lib/ask.js, src/lib/deals.js: the rules parser and the deal score (percent under the median for the same bedroom count)
-- src/components/AskBar.jsx: the ask bar on /browse. Local QA without signing in: `npm run dev`, then /browse?preview (dev builds only)
+- src/components/AskBar.jsx: the ask bar on /browse. Browse is public; no sign-in needed
+- src/lib/tools.js, functions/api/deals.js, functions/mcp.js: `/api/deals` and `/mcp` (search_deals, ask_atlin), shared tools
+- src/lib/modes.js: the one-tap deal modes, mirrored in ios/Sources/Store.swift (DealMode)
 - functions/api/listings.js: Live listings proxy (RentCast, HousingFeed), 24h KV cache
 - src/data/listings.js: Per-place seeded listing generation (MLS/IDX shape)
 - src/pages/: Landing, Login, Register, ForgotPassword, Listings, ListingDetail, Settings

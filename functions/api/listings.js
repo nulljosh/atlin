@@ -82,7 +82,7 @@ async function housingfeed(env, p) {
   })
 }
 
-const promo = /promo|graphic|banner|free[-_ ]?rent|move[-_ ]?in|logo|flyer/i
+const promo = /promo|graphic|banner|free[-_ ]?rent|move[-_ ]?in|logo|flyer|incentive|\.png(\?|$)/i
 
 // "Township of Langley" -> "Langley".
 const townName = s => s.replace(/^(township|city|district|town|municipality|village) of /i, '').replace(/ (township|city|district)$/i, '').trim()

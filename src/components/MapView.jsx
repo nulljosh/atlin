@@ -10,7 +10,7 @@ import './MapView.css'
 
 function createPriceIcon(label, isFav) {
   const width = label.length * 9 + 20
-  const bg = isFav ? '#1d1d1f' : '#b8300f'
+  const bg = isFav ? '#1d1d1f' : '#0071e3'
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="32">
     <rect width="100%" height="24" rx="12" fill="${bg}"/>
     <text x="50%" y="16" fill="#fff" font-family="-apple-system,Helvetica,Arial,sans-serif" font-size="11" font-weight="600" text-anchor="middle">${label}</text>

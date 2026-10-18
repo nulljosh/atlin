@@ -5,7 +5,17 @@ import { formatMoney, formatMoneyCompact, formatArea } from './market'
 // ponytail: free third-party resizer. If it goes down, swap for Cloudflare
 // Image Resizing on the zone.
 // Managers upload "Free Rent!" graphics as the first photo; a graphic is not a home.
-const promo = /promo|graphic|banner|free[-_ ]?rent|move[-_ ]?in|logo|flyer/i
+const promo = /promo|graphic|banner|free[-_ ]?rent|move[-_ ]?in|logo|flyer|incentive|\.png(\?|$)/i
+// One photo reused by three or more homes is the building's ad or logo, not the home.
+export function dropSharedPhotos(listings) {
+  const seen = new Map()
+  for (const l of listings) for (const u of new Set(l.photos || [])) seen.set(u, (seen.get(u) || 0) + 1)
+  return listings.map(l => {
+    const photos = (l.photos || []).filter(u => seen.get(u) < 3)
+    return { ...l, photos, photo: photos[0] || null }
+  })
+}
+
 export function cleanPhotos(l) {
   const photos = (l.photos?.length ? l.photos : [l.photo]).filter(u => u && !promo.test(u))
   return { ...l, photos, photo: photos[0] || null }

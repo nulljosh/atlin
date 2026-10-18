@@ -1,4 +1,4 @@
-import { cleanPhotos } from '../lib/format'
+import { cleanPhotos, dropSharedPhotos } from '../lib/format'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { defaultPlace, streetsNear } from '../lib/geo'
 import { generateListings } from '../data/listings'
@@ -51,7 +51,7 @@ export function PlaceProvider({ children }) {
     const q = new URLSearchParams({ lat: place.lat, lng: place.lng, country: place.countryCode || '', city: place.name, area: place.area || '', mode })
     fetch(`/api/listings?${q}`, { signal: controller.signal })
       .then(r => (r.ok ? r.json() : { listings: [] }))
-      .then(d => setLive((d.listings || []).map(cleanPhotos)))
+      .then(d => setLive(dropSharedPhotos((d.listings || []).map(cleanPhotos))))
       .catch(err => { if (err.name !== 'AbortError') setLive([]) })
     return () => controller.abort()
   }, [place.id, mode])

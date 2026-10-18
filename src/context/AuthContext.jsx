@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react'
 import { spark, authConfigured } from '../lib/spark.js'
 
 function generatePixelArtSVG() {
-  const palettes = [['#b8300f','#ef5b3c','#1d1d1f'],['#1d1d1f','#6e6e73','#d2d2d7'],['#b8300f','#d2d2d7','#6e6e73']]
+  const palettes = [['#0071e3','#4aa3ff','#1d1d1f'],['#1d1d1f','#6e6e73','#d2d2d7'],['#0071e3','#d2d2d7','#6e6e73']]
   const bgs = ['#111','#1c1c1e','#2c2c2e']
   const palette = palettes[Math.floor(Math.random() * palettes.length)]
   const bg = bgs[Math.floor(Math.random() * bgs.length)]
