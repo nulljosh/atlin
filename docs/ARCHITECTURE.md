@@ -48,10 +48,10 @@ KMP (`kmp/`): shared Kotlin business logic (`Geo.kt`, `Listings.kt`, `Market.kt`
 | `public/onboarding.js` | Shared first-run auth flow, copied verbatim into any app |
 | `scripts/screenshots.mjs` | Playwright-based screenshot refresh |
 | `tui/main.swift` | Swift CLI entry point: Place struct, Nominatim search call, card render |
-| `kmp/shared/src/commonMain/kotlin/com/nulljosh/roost/Geo.kt` | Ktor HTTP client wrapper for Nominatim search |
-| `kmp/shared/src/commonMain/kotlin/com/nulljosh/roost/Listings.kt` | Listing generator ported from JS; deterministic seeded randomness |
-| `kmp/shared/src/commonMain/kotlin/com/nulljosh/roost/Market.kt` | Currency/units tables, per-country |
-| `kmp/composeApp/src/commonMain/kotlin/com/nulljosh/roost/AppScreen.kt` | Jetpack Compose UI, shared across Android/desktop/iOS |
+| `kmp/shared/src/commonMain/kotlin/com/nulljosh/brick/Geo.kt` | Ktor HTTP client wrapper for Nominatim search |
+| `kmp/shared/src/commonMain/kotlin/com/nulljosh/brick/Listings.kt` | Listing generator ported from JS; deterministic seeded randomness |
+| `kmp/shared/src/commonMain/kotlin/com/nulljosh/brick/Market.kt` | Currency/units tables, per-country |
+| `kmp/composeApp/src/commonMain/kotlin/com/nulljosh/brick/AppScreen.kt` | Jetpack Compose UI, shared across Android/desktop/iOS |
 | `kmp/composeApp/src/androidMain/` | Android entry point, Compose activity |
 | `kmp/composeApp/src/desktopMain/` | Desktop (macOS/Linux/Windows) entry point, Compose window |
 | `vite.config.js` | Vite + React + PWA (auto-update service worker, manifest, icon config) |

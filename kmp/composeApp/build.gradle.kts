@@ -30,11 +30,11 @@ kotlin {
 }
 
 android {
-    namespace = "com.nulljosh.roost"
+    namespace = "com.nulljosh.brick"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.nulljosh.roost.android"
+        applicationId = "com.nulljosh.brick.android"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -44,7 +44,7 @@ android {
 
 compose.desktop {
     application {
-        mainClass = "com.nulljosh.roost.MainKt"
+        mainClass = "com.nulljosh.brick.MainKt"
         nativeDistributions {
             targetFormats(
                 org.jetbrains.compose.desktop.application.dsl.TargetFormat.Msi,

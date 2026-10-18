@@ -1,4 +1,4 @@
-package com.nulljosh.roost
+package com.nulljosh.brick
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
 @Composable
-fun RoostTheme(content: @Composable () -> Unit) =
+fun BrickTheme(content: @Composable () -> Unit) =
     MaterialTheme(colorScheme = lightColorScheme(primary = Color(0xFF96654E)), content = content)
 
 // Real listings from the shared /api/listings first. The seeded generator only

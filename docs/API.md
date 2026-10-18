@@ -8,7 +8,7 @@ the browser (`src/lib/supabase.js`). The agent-facing interface is WebMCP.
 
 ## WebMCP
 
-With the app open and signed in, roost registers tools on
+With the app open and signed in, brick registers tools on
 `document.modelContext`. Source: `src/lib/webmcp.jsx`.
 
 ### Read-only

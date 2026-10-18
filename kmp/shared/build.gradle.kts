@@ -24,7 +24,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.nulljosh.roost.shared"
+    namespace = "com.nulljosh.brick.shared"
     compileSdk = 36
     defaultConfig { minSdk = 26 }
 }

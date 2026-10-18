@@ -1,4 +1,4 @@
-package com.nulljosh.roost
+package com.nulljosh.brick
 
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -11,6 +11,6 @@ fun main() = application {
         title = "Brick",
         state = rememberWindowState(width = 1040.dp, height = 720.dp),
     ) {
-        RoostTheme { AppScreen() }
+        BrickTheme { AppScreen() }
     }
 }

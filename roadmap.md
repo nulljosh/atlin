@@ -24,7 +24,7 @@ modes, and UI strings in 25 languages with RTL.
 - [ ] `npm test` runs two node files. No CI runs them.
 
 ## TUI pilot (2026-09-05)
-- `roost-tui` SwiftPM target (SwiftTUI). `swift build && ./.build/debug/roost-tui "Vancouver"` hits Nominatim directly, same public geocoding API src/lib/geo.js calls. Needs a real TTY.
+- `brick-tui` SwiftPM target (SwiftTUI). `swift build && ./.build/debug/brick-tui "Vancouver"` hits Nominatim directly, same public geocoding API src/lib/geo.js calls. Needs a real TTY.
 
 ## 2026-09-10 loading cleanup
 

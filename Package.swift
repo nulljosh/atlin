@@ -2,14 +2,14 @@
 import PackageDescription
 
 let package = Package(
-    name: "roost-tui",
+    name: "brick-tui",
     platforms: [.macOS(.v13)],
     dependencies: [
         .package(url: "https://github.com/rensbreur/SwiftTUI", branch: "main")
     ],
     targets: [
         .executableTarget(
-            name: "roost-tui",
+            name: "brick-tui",
             dependencies: ["SwiftTUI"],
             path: "tui"
         )

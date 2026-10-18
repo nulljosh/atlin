@@ -1,4 +1,4 @@
-package com.nulljosh.roost
+package com.nulljosh.brick
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

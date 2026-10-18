@@ -51,7 +51,7 @@ function MapMarkers({ listings, favorites }) {
         riseOnHover
         eventHandlers={{ click: () => navigate(`/listing/${listing.id}`) }}
       >
-        <Popup className="roost-popup">
+        <Popup className="brick-popup">
           <div className="popup-content">
             {listing.photo && <img src={thumb(listing.photo, 320)} alt="" />}
             <div className="popup-info">

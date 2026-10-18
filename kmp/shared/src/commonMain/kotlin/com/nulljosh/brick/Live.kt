@@ -1,4 +1,4 @@
-package com.nulljosh.roost
+package com.nulljosh.brick
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body

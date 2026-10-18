@@ -12,7 +12,7 @@
   border: none !important;
 }
 
-.roost-popup .leaflet-popup-content-wrapper {
+.brick-popup .leaflet-popup-content-wrapper {
   background: var(--surface) !important;
   border: 1px solid var(--border);
   border-radius: 10px !important;
@@ -20,12 +20,12 @@
   overflow: hidden;
 }
 
-.roost-popup .leaflet-popup-tip {
+.brick-popup .leaflet-popup-tip {
   background: var(--surface) !important;
   border: 1px solid var(--border);
 }
 
-.roost-popup .leaflet-popup-content {
+.brick-popup .leaflet-popup-content {
   margin: 0 !important;
   width: auto !important;
 }

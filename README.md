@@ -7,7 +7,7 @@
 
 **Live:** https://brick.jaybulb.com
 
-**Terminal:** `swift build && ./.build/debug/roost-tui "Vancouver"` — see [tui/](tui/)
+**Terminal:** `swift build && ./.build/debug/brick-tui "Vancouver"` — see [tui/](tui/)
 
 Browse homes anywhere on earth.
 

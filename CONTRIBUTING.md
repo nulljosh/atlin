@@ -1,10 +1,10 @@
-# Contributing to roost
+# Contributing to brick
 
 ## Setup
 
 ```
-git clone https://github.com/nulljosh/roost.git
-cd roost
+git clone https://github.com/nulljosh/brick.git
+cd brick
 npm install
 ```
 

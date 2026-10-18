@@ -3,7 +3,7 @@ import { defaultPlace, streetsNear } from '../lib/geo'
 import { generateListings } from '../data/listings'
 
 const PlaceContext = createContext(null)
-const STORAGE_KEY = 'roost-place'
+const STORAGE_KEY = 'brick-place'
 
 function storedPlace() {
   try {
@@ -16,7 +16,7 @@ function storedPlace() {
 
 export function PlaceProvider({ children }) {
   const [place, setPlaceState] = useState(storedPlace)
-  const [mode, setMode] = useState(() => localStorage.getItem('roost-mode') || 'sale')
+  const [mode, setMode] = useState(() => localStorage.getItem('brick-mode') || 'sale')
   const [streets, setStreets] = useState([])
   const [streetsUnavailable, setStreetsUnavailable] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -63,7 +63,7 @@ export function PlaceProvider({ children }) {
   }
 
   function changeMode(next) {
-    localStorage.setItem('roost-mode', next)
+    localStorage.setItem('brick-mode', next)
     setMode(next)
   }
 

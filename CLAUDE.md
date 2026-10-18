@@ -1,4 +1,4 @@
-# brick (ex-roost, ex-Hemma)
+# brick (ex-Roost, ex-Hemma)
 v3.0.0, worldwide real estate browsing. Repo: https://github.com/nulljosh/brick
 
 ## Rules
@@ -34,7 +34,7 @@ Current resume state: `docs/LOOP-HANDOFF.md`. This is the App Store push for Bri
 
 ## Deploy
 
-Cloudflare Pages project `roost` (brick.heyitsmejosh.com; roost.heyitsmejosh.com still resolves), direct upload:
+Cloudflare Pages project `roost` (infra name only: Pages projects cannot be renamed and the listing secrets live on it) (brick.jaybulb.com), direct upload:
 
 ```bash
 npm run build && npx wrangler pages deploy dist --project-name=roost --branch=main

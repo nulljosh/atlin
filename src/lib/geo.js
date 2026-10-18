@@ -14,7 +14,7 @@ const OVERPASS_MIRRORS = [
 
 // Street names do not change, so a place looked up once never needs Overpass
 // again. This is what keeps a bad upstream from being visible at all.
-const STREET_CACHE_PREFIX = 'roost-streets:'
+const STREET_CACHE_PREFIX = 'brick-streets:'
 const STREET_CACHE_TTL = 30 * 24 * 60 * 60 * 1000
 
 function readStreetCache(id) {
