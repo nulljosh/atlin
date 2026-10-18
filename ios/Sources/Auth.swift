@@ -16,6 +16,7 @@ final class Auth {
     var favorites: [String] = []
     // Saved searches as the web writes them, kept as raw JSON so a round trip never drops a field.
     var searches: [[String: Any]] = []
+    var alerts = false
     var busy = false
     var error: String?
     var notice: String?
@@ -58,6 +59,7 @@ final class Auth {
         user = User(id: s.user.id, email: s.user.email, name: (meta["name"] as? String) ?? (meta["full_name"] as? String), provider: meta["provider"] as? String)
         favorites = s.user.user_metadata?.favorites ?? []
         searches = meta["searches"] as? [[String: Any]] ?? []
+        alerts = meta["alerts"] as? Bool ?? false
     }
 
     private func restore() async {
@@ -159,6 +161,11 @@ final class Auth {
         _ = try? await call("PUT", "/auth/user", ["data": ["searches": list]], authed: true)
     }
 
+    func setAlerts(_ on: Bool) async {
+        alerts = on
+        _ = try? await call("PUT", "/auth/user", ["data": ["alerts": on]], authed: true)
+    }
+
     func setName(_ name: String) async {
         user?.name = name
         _ = try? await call("PUT", "/auth/user", ["data": ["name": name]], authed: true)
@@ -230,6 +237,9 @@ struct AccountView: View {
                     }
                     Section("Name") {
                         TextField("Name", text: $name).onSubmit { Task { await auth.setName(name) } }
+                    }
+                    Section(footer: Text("Daily email when a saved search has a new deal.")) {
+                        Toggle("Email new deals", isOn: Binding(get: { auth.alerts }, set: { v in Task { await auth.setAlerts(v) } }))
                     }
                     if !auth.searches.isEmpty {
                         Section("Saved searches") {
