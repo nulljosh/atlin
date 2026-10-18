@@ -235,7 +235,7 @@ struct AccountView: View {
                         LabeledContent("Saved homes", value: "\(store.saved.count)")
                         LabeledContent("Saved searches", value: "\(auth.searches.count)")
                     }
-                    Section("Name") {
+                    Section {
                         TextField("Name", text: $name).onSubmit { Task { await auth.setName(name) } }
                     }
                     Section(footer: Text("Daily email when a saved search has a new deal.")) {
