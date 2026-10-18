@@ -29,6 +29,7 @@ struct BrowseView: View {
     @Environment(Store.self) private var store
     @State private var camera: MapCameraPosition = .automatic
     @State private var lonSpan = 0.22
+    @State private var mapWidth: Double = 390
 
     // Same rule as the web map (src/lib/mapPins.js): cap the pins by zoom, then drop any
     // pill that would sit on top of one already placed.
@@ -36,7 +37,7 @@ struct BrowseView: View {
         let zoom = log2(360 / max(lonSpan, 0.0005))
         // The phone and Mac maps are bigger than the web's, so the caps are 3x; the overlap check does the thinning.
         let cap = zoom <= 11 ? 24 : zoom <= 12 ? 36 : zoom <= 13 ? 66 : zoom <= 14 ? 108 : Int.max
-        let scale = 360 * 390 / max(lonSpan, 0.0005)  // points per world width, for a ~390 wide map
+        let scale = 360 * mapWidth / max(lonSpan, 0.0005)  // points per world width
         var out: [Listing] = [], boxes: [CGRect] = []
         for l in store.visible {
             if out.count >= cap { break }
@@ -63,6 +64,7 @@ struct BrowseView: View {
         }
         .mapStyle(.standard(pointsOfInterest: .excludingAll))
         .onMapCameraChange(frequency: .onEnd) { lonSpan = $0.region.span.longitudeDelta }
+        .onGeometryChange(for: Double.self) { $0.size.width } action: { mapWidth = $0 }
         .ignoresSafeArea()
     }
 
@@ -75,7 +77,13 @@ struct BrowseView: View {
             }
             .task(id: "\(store.place.id)-\(store.mode)") {
                 store.listings = []
-                camera = .region(.init(center: .init(latitude: store.place.lat - 0.04, longitude: store.place.lng),
+                // On iPhone the list sheet covers the bottom half, so aim a little south of the town.
+                #if os(iOS)
+                let lift = 0.04
+                #else
+                let lift = 0.0
+                #endif
+                camera = .region(.init(center: .init(latitude: store.place.lat - lift, longitude: store.place.lng),
                                        span: .init(latitudeDelta: 0.22, longitudeDelta: 0.22)))
                 await store.load()
             }
@@ -224,17 +232,19 @@ struct ListingSheet: View {
             #endif
             .searchSuggestions {
                 ForEach(results) { p in
-                    Button {
-                        store.place = p
-                        query = ""
-                        results = []
-                        detent = .fraction(0.45)
-                    } label: {
+                    Button { choose(p) } label: {
                         VStack(alignment: .leading) {
                             Text(p.name)
                             Text(p.detail).font(.caption).foregroundStyle(.secondary)
                         }
                     }
+                }
+            }
+            // Return takes the top match, so typing a town and pressing Return just works.
+            .onSubmit(of: .search) {
+                Task {
+                    let list = results.isEmpty ? await store.search(query) : results
+                    if let p = list.first { choose(p) }
                 }
             }
             .task(id: query) {
@@ -245,6 +255,13 @@ struct ListingSheet: View {
                 results = await store.search(query)
             }
         }
+    }
+
+    private func choose(_ p: Place) {
+        store.place = p
+        query = ""
+        results = []
+        detent = .fraction(0.45)
     }
 }
 
