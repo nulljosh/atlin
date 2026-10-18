@@ -2,7 +2,9 @@ import { NoPhoto } from '../components/ListingCard'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useState } from 'react'
 import { usePlace } from '../context/PlaceContext'
-import { listingFormatters, thumb } from '../lib/format'
+import { listingFormatters, thumb, staticMap } from '../lib/format'
+import { formatMoney } from '../lib/market'
+import ListingCard from '../components/ListingCard'
 import { useI18n } from '../i18n'
 import { useFavorites } from '../context/FavoritesContext'
 import './ListingDetail.css'
@@ -15,6 +17,7 @@ export default function ListingDetail() {
   const listing = listings.find(l => l.id === id)
   const { toggle, isFavorite } = useFavorites()
   const [photoIdx, setPhotoIdx] = useState(0)
+  const [copied, setCopied] = useState(false)
 
   if (!listing && fetching) return <div className="page" role="status" aria-busy="true" />
 
@@ -29,6 +32,19 @@ export default function ListingDetail() {
 
   const fav = isFavorite(listing.id)
   const fmt = listingFormatters(listing, language, t)
+  const money = n => formatMoney(n, listing.currency, language)
+  const perArea = listing.sqft > 0 ? money(listing.price / (listing.imperial ? listing.sqft : listing.sqft * 0.092903)) : ''
+  // ponytail: fixed 20% down, 30 years, 5.5%. An estimate, not a quote; a rate input if people ask.
+  const r = 0.055 / 12
+  const monthly = listing.mode === 'sale' ? (listing.price * 0.8 * r) / (1 - Math.pow(1 + r, -360)) : 0
+  const similar = listings.filter(l => l.id !== listing.id && l.mode === listing.mode && Math.floor(l.beds) === Math.floor(listing.beds) && Math.abs(l.price - listing.price) <= listing.price * 0.25).slice(0, 4)
+  const hasPin = Number.isFinite(listing.lat) && Number.isFinite(listing.lng)
+
+  async function share() {
+    const data = { title: listing.address, url: location.href }
+    if (navigator.share) { try { await navigator.share(data) } catch {} return }
+    try { await navigator.clipboard.writeText(location.href); setCopied(true); setTimeout(() => setCopied(false), 2000) } catch {}
+  }
 
   return (
     <div className="page">
@@ -68,6 +84,16 @@ export default function ListingDetail() {
           <div className="detail-price">{fmt.price}</div>
           <div className="detail-address">{listing.address}</div>
           <div className="detail-neighborhood">{listing.neighborhood}, {listing.city}</div>
+          {(perArea || monthly > 0) && (
+            <div className="detail-sub">
+              {perArea && <span>{perArea} / {listing.imperial ? 'sq ft' : 'm²'}{listing.mode === 'rent' ? ' / mo' : ''}</span>}
+              {monthly > 0 && <span>Est. {money(monthly)}/mo · 20% down, 30 yr, 5.5%</span>}
+            </div>
+          )}
+          <div className="detail-actions">
+            {listing.url && <a className="btn btn-primary" href={listing.url} target="_blank" rel="noopener noreferrer">View listing</a>}
+            <button type="button" className="btn btn-ghost" onClick={share}>{copied ? 'Link copied' : 'Share'}</button>
+          </div>
 
           <div className="detail-stats">
             <div className="detail-stat">
@@ -102,8 +128,24 @@ export default function ListingDetail() {
               <div><span className="detail-meta-label">{t('sort_newest')}</span><span className="detail-meta-value">{t('listed_ago', { n: listing.listedDaysAgo })}</span></div>
             </div>
           </div>
+
+          {hasPin && (
+            <div className="no-photo detail-map">
+              <img src={staticMap(listing.lat, listing.lng, 800, 400)} alt="" loading="lazy" onError={e => { e.currentTarget.style.display = 'none' }} />
+              <span className="no-photo-pin" />
+            </div>
+          )}
         </div>
       </div>
+
+      {similar.length > 0 && (
+        <div className="detail-similar">
+          <h3 className="section-label">Similar homes</h3>
+          <div className="listings-grid">
+            {similar.map((l, i) => <ListingCard key={l.id} listing={l} index={i} />)}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
