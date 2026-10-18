@@ -28,10 +28,33 @@ enum Space {
 struct BrowseView: View {
     @Environment(Store.self) private var store
     @State private var camera: MapCameraPosition = .automatic
+    @State private var lonSpan = 0.22
+
+    // Same rule as the web map (src/lib/mapPins.js): cap the pins by zoom, then drop any
+    // pill that would sit on top of one already placed.
+    private var pins: [Listing] {
+        let zoom = log2(360 / max(lonSpan, 0.0005))
+        // The phone and Mac maps are bigger than the web's, so the caps are 3x; the overlap check does the thinning.
+        let cap = zoom <= 11 ? 24 : zoom <= 12 ? 36 : zoom <= 13 ? 66 : zoom <= 14 ? 108 : Int.max
+        let scale = 360 * 390 / max(lonSpan, 0.0005)  // points per world width, for a ~390 wide map
+        var out: [Listing] = [], boxes: [CGRect] = []
+        for l in store.visible {
+            if out.count >= cap { break }
+            let lat = max(-85, min(85, l.lat)) * .pi / 180
+            let x = (l.lng + 180) / 360 * scale
+            let y = (1 - log(tan(.pi / 4 + lat / 2)) / .pi) / 2 * scale
+            // Native pills are bigger than the web's: ~10 points a character, 34 tall.
+            let w = Double(l.priceText.count) * 10 + 28
+            let box = CGRect(x: x - w / 2 - 4, y: y - 38, width: w + 8, height: 42)
+            if boxes.contains(where: { $0.intersects(box) }) { continue }
+            out.append(l); boxes.append(box)
+        }
+        return out
+    }
 
     private var map: some View {
         Map(position: $camera) {
-            ForEach(store.visible) { l in
+            ForEach(pins) { l in
                 Annotation(l.priceText, coordinate: .init(latitude: l.lat, longitude: l.lng)) {
                     PricePill(text: l.priceText)
                 }
@@ -39,6 +62,7 @@ struct BrowseView: View {
             }
         }
         .mapStyle(.standard(pointsOfInterest: .excludingAll))
+        .onMapCameraChange(frequency: .onEnd) { lonSpan = $0.region.span.longitudeDelta }
         .ignoresSafeArea()
     }
 
