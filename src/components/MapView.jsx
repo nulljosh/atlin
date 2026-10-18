@@ -53,7 +53,7 @@ function MapMarkers({ listings, favorites }) {
       >
         <Popup className="atlin-popup">
           <div className="popup-content">
-            {listing.photo && <img src={thumb(listing.photo, 320)} alt="" />}
+            {listing.photo && <img src={thumb(listing.photo, 320)} alt="" onError={e => { e.currentTarget.style.display = "none" }} />}
             <div className="popup-info">
               <strong>{fmt.price}</strong>
               <span>{[`${listing.beds} ${t('bd')}`, `${listing.baths} ${t('ba')}`, fmt.area].filter(Boolean).join(' / ')}</span>
