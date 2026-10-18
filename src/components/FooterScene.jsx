@@ -19,6 +19,8 @@ float noise2(vec2 p) {
   vec2 u = f * f * (3.0 - 2.0 * f);
   return mix(mix(hash2(i), hash2(i + vec2(1, 0)), u.x), mix(hash2(i + vec2(0, 1)), hash2(i + vec2(1, 1)), u.x), u.y);
 }
+// Two octaves only: the big shapes a light would actually catch.
+float lo(float x) { return noise(x) * 0.5 + noise(x * 2.03) * 0.25; }
 float fbm(float x) { float v = 0.0, a = 0.5; for (int i = 0; i < 5; i++) { v += a * noise(x); x *= 2.03; a *= 0.5; } return v; }
 
 // Ink lines at angle a, spacing s pixels. Returns 1 where ink falls for tone t.
@@ -43,10 +45,10 @@ float scene(vec2 uv, out float kind) {
     return 0.78 - win * 0.45;
   }
   // Light from the left: slopes facing away from it take more ink.
-  float slopeF = fbm(x * 1.8 + 11.03) - fbm(x * 1.8 + 11.0);
-  float slopeB = fbm(x * 0.9 + 4.03) - fbm(x * 0.9 + 4.0);
-  if (uv.y < front) { kind = 1.0; return clamp(0.42 + slopeF * 18.0 + (front - uv.y) * 0.8, 0.2, 0.9); }
-  if (uv.y < back) { kind = 3.0; return clamp(0.22 + slopeB * 14.0 + (back - uv.y) * 0.5, 0.08, 0.7); }
+  float slopeF = (lo(x * 1.8 + 11.08) - lo(x * 1.8 + 10.92)) / 0.16;
+  float slopeB = (lo(x * 0.9 + 4.08) - lo(x * 0.9 + 3.92)) / 0.16;
+  if (uv.y < front) { kind = 1.0; return clamp(0.45 + slopeF * 0.35 + (front - uv.y) * 0.9, 0.2, 0.9); }
+  if (uv.y < back) { kind = 3.0; return clamp(0.24 + slopeB * 0.3 + (back - uv.y) * 0.6, 0.08, 0.7); }
   // Sky: a few soft clouds, barely inked.
   float c = noise2(vec2(x * 2.0 + time * 0.01, uv.y * 5.0));
   return smoothstep(0.62, 0.9, c) * 0.18 * smoothstep(0.55, 0.9, uv.y);
