@@ -5,7 +5,7 @@
 ## App Store push 2026-10-04 (paused, resume at home)
 - [ ] Google sign-in on native (needs an iOS OAuth client in Google's console, then build 10 after review)
 - [ ] Test Sign in with Apple on a real signed build
-- [ ] More Mac screenshots, light-mode shots, promo video
+- [ ] More Mac screenshots and light-mode shots (iPhone shots and a web promo video, docs/screenshots/atlin-promo.mp4, are done)
 - [ ] Some NYC listings still carry ad-graphic photos. Swap for real photos or hide them.
 
 ## Worldwide build 2026-08-28

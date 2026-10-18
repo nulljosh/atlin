@@ -84,6 +84,10 @@ a:hover {
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
+/* The capsule that holds a search input draws the ring (focus-within); the input itself stays plain. */
+.ask-bar input:focus-visible,
+.place-search input:focus-visible { box-shadow: none; }
+
 /* Form inputs */
 .input-group {
   display: flex;
