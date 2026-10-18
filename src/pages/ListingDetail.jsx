@@ -127,7 +127,7 @@ export default function ListingDetail() {
           <div className="detail-list">
             <div><span>{t('type')}</span><span>{t(listing.type)}</span></div>
             {listing.refNumber && <div><span>#</span><span>{listing.refNumber}</span></div>}
-            {listing.source && <div><span>via</span><span>{listing.url ? <a href={listing.url} target="_blank" rel="noopener noreferrer">{listing.source}</a> : listing.source}</span></div>}
+            {listing.source && <div><span>{t('source')}</span><span>{listing.url ? <a href={listing.url} target="_blank" rel="noopener noreferrer">{listing.source}</a> : listing.source}</span></div>}
             <div><span>{t('sort_newest')}</span><span>{listed}</span></div>
           </div>
 

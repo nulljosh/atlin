@@ -263,7 +263,7 @@ a:hover {
   align-items: center;
   justify-content: center;
   min-height: 100dvh;
-  padding: 1.5rem;
+  padding: calc(var(--nav) + var(--s4)) var(--s5) var(--s6);
 }
 
 .auth-card {
@@ -345,6 +345,7 @@ a:hover {
 /* Responsive: phone first, the margin stays 20 */
 @media (max-width: 700px) {
   .page { padding-top: calc(112px + var(--s4)); }
+  .page-auth { padding-top: calc(112px + var(--s4)); align-items: flex-start; }
 }
 
 @media (min-width: 1024px) {
