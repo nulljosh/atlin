@@ -136,6 +136,31 @@ final class Store {
     var dealsOnly = false
     var freshOnly = false
 
+    // Saved searches in the same shape the web writes, so one list serves both.
+    var searchID: String { "\(place.id)|\(mode)|\(minBeds)|0|\(maxPrice.map { String(Int($0)) } ?? "Infinity")|\(type ?? "all")" }
+
+    func currentSearch() -> [String: Any] {
+        [
+            "id": searchID,
+            "label": [place.name, mode == "sale" ? "Buy" : "Rent", minBeds > 0 ? "\(minBeds)+ bd" : nil].compactMap { $0 }.joined(separator: " · "),
+            "place": ["id": place.id, "name": place.name, "lat": place.lat, "lng": place.lng, "countryCode": place.countryCode],
+            "mode": mode,
+            "filters": ["beds": minBeds, "priceMin": 0, "priceMax": maxPrice.map { $0 as Any } ?? NSNull(), "propertyType": type ?? "all", "sort": "deal"],
+        ]
+    }
+
+    func apply(search s: [String: Any]) {
+        if let p = s["place"] as? [String: Any], let name = p["name"] as? String, let lat = p["lat"] as? Double, let lng = p["lng"] as? Double {
+            place = Place(name: name, detail: "", lat: lat, lng: lng, countryCode: (p["countryCode"] as? String) ?? place.countryCode)
+        }
+        if let m = s["mode"] as? String { mode = m }
+        let f = s["filters"] as? [String: Any] ?? [:]
+        minBeds = (f["beds"] as? Int) ?? 0
+        maxPrice = f["priceMax"] as? Double
+        let t = f["propertyType"] as? String
+        type = t == nil || t == "all" ? nil : t
+    }
+
     // One tap sets the whole filter set. Same four modes as src/lib/modes.js.
     func apply(_ m: DealMode) {
         sort = m.sort; dealsOnly = m.dealsOnly; freshOnly = m.freshOnly; minBeds = m.beds

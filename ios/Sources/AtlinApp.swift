@@ -168,6 +168,17 @@ struct ListingSheet: View {
                     NavigationLink { SavedView() } label: { Image(systemName: "heart") }
                         .accessibilityLabel("Saved homes")
                 }
+                if auth.user != nil {
+                    ToolbarItem(placement: .primaryAction) {
+                        let saved = auth.searches.contains { ($0["id"] as? String) == store.searchID }
+                        Button {
+                            var list = auth.searches.filter { ($0["id"] as? String) != store.searchID }
+                            if !saved { list.insert(store.currentSearch(), at: 0) }
+                            Task { await auth.saveSearches(Array(list.prefix(12))) }
+                        } label: { Image(systemName: saved ? "bookmark.fill" : "bookmark") }
+                        .accessibilityLabel(saved ? "Remove saved search" : "Save search")
+                    }
+                }
                 ToolbarItem(placement: .primaryAction) {
                     Button { showAccount = true } label: { Image(systemName: auth.user == nil ? "person.crop.circle" : "person.crop.circle.fill") }
                         .accessibilityLabel(auth.user == nil ? "Sign in" : "Account")

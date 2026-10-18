@@ -7,13 +7,15 @@ import Security
 // The refresh token lives in the Keychain; the short-lived access token stays in memory.
 @MainActor @Observable
 final class Auth {
-    struct User: Codable, Equatable { let id: String; let email: String? }
+    struct User: Codable, Equatable { let id: String; let email: String?; var name: String?; var provider: String? }
 
     private static let api = "https://api.jaybulb.com"
     private static let service = "com.nulljosh.brick.session"
 
     var user: User?
     var favorites: [String] = []
+    // Saved searches as the web writes them, kept as raw JSON so a round trip never drops a field.
+    var searches: [[String: Any]] = []
     var busy = false
     var error: String?
     var notice: String?
@@ -51,8 +53,11 @@ final class Auth {
         let s = try JSONDecoder().decode(Session.self, from: data)
         access = s.access_token
         Self.keychain(set: s.refresh_token)
-        user = User(id: s.user.id, email: s.user.email)
+        let meta = (((try? JSONSerialization.jsonObject(with: data)) as? [String: Any])?["user"] as? [String: Any])?["user_metadata"] as? [String: Any] ?? [:]
+        // Apple and Google sign-ins arrive with full_name, email sign-ups with name.
+        user = User(id: s.user.id, email: s.user.email, name: (meta["name"] as? String) ?? (meta["full_name"] as? String), provider: meta["provider"] as? String)
         favorites = s.user.user_metadata?.favorites ?? []
+        searches = meta["searches"] as? [[String: Any]] ?? []
     }
 
     private func restore() async {
@@ -133,7 +138,7 @@ final class Auth {
 
     func signOut() async {
         _ = try? await call("POST", "/auth/logout", nil, authed: true)
-        user = nil; access = nil; favorites = []
+        user = nil; access = nil; favorites = []; searches = []
         Self.keychain(set: nil)
     }
 
@@ -147,6 +152,17 @@ final class Auth {
     }
 
     // MARK: saved homes: the same id list the web keeps in the profile
+
+    func saveSearches(_ list: [[String: Any]]) async {
+        searches = list
+        guard user != nil else { return }
+        _ = try? await call("PUT", "/auth/user", ["data": ["searches": list]], authed: true)
+    }
+
+    func setName(_ name: String) async {
+        user?.name = name
+        _ = try? await call("PUT", "/auth/user", ["data": ["name": name]], authed: true)
+    }
 
     func saveFavorites(_ ids: [String]) async {
         favorites = ids
@@ -182,16 +198,47 @@ struct AccountView: View {
     @Environment(Auth.self) private var auth
     @Environment(\.dismiss) private var dismiss
     @Environment(\.webAuthenticationSession) private var webAuth
+    @Environment(Store.self) private var store
+    @State private var name = ""
     @State private var email = ""
     @State private var password = ""
     @State private var creating = false
     @State private var confirmDelete = false
 
+    private func initials(_ u: Auth.User) -> String {
+        let source = u.name.flatMap { $0.isEmpty ? nil : $0 } ?? u.email ?? "?"
+        return String(source.split(separator: " ").prefix(2).compactMap(\.first)).uppercased()
+    }
+
     var body: some View {
         NavigationStack {
             Form {
                 if let user = auth.user {
-                    Section { Text(user.email ?? "Signed in").foregroundStyle(.secondary) } header: { Text("Account") }
+                    Section {
+                        HStack(spacing: Space.m) {
+                            Text(initials(user)).font(.title2.weight(.semibold)).foregroundStyle(.white)
+                                .frame(width: 64, height: 64).background(Circle().fill(Color.accentColor))
+                            VStack(alignment: .leading, spacing: Space.xs) {
+                                Text(user.name.flatMap { $0.isEmpty ? nil : $0 } ?? user.email ?? "Signed in").font(.title3.weight(.semibold))
+                                Text([user.email, user.provider == "apple" ? "Apple" : user.provider == "google" ? "Google" : nil].compactMap { $0 }.joined(separator: " · "))
+                                    .font(.subheadline).foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding(.vertical, Space.s)
+                        LabeledContent("Saved homes", value: "\(store.saved.count)")
+                        LabeledContent("Saved searches", value: "\(auth.searches.count)")
+                    }
+                    Section("Name") {
+                        TextField("Name", text: $name).onSubmit { Task { await auth.setName(name) } }
+                    }
+                    if !auth.searches.isEmpty {
+                        Section("Saved searches") {
+                            ForEach(auth.searches.indices, id: \.self) { i in
+                                Button((auth.searches[i]["label"] as? String) ?? "Search") { store.apply(search: auth.searches[i]); dismiss() }
+                            }
+                            .onDelete { rows in var list = auth.searches; list.remove(atOffsets: rows); Task { await auth.saveSearches(list) } }
+                        }
+                    }
                     Section {
                         Button("Sign out") { Task { await auth.signOut(); dismiss() } }
                         Button("Delete account", role: .destructive) { confirmDelete = true }
@@ -233,6 +280,7 @@ struct AccountView: View {
                 }
             }
             .formStyle(.grouped)
+            .onAppear { name = auth.user?.name ?? "" }
             .navigationTitle(auth.user == nil ? "Sign in" : "Account")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
