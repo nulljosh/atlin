@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import AppleButton from '../components/AppleButton'
 import GoogleButton from '../components/GoogleButton'
 import { useAuth } from '../context/AuthContext'
 
@@ -27,6 +28,7 @@ export default function Login() {
       <div className="auth-card fade-up">
         <h1>Welcome back</h1>
         <p className="subtitle">Sign in to browse homes anywhere</p>
+        <AppleButton onError={setError} />
         <GoogleButton onError={setError} />
         <form onSubmit={handleSubmit}>
           <div className="input-group">
