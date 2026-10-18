@@ -29,7 +29,7 @@ export const en = {
   sort_deal: 'Best deal',
   deal_under: '{n}% under typical',
   ask_placeholder: 'Try "2 bed under 2,500"',
-  ask_button: 'Ask',
+  ask_button: 'Search',
   ask_s_deals: 'Best deals',
   ask_s_beds: '2+ beds, best value',
   ask_s_space: 'Most space',
