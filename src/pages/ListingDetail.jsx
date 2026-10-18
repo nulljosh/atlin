@@ -77,7 +77,7 @@ export default function ListingDetail() {
                 className={`detail-thumb ${i === photoIdx ? 'active' : ''}`}
                 onClick={() => setPhotoIdx(i)}
               >
-                <img src={thumb(photo, 200)} alt="" loading="lazy" onError={e => { e.currentTarget.style.display = "none" }} />
+                <img src={thumb(photo, 200)} alt="" loading="lazy" onError={e => { e.currentTarget.parentElement.style.display = "none" }} />
               </button>
             ))}
           </div>

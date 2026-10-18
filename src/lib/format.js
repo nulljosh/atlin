@@ -37,6 +37,8 @@ export function cleanPhotos(l) {
 
 export function thumb(url, width) {
   if (!url || !/^https?:/.test(url)) return url
+  // Craigslist already serves small sizes from its own CDN; no need for a resizer hop.
+  if (url.startsWith('https://images.craigslist.org/')) return width <= 320 ? url.replace(/_\d+x\d+\.jpg$/, '_300x300.jpg') : url
   const h = Math.round(width * 0.6875)
   return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=${width}&h=${h}&fit=cover&output=webp&q=72`
 }
