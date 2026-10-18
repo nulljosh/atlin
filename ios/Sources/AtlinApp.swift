@@ -43,6 +43,11 @@ struct BrowseView: View {
 
     var body: some View {
         content
+            .task {
+                guard store.needsLocate else { return }
+                store.needsLocate = false
+                if let here = await Locator().current() { store.place = here }
+            }
             .task(id: "\(store.place.id)-\(store.mode)") {
                 store.listings = []
                 camera = .region(.init(center: .init(latitude: store.place.lat - 0.04, longitude: store.place.lng),

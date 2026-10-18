@@ -160,7 +160,11 @@ final class Store {
         return (n / (mag / 2)).rounded() * (mag / 2)
     }
 
+    // First launch only: no saved place yet, so start from where the person is.
+    var needsLocate: Bool
+
     init() {
+        needsLocate = Self.read("place") as Place? == nil && !UserDefaults.standard.bool(forKey: "noLocate")
         place = Self.read("place") ?? .start
         saved = Self.read("saved") ?? []
     }
