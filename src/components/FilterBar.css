@@ -94,3 +94,11 @@
   .filters-toggle { display: inline-flex; margin-inline-start: auto; }
   .filter-menus:not(.open) { display: none; }
 }
+.saved-chip { display: inline-flex; align-items: center; padding: 0; gap: 0; }
+.saved-chip button { background: none; border: 0; color: inherit; font: inherit; height: 100%; cursor: pointer; }
+.saved-chip button:first-child { padding: 0 4px 0 16px; }
+.saved-x { padding: 0 14px 0 6px; opacity: .5; font-size: 18px; }
+.filter-result-count { flex-wrap: wrap; }
+.chip-icon { width: 48px; padding: 0; justify-content: center; flex-shrink: 0; }
+.filter-result-count { flex-wrap: nowrap; }
+.filter-result-count .section-label { margin-right: auto; }

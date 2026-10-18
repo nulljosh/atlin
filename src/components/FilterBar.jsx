@@ -1,3 +1,4 @@
+import { useSavedSearches, SavedRow, SaveButton } from './SavedSearches'
 import { useState } from 'react'
 import { useFilters } from '../context/FiltersContext'
 import { usePlace } from '../context/PlaceContext'
@@ -58,8 +59,11 @@ export default function FilterBar({ resultCount }) {
   const [open, setOpen] = useState(false)
   const active = [bandIndex > 0, filters.beds > 0, filters.propertyType !== 'all', filters.sort !== 'deal'].filter(Boolean).length
 
+  const searches = useSavedSearches()
+
   return (
     <div className="filter-bar">
+      <SavedRow searches={searches} />
       <div className="modes" role="group" aria-label={t('sort')}>
         {modes.map(m => (
           <button key={m.key} className={`chip ${modeActive(m, filters) ? 'active' : ''}`} aria-pressed={modeActive(m, filters)}
@@ -100,6 +104,7 @@ export default function FilterBar({ resultCount }) {
           </svg>
           {t('favorites')}
         </button>
+        <SaveButton searches={searches} />
       </div>
     </div>
   )
