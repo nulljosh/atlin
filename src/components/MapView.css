@@ -67,4 +67,4 @@
   }
 }
 
-.leaflet-bar a { width: 44px; height: 44px; line-height: 44px; }
+.leaflet-bar a, .leaflet-touch .leaflet-bar a { width: 44px !important; height: 44px !important; line-height: 44px !important; }
