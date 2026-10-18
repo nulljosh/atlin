@@ -8,7 +8,7 @@ Brick is a map of what's for sale or for rent, filters that narrow it, and
 favourites that survive a reload. It exists because browsing homes abroad
 usually means guessing at a foreign currency and a site that only half
 translates, so every price renders in the local currency and every
-label in the local language. React and Vite, no backend beyond Supabase Auth, because nothing here needs a server to hold state that a browser can hold on its own.
+label in the local language. React and Vite, no backend beyond the jaybulb-api Worker on Cloudflare, because nothing here needs a server to hold state that a browser can hold on its own.
 
 ## Problem
 
@@ -32,9 +32,9 @@ filter logic are finished and testable before that contract exists.
 
 ## Auth and Persistence
 
-Supabase Auth (email + password, forgot-password flow, session persistence)
+Accounts on jaybulb-api, a Cloudflare Worker with D1 (email + password, forgot-password flow, session persistence)
 gates the profile and saved-search preferences. Favorites are deliberately
-`localStorage`, not a Supabase table: favoriting should work before signing in,
+`localStorage`, not a database row: favoriting should work before signing in,
 and a favorite is worth nothing to anyone but the person who set it.
 
 ## Design
@@ -49,7 +49,7 @@ like a place to find a home, not like a brochure trying to sell you one.
 |-------|------|
 | Frontend | React + Vite, PWA |
 | Map | Leaflet |
-| Auth | Supabase |
+| Auth | jaybulb-api (Cloudflare Worker, D1) |
 | Data | Mock JSON (`src/data`), pending an MLS feed |
 
 ## License

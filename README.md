@@ -30,12 +30,12 @@ currency, every label in the local language.
 - Sale and rent, with price filters cut to the local market's own scale
 - 25 languages, right-to-left included, picked from your browser
 - A map with price pills, filters and favourites
-- Supabase Auth: email and password, forgot password, sessions that stick
+- Accounts on Cloudflare: email and password, forgot password, sessions that stick
 
 ## Run
 
 ```bash
-cp .env.example .env   # Supabase URL + anon key; without them sign-in is disabled
+cp .env.example .env   # optional: VITE_API_URL overrides the jaybulb-api Worker
 npm install && npm run dev
 npm run build
 node src/data/listings.test.mjs

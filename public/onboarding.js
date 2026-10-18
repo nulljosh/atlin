@@ -44,7 +44,7 @@
   }
 
   /* When the host app does not pass signedIn, look for a session left behind by the
-     usual suspects: an explicit key list, a Supabase auth token, or a *_token entry. */
+     usual suspects: an explicit key list, the spark auth token, or a *_token entry. */
   function detectSignedIn(authKeys) {
     try {
       var i, k;
@@ -62,7 +62,7 @@
     return false;
   }
 
-  /* A Supabase session carries user.created_at; an account younger than ten minutes
+  /* A spark session carries user.created_at; an account younger than ten minutes
      just registered. Anything else answers null (unknown). */
   function accountIsNew() {
     try {

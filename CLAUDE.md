@@ -15,7 +15,7 @@ v3.0.0, worldwide real estate browsing. Repo: https://github.com/nulljosh/brick
 ## Run
 
 ```bash
-cp .env.example .env   # Supabase keys, or auth stays disabled
+cp .env.example .env   # optional: VITE_API_URL
 npm install && npm run dev
 npm run build
 npm test
@@ -25,8 +25,6 @@ A deploy is served from the service worker cache for one load, so verify a fresh
 deploy with a hard reload (or unregister the worker) before believing what you
 see.
 
-Auth reads `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` at build time. Without
-them `authConfigured` is false and every sign-in shows "not configured".
 
 ## The loop
 
@@ -40,7 +38,7 @@ Cloudflare Pages project `roost` (infra name only: Pages projects cannot be rena
 npm run build && npx wrangler pages deploy dist --project-name=roost --branch=main
 ```
 
-Supabase vars live in the local `.env` and are baked into the bundle. Listing keys
+Listing keys
 are Pages secrets read by `functions/api/listings.js`, never in the bundle:
 `npx wrangler pages secret put RENTCAST_KEY --project-name=roost` (US sale + rent),
 `APIFY_TOKEN` (HousingFeed rentals, 30 countries). With no key the app shows
@@ -50,7 +48,7 @@ sample homes, labeled as samples.
 
 - src/main.jsx: App bootstrap and Vite entry
 - src/App.jsx: Routing and protected routes
-- src/context/AuthContext.jsx: Supabase Auth (session, profile in user_metadata, Apple/Google OAuth alongside email/password)
+- src/context/AuthContext.jsx: jaybulb-api auth (Cloudflare D1): session, profile, email/password. Client in src/lib/spark.js
 - src/context/PlaceContext.jsx: Current place, sale/rent mode, locale
 - src/context/FavoritesContext.jsx: Favorites with localStorage sync
 - src/context/FiltersContext.jsx: Price, beds, type, sort filters

@@ -4,7 +4,7 @@ Brick is a worldwide real estate browser. Search homes for sale or rent in any c
 
 ## How it runs
 
-Web app: `index.html` loads `src/main.jsx` (React DOM bootstrap) which renders `src/App.jsx`. The router serves `Landing` publicly, auth pages (`Login`, `Register`, `ForgotPassword`) to all, and protected pages (`Listings`, `ListingDetail`, `Settings`) only to authenticated users. On mount, `AuthContext` checks Supabase for a session. User searches for a place through `Nav`'s `PlaceSearch`, which calls `searchPlaces` and returns results from Nominatim. Selecting a place updates `PlaceContext`, which calls `generateListings` with the place's coordinates as a seed, producing deterministic inventory. The `Listings` page filters and sorts them using `filterListings`. Clicking a listing routes to `ListingDetail`, which shows a gallery, map pin, and full metadata. Favorites and filter state persist in localStorage.
+Web app: `index.html` loads `src/main.jsx` (React DOM bootstrap) which renders `src/App.jsx`. The router serves `Landing` publicly, auth pages (`Login`, `Register`, `ForgotPassword`) to all, and protected pages (`Listings`, `ListingDetail`, `Settings`) only to authenticated users. On mount, `AuthContext` checks jaybulb-api for a session. User searches for a place through `Nav`'s `PlaceSearch`, which calls `searchPlaces` and returns results from Nominatim. Selecting a place updates `PlaceContext`, which calls `generateListings` with the place's coordinates as a seed, producing deterministic inventory. The `Listings` page filters and sorts them using `filterListings`. Clicking a listing routes to `ListingDetail`, which shows a gallery, map pin, and full metadata. Favorites and filter state persist in localStorage.
 
 TUI (`tui/main.swift`): calls Nominatim directly (no custom backend) to search places and generate listings, outputting them as structured cards in the terminal.
 
@@ -20,16 +20,16 @@ KMP (`kmp/`): shared Kotlin business logic (`Geo.kt`, `Listings.kt`, `Market.kt`
 | `src/lib/market.js` | Per-country currency symbols, price levels, area units, default formatting rules |
 | `src/data/listings.js` | Seeded random listing generation; each place produces the same deterministic inventory |
 | `src/data/listings.test.mjs` | Generator correctness across cities and sale/rent modes |
-| `src/context/AuthContext.jsx` | Supabase email/password and Apple/Google OAuth session state, pixel-art avatar generation |
+| `src/context/AuthContext.jsx` | jaybulb-api email/password session state, pixel-art avatar generation |
 | `src/context/PlaceContext.jsx` | Current place and sale/rent mode; generates listings on place change |
-| `src/context/FavoritesContext.jsx` | Favorite listings with localStorage sync and per-user Supabase fallback |
+| `src/context/FavoritesContext.jsx` | Favorite listings with localStorage sync and per-user sync through jaybulb-api |
 | `src/context/FiltersContext.jsx` | Price/beds/type/sort filter state with localStorage persistence |
 | `src/pages/Landing.jsx` + `.css` | Public landing page: hero, feature cards, locale switcher, language picker (RTL support), footer with localization |
 | `src/pages/Listings.jsx` + `.css` | Main browse grid: lazy-loads cards, handles empty state |
 | `src/pages/ListingDetail.jsx` + `.css` | Single listing page: photo gallery, map embed, details sidebar, favorite toggle |
-| `src/pages/Login.jsx` | Email/password + OAuth sign-in via Supabase |
+| `src/pages/Login.jsx` | Email/password sign-in through jaybulb-api |
 | `src/pages/Register.jsx` | Account creation with OAuth, pulls name/email from provider |
-| `src/pages/ForgotPassword.jsx` | Password reset flow via Supabase email link |
+| `src/pages/ForgotPassword.jsx` | Password reset flow via emailed link (authmail) |
 | `src/pages/Settings.jsx` + `.css` | Locale switcher, language picker, price display preference, logout |
 | `src/components/Nav.jsx` + `.css` | Fixed top bar: brand, place search, language menu |
 | `src/components/PlaceSearch.jsx` + `.css` | Debounced Nominatim search input with dropdown; sets place on selection |
@@ -40,7 +40,7 @@ KMP (`kmp/`): shared Kotlin business logic (`Geo.kt`, `Listings.kt`, `Market.kt`
 | `src/lib/mapPins.test.mjs` | Map pin culling logic |
 | `src/lib/filterListings.js` | Shared filter + sort function used by Listings page and WebMCP |
 | `src/lib/format.js` | Per-listing formatters: currency, area, rent/sale suffix |
-| `src/lib/supabase.js` | Supabase client init with env fallback |
+| `src/lib/spark.js` | jaybulb-api client, defaults to api.jaybulb.com |
 | `src/lib/webmcp.jsx` | Document.modelContext tool registration for in-browser agents |
 | `src/i18n/` | Locale strings (en.js source of truth, locales/* are hand-kept translations), RTL language list, language picker logic |
 | `src/styles/index.css` | Global CSS: font import, reset, body baseline |
@@ -69,7 +69,7 @@ All 25 languages share the same build. `src/i18n/strings.js` holds English as th
 
 - **Nominatim** (OpenStreetMap geocoding): worldwide place search, no API key. Respects 1 req/sec courtesy limit via debounced search box.
 - **Overpass** (OSM street data): three mirrors (de, kumi.systems, osm.ch) queried in order; results cached 30 days in localStorage. Query caps bounding box to 0.25 degrees around place center to avoid multi-minute timeouts on large countries.
-- **Supabase** (auth, optional user data): email/password sign-in, Apple/Google OAuth delegation.
+- **jaybulb-api** (Cloudflare Worker on D1): email/password accounts and optional user data.
 - **Leaflet** (map rendering): open-source JS map library.
 
 ## Gotchas
