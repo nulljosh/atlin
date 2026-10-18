@@ -40,29 +40,19 @@ Type a city. Atlin shows what is for rent or for sale there, scores each home ag
 cp .env.example .env   # optional: VITE_API_URL overrides the jaybulb-api Worker
 npm install && npm run dev
 npm run build
-node src/data/listings.test.mjs
+npm test
 ```
 
 ## Data
 
 `functions/api/listings.js` asks Craigslist, HousingFeed and RentCast at once, merges and dedupes them, and caches the result for a day. With no live source for a place, the app shows sample homes and says so.
 
-## Source
+## Docs
 
-[github.com/nulljosh/atlin](https://github.com/nulljosh/atlin)
-
-## License
-
-MIT 2026 Joshua Trommel
-
-[Technical whitepaper](WHITEPAPER.md)
-
-## API and agent tools
-
-An agent can drive this app. [`docs/API.md`](docs/API.md) lists the HTTP surface, where there
-is one, and the WebMCP tools registered on `document.modelContext`. Tools come in three kinds:
-read-only, writes you can undo, and the few that ask a human first.
-
-## Architecture
+- [Whitepaper](WHITEPAPER.md): the deal score, listings and alerts
+- [Architecture](docs/ARCHITECTURE.md) and [API](docs/API.md): the HTTP surface, `/mcp` and WebMCP tools for agents
+- [Roadmap](roadmap.md), [Privacy](PRIVACY.md), [Security](SECURITY.md), [brand kit](brand/BRAND.md)
 
 <img src="architecture.svg" width="600">
+
+MIT 2026 Joshua Trommel. Source: [github.com/nulljosh/atlin](https://github.com/nulljosh/atlin)
