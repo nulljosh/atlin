@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import GoogleButton from '../components/GoogleButton'
 import { useAuth } from '../context/AuthContext'
 
 export default function Register() {
@@ -40,6 +41,7 @@ export default function Register() {
       <div className="auth-card fade-up">
         <h1>Create account</h1>
         <p className="subtitle">Start browsing homes anywhere</p>
+        <GoogleButton onError={setError} />
         <form onSubmit={handleSubmit}>
           <div className="input-group">
             <label htmlFor="name">Full name</label>

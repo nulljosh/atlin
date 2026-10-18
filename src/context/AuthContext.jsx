@@ -77,6 +77,12 @@ export function AuthProvider({ children }) {
   }
 
 
+  async function loginWithGoogle(token) {
+    const { error } = await spark.auth.signInWithIdToken({ provider: 'google', token })
+    if (error) return { error: error.message }
+    return { success: true }
+  }
+
   async function register(name, email, password) {
     if (!authConfigured) return { error: 'Sign-in is not configured on this deployment.' }
     const { error } = await spark.auth.signUp({
@@ -122,7 +128,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, ready, login, register, updateProfile, logout }}>
+    <AuthContext.Provider value={{ user, ready, login, loginWithGoogle, register, updateProfile, logout }}>
       {children}
       {recovering && <RecoveryForm onDone={() => { setRecovering(false); window.location.assign('/') }} />}
     </AuthContext.Provider>
