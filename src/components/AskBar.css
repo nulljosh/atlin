@@ -19,6 +19,7 @@
 
 .ask-bar input {
   flex: 1;
+  align-self: stretch;
   min-width: 0;
   border: 0;
   outline: 0;

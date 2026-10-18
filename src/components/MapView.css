@@ -66,3 +66,5 @@
     height: 450px;
   }
 }
+
+.leaflet-bar a { width: 44px; height: 44px; line-height: 44px; }
