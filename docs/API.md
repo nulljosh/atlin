@@ -1,35 +1,45 @@
 # Atlin API
 
-Atlin has one endpoint. `GET /api/listings?lat=&lng=&country=&city=&mode=sale|rent`
-returns `{ listings, sources }` from the live feeds (RentCast, HousingFeed),
-cached for a day. It returns an empty list when no feed covers
-the place, and the client then shows labeled sample homes. Favourites live in `localStorage`; user accounts go to jaybulb-api (Cloudflare D1) from
-the browser (`src/lib/spark.js`). The agent-facing interface is WebMCP.
+Everything is plain HTTP on https://atlin.jaybulb.com, no key needed.
+
+## Listings
+
+`GET /api/listings?lat=&lng=&country=&city=&mode=rent|sale&radius=`
+
+Returns `{ listings, sources, modes }`. Each listing has `id`, `price`, `currency`, `beds`, `baths`, `sqft`, `type`, `address`, `city`, `photo`, `photos`, `lat`, `lng`, `listedDaysAgo`, `url`, and `priceWas` when the price dropped. Cached for a day. An empty list means no feed covers the place.
+
+## Deals
+
+`GET /api/deals?place=Vancouver&mode=rent&beds=2&maxPrice=2500&sort=deal&limit=10`
+
+Or `?q=2 bed under 2500, best value` for plain words. Returns homes ranked by deal, the percent under the typical price for the same bedroom count.
+
+## Ask
+
+`POST /api/ask` with `{ "q": "2 bed under 2,500" }` returns the filters those words mean.
+
+## MCP
+
+`POST /mcp` speaks stateless MCP (JSON-RPC). Two tools:
+
+| Tool | Does |
+|---|---|
+| `search_deals` | Listings for a place, ranked by deal. Args: `place`, `mode`, `beds`, `minPrice`, `maxPrice`, `type`, `sort`, `limit` |
+| `ask_atlin` | The same search in plain words. Args: `place`, `question`, `mode`, `limit` |
+
+Both live in `src/lib/tools.js`, shared with `/api/deals`.
 
 ## WebMCP
 
-With the app open and signed in, atlin registers tools on
-`document.modelContext`. Source: `src/lib/webmcp.jsx`.
+With the app open, `src/lib/webmcp.jsx` registers tools on `document.modelContext`.
 
-### Read-only
-
-| Tool | Does |
+| Kind | Tools |
 |---|---|
-| `search_listings` | Search listings. Omitted filters fall back to what's set in the UI. Args: `priceMin`, `priceMax`, `beds`, `propertyType`, `favoritesOnly`, `sort`, `limit` |
-| `get_listing` | Full record for one listing, plus whether it's favourited |
-| `get_favorites` | Every favourited listing |
-| `get_filters` | The filters currently applied in the UI |
+| Read-only | `search_listings`, `get_listing`, `get_favorites`, `get_filters` |
+| Reversible writes | `toggle_favorite`, `set_filters`, `reset_filters`, `open_listing` |
 
-### Reversible writes
+Nothing spends money or deletes data, so none asks for confirmation. Search shares `src/lib/filterListings.js` with the Listings page, so tool results match the screen.
 
-| Tool | Does |
-|---|---|
-| `toggle_favorite` | Add or remove a listing from favourites |
-| `set_filters` | Apply filters to the UI so the user sees the same results |
-| `reset_filters` | Clear filters back to defaults |
-| `open_listing` | Navigate the app to a listing detail page |
+## Accounts
 
-Nothing here spends money or destroys data, so no tool requires confirmation.
-
-Search shares `src/lib/filterListings.js` with the Listings page, so tool
-results and the on-screen list can't drift apart.
+Accounts live on jaybulb-api (`api.jaybulb.com`), called from `src/lib/spark.js`. The profile holds `favorites`, `searches`, `name` and `alerts`. Alerts are sent by `POST /functions/atlin-alerts` on that Worker, guarded by a secret and fired daily by GitHub Actions.

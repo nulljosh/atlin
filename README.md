@@ -29,6 +29,8 @@ Type a city. Atlin shows what is for rent or for sale there, scores each home ag
 - Any place on earth, prices in the local currency, ft² or m² per country
 - 27 languages, right-to-left included, picked from your browser
 - Search in plain words: "2 bed under 2,500"
+- Price drops flagged ("Dropped $200"), and a size filter
+- Daily email of new deals from your saved searches (opt in)
 - Sign in with Apple, Google or email; saved homes sync to iPhone and Mac
 - iPhone and Mac app from one SwiftUI target
 

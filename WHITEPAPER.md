@@ -20,6 +20,10 @@ This is a median of what is on screen, not a valuation model. It answers the que
 
 The same unit posted twice shows up once. Prices that cannot be real, under 300 a month or a sale under 50,000, are dropped.
 
+## Price drops and alerts
+
+The listings function remembers each home's price for 60 days. A home seen cheaper than before shows how much it dropped. Signed-in users can switch on a daily email: Atlin re-runs each saved search, and sends the new deals and drops it has not shown before. The first run only records what already exists, so nobody gets a flood.
+
 ## Photos
 
 Property managers often upload an offer card ("1 month free rent") as the main photo. Atlin drops photos that look like ads by name, square 900 by 900 tiles, and PNG graphics. A photo shared by three or more different buildings is a logo and is dropped too. A photo shared by units in one building is that building's real exterior and stays. A home with no usable photo gets a grey street map of where it is, never a blank tile. Homes with photos rank first.
