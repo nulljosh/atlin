@@ -20,7 +20,7 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: var(--blue-dark);
+  background: var(--accent);
   color: #fff;
   display: flex;
   align-items: center;

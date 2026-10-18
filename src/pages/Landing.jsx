@@ -4,7 +4,8 @@ import { useI18n, supportedLanguages, languageLabel } from '../i18n'
 import { rtlLanguages } from '../i18n/strings'
 import { coverage } from '../lib/market'
 import { photos } from '../data/listings'
-import { thumb } from '../lib/format'
+import { thumb, cleanPhotos } from '../lib/format'
+import BrickMark from '../components/BrickMark'
 import './Landing.css'
 
 const prefersReducedMotion = () =>
@@ -73,7 +74,7 @@ export default function Landing() {
     fetch('/api/listings?lat=49.2827&lng=-123.1207&country=CA&city=Vancouver&mode=rent')
       .then(r => r.json())
       .then(d => {
-        const withPhotos = (d.listings || []).filter(l => l.photo).slice(0, 3)
+        const withPhotos = (d.listings || []).map(cleanPhotos).filter(l => l.photo).slice(0, 3)
         if (withPhotos.length === 3) setLive(withPhotos)
       })
       .catch(() => {})
@@ -84,11 +85,7 @@ export default function Landing() {
       {/* hero shows three real homes when the feed answers, sample photos until then */}
       <section className="landing-hero">
         <div className="landing-inner">
-          <svg className="hero-icon" width="96" height="56" viewBox="144 312 736 416" aria-hidden="true">
-            <rect x="344" y="328" width="336" height="176" rx="28" fill="#B5836A" />
-            <rect x="160" y="536" width="336" height="176" rx="28" fill="#C9A184" />
-            <rect x="528" y="536" width="336" height="176" rx="28" fill="#B5836A" />
-          </svg>
+          <BrickMark className="hero-icon" size={96} />
           <h1>{t('brand')}</h1>
           <p>{t('landing_pitch')}</p>
           <div className="landing-buttons">

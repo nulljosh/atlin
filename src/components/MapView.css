@@ -1,9 +1,8 @@
 .map-container {
   width: 100%;
   height: 350px;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-list);
   overflow: hidden;
-  border: 1px solid var(--border);
   margin-bottom: 1.5rem;
 }
 
@@ -14,15 +13,14 @@
 
 .brick-popup .leaflet-popup-content-wrapper {
   background: var(--surface) !important;
-  border: 1px solid var(--border);
-  border-radius: 10px !important;
+  border-radius: var(--radius-list) !important;
+  box-shadow: var(--shadow-md);
   padding: 0 !important;
   overflow: hidden;
 }
 
 .brick-popup .leaflet-popup-tip {
   background: var(--surface) !important;
-  border: 1px solid var(--border);
 }
 
 .brick-popup .leaflet-popup-content {

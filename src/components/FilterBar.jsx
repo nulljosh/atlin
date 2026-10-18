@@ -50,85 +50,52 @@ export default function FilterBar({ resultCount }) {
     return `${money(band.min)} – ${money(band.max)}`
   }
 
+  const bands = priceBands(market, mode)
+  const bandIndex = Math.max(0, bands.findIndex(b => b.min === filters.priceMin && b.max === filters.priceMax))
+
   return (
-    <div className="filter-bar fade-up">
-      <div className="filter-row">
-        <div className="filter-group">
-          <span className="section-label">{place.name}</span>
-          <div className="chip-row">
-            <button className={`chip ${mode === 'sale' ? 'active' : ''}`} onClick={() => setMode('sale')}>{t('for_sale')}</button>
-            <button className={`chip ${mode === 'rent' ? 'active' : ''}`} onClick={() => setMode('rent')}>{t('for_rent')}</button>
-          </div>
-        </div>
-        <div className="filter-group">
-          <span className="section-label">{t('price')}</span>
-          <div className="chip-row">
-            {priceBands(market, mode).map((band, i) => (
-              <button
-                key={i}
-                className={`chip ${filters.priceMin === band.min && filters.priceMax === band.max ? 'active' : ''}`}
-                onClick={() => { updateFilter('priceMin', band.min); updateFilter('priceMax', band.max) }}
-              >
-                {bandLabel(band, i)}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="filter-group">
-          <span className="section-label">{t('beds')}</span>
-          <div className="chip-row">
-            {bedOptions.map(value => (
-              <button
-                key={value}
-                className={`chip ${filters.beds === value ? 'active' : ''}`}
-                onClick={() => updateFilter('beds', value)}
-              >
-                {value === 0 ? t('any_beds') : `${value}+`}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="filter-group">
-          <span className="section-label">{t('type')}</span>
-          <div className="chip-row">
-            {['all', ...propertyTypes].map(value => (
-              <button
-                key={value}
-                className={`chip ${filters.propertyType === value ? 'active' : ''}`}
-                onClick={() => updateFilter('propertyType', value)}
-              >
-                {value === 'all' ? t('all_types') : t(value)}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="filter-group">
-          <span className="section-label">{t('sort')}</span>
-          <div className="chip-row">
-            {sortOptions.map(value => (
-              <button
-                key={value}
-                className={`chip ${filters.sort === value ? 'active' : ''}`}
-                onClick={() => updateFilter('sort', value)}
-              >
-                {t(sortKeys[value])}
-              </button>
-            ))}
-          </div>
-        </div>
+    <div className="filter-bar">
+      <div className="segmented" role="group" aria-label={place.name}>
+        <button className={mode === 'sale' ? 'active' : ''} aria-pressed={mode === 'sale'} onClick={() => setMode('sale')}>{t('for_sale')}</button>
+        <button className={mode === 'rent' ? 'active' : ''} aria-pressed={mode === 'rent'} onClick={() => setMode('rent')}>{t('for_rent')}</button>
+      </div>
+      <div className="filter-menus">
+        <Menu label={t('price')} value={bandIndex} onChange={i => { updateFilter('priceMin', bands[i].min); updateFilter('priceMax', bands[i].max) }}>
+          {bands.map((band, i) => <option key={i} value={i}>{bandLabel(band, i)}</option>)}
+        </Menu>
+        <Menu label={t('beds')} value={filters.beds} onChange={v => updateFilter('beds', +v)}>
+          {bedOptions.map(v => <option key={v} value={v}>{v === 0 ? t('any_beds') : `${v}+ ${t('beds')}`}</option>)}
+        </Menu>
+        <Menu label={t('type')} value={filters.propertyType} onChange={v => updateFilter('propertyType', v)}>
+          {['all', ...propertyTypes].map(v => <option key={v} value={v}>{v === 'all' ? t('all_types') : t(v)}</option>)}
+        </Menu>
+        <Menu label={t('sort')} value={filters.sort} onChange={v => updateFilter('sort', v)}>
+          {sortOptions.map(v => <option key={v} value={v}>{t(sortKeys[v])}</option>)}
+        </Menu>
       </div>
       <div className="filter-result-count">
         <span className="section-label">{t('results', { n: new Intl.NumberFormat(language).format(resultCount) })}</span>
         <button
           className={`chip ${filters.favoritesOnly ? 'active' : ''}`}
+          aria-pressed={filters.favoritesOnly}
           onClick={() => updateFilter('favoritesOnly', !filters.favoritesOnly)}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill={filters.favoritesOnly ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill={filters.favoritesOnly ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
           {t('favorites')}
         </button>
       </div>
     </div>
+  )
+}
+
+// A native select drawn as a capsule: the system picker on a phone, a menu on a Mac.
+function Menu({ label, value, onChange, children }) {
+  return (
+    <label className="menu">
+      <span className="menu-label">{label}</span>
+      <select value={value} onChange={e => onChange(e.target.value)} aria-label={label}>{children}</select>
+    </label>
   )
 }

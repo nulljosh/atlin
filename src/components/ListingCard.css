@@ -9,7 +9,7 @@
   position: relative;
   aspect-ratio: 16 / 11;
   overflow: hidden;
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  border-radius: var(--radius-list);
 }
 
 .listing-card-img img {
@@ -25,15 +25,15 @@
 
 .fav-btn {
   position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  width: 36px;
-  height: 36px;
+  top: var(--s3);
+  right: var(--s3);
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: none;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(8px);
-  color: #3A2A20;
+  color: #1d1d1f;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -46,16 +46,16 @@
 }
 
 .fav-btn.active {
-  color: #96654E;
+  color: var(--accent);
 }
 
 .listing-type-badge {
   position: absolute;
-  bottom: 0.75rem;
-  left: 0.75rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 100px;
-  background: rgba(58, 42, 32, 0.7);
+  bottom: var(--s3);
+  left: var(--s3);
+  padding: var(--s1) var(--s3);
+  border-radius: var(--radius-pill);
+  background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(8px);
   font-size: 0.6875rem;
   font-weight: 600;
@@ -66,10 +66,10 @@
 
 .listing-new-badge {
   position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
-  padding: 0.25rem 0.625rem;
-  border-radius: 100px;
+  top: var(--s3);
+  left: var(--s3);
+  padding: var(--s1) var(--s3);
+  border-radius: var(--radius-pill);
   background: var(--green);
   font-size: 0.6875rem;
   font-weight: 600;
@@ -79,12 +79,14 @@
 }
 
 .listing-card-body {
-  padding: 1rem;
+  padding: var(--s3) var(--s1) var(--s1);
 }
 
 .listing-price {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1.375rem;
+  line-height: 28px;
+  letter-spacing: -0.022em;
   font-weight: 700;
   color: var(--text);
   margin-bottom: 0.25rem;

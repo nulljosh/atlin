@@ -8,7 +8,7 @@ const defaultFilters = {
   priceMax: Infinity,
   beds: 0,
   propertyType: 'all',
-  sort: 'price-asc',
+  sort: 'deal',
   favoritesOnly: false
 }
 

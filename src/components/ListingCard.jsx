@@ -2,17 +2,14 @@ import { Link } from 'react-router-dom'
 import { useFavorites } from '../context/FavoritesContext'
 import { listingFormatters, thumb } from '../lib/format'
 import { useI18n } from '../i18n'
+import BrickMark from './BrickMark'
 import './ListingCard.css'
 
 // Many real listings come without photos. A quiet brick mark beats a white hole.
 export function NoPhoto() {
   return (
     <div className="no-photo" aria-hidden="true">
-      <svg width="56" height="32" viewBox="144 312 736 416">
-        <rect x="344" y="328" width="336" height="176" rx="28" />
-        <rect x="160" y="536" width="336" height="176" rx="28" />
-        <rect x="528" y="536" width="336" height="176" rx="28" />
-      </svg>
+      <BrickMark size={56} />
     </div>
   )
 }

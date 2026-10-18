@@ -1,22 +1,20 @@
-.ask { margin-bottom: 1.5rem; }
+.ask { margin-bottom: var(--s4); }
 
 .ask-bar {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0.5rem 0.5rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--surface);
+  gap: var(--s3);
+  min-height: var(--control);
+  padding: var(--s1) var(--s1) var(--s1) var(--s4);
+  border-radius: var(--radius-pill);
+  background: var(--bg2);
   overflow: hidden;
   transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 
 .ask-bar:focus-within {
-  border-color: var(--clay);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--clay) 18%, transparent);
-  transform: translateY(-1px);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 .ask-bar input {
@@ -28,12 +26,12 @@
   color: var(--text);
   font: inherit;
   font-size: 1.0625rem;
-  padding: 0.5rem 0;
+  padding: 0;
 }
 
 .ask-spark {
   flex-shrink: 0;
-  color: var(--clay);
+  color: var(--accent);
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -46,7 +44,7 @@
   position: absolute;
   left: 0; bottom: 0;
   width: 40%; height: 2px;
-  background: var(--clay);
+  background: var(--accent);
   transform: translateX(-100%);
   opacity: 0;
 }
@@ -56,8 +54,8 @@
 .ask-suggestions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
+  gap: var(--s2);
+  margin-top: var(--s3);
 }
 
 .ask-suggestions .chip { animation: fadeUp 0.4s ease both; }
@@ -77,7 +75,7 @@
 .ask-answer span {
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--clay) 14%, transparent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
   color: var(--text);
   font-size: 0.875rem;
   animation: ask-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;

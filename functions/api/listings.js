@@ -64,7 +64,8 @@ async function housingfeed(env, p) {
   if (res.status === 400) return []
   if (!res.ok) throw new Error(`housingfeed ${res.status}`)
   return (await res.json()).filter(r => r.lat && r.lng && (r.rent_min || r.rent_max)).map(r => {
-    const photos = (r.images?.length ? r.images : [r.image]).filter(Boolean)
+    // Property managers upload promo graphics ("Free Rent!") as the first photo; a graphic is not a home.
+    const photos = (r.images?.length ? r.images : [r.image]).filter(u => u && !promo.test(u))
     return shape(p, 'rent', {
       id: `hf-${r.id || r.listing_id}`.replace(/[^\w-]/g, '_'),
       source: 'HousingFeed', url: r.url,
@@ -80,6 +81,8 @@ async function housingfeed(env, p) {
     })
   })
 }
+
+const promo = /promo|graphic|banner|free[-_ ]?rent|move[-_ ]?in|logo|flyer/i
 
 // "Township of Langley" -> "Langley".
 const townName = s => s.replace(/^(township|city|district|town|municipality|village) of /i, '').replace(/ (township|city|district)$/i, '').trim()

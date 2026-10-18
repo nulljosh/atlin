@@ -1,58 +1,87 @@
 .filter-bar {
-  margin-bottom: 1.5rem;
-}
-
-.filter-row {
-  display: flex;
-  /* The five groups are wider than any laptop, and the scrollbar is hidden, so
-     a single row just looked cut off mid-chip. Wrapping shows every filter. */
-  flex-wrap: wrap;
-  row-gap: 1rem;
-  gap: 1.5rem;
-  overflow-x: auto;
-  padding-bottom: 0.75rem;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.filter-row::-webkit-scrollbar {
-  display: none;
-}
-
-.filter-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  flex-shrink: 0;
+  gap: var(--s3);
+  margin-bottom: var(--s4);
 }
 
-.chip-row {
-  display: flex;
-  gap: 0.375rem;
+/* Sale / rent: one segmented control, 48 points tall. */
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: var(--s1);
+  border-radius: var(--radius-pill);
+  background: var(--bg2);
+}
+
+.segmented button {
+  min-height: 40px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--ease), color var(--ease);
+}
+
+.segmented button.active {
+  background: var(--bg);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.filter-menus {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s2);
+}
+
+.menu {
+  position: relative;
+  display: block;
+}
+
+.menu-label {
+  position: absolute;
+  top: 6px;
+  inset-inline-start: var(--s4);
+  font-size: 0.6875rem;
+  line-height: 14px;
+  color: var(--text2);
+  pointer-events: none;
+}
+
+.menu select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  min-height: var(--control);
+  padding: 18px 40px 0 var(--s4);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--bg2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E") no-repeat right var(--s4) center;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+[dir="rtl"] .menu select {
+  padding: 18px var(--s4) 0 40px;
+  background-position: left var(--s4) center;
 }
 
 .filter-result-count {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--border);
+  gap: var(--s3);
 }
 
-@media (max-width: 767px) {
-  .filter-row {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .chip-row {
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    padding-bottom: 2px;
-  }
-
-  .chip-row::-webkit-scrollbar {
-    display: none;
-  }
+@media (min-width: 1024px) {
+  .filter-menus { grid-template-columns: repeat(4, 1fr); }
 }

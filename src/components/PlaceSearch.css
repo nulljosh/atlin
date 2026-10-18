@@ -2,24 +2,25 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--s2);
   flex: 1;
   max-width: 22rem;
-  padding: 0 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--surface-2);
+  min-height: 40px;
+  padding: 0 var(--s4);
+  border-radius: var(--radius-pill);
+  background: var(--bg2);
   color: var(--text-dim);
 }
 
 .place-search input {
   flex: 1;
   min-width: 0;
-  padding: 0.5rem 0;
+  padding: 0;
   border: 0;
   background: none;
   color: var(--text);
   font: inherit;
+  font-size: 1.0625rem;
   outline: none;
 }
 
@@ -32,11 +33,10 @@
   max-height: 20rem;
   overflow-y: auto;
   margin: 0;
-  padding: 0.25rem;
+  padding: var(--s2);
   list-style: none;
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  background: var(--surface);
+  border-radius: var(--radius-list);
+  background: var(--bg);
   box-shadow: var(--shadow-md);
 }
 
@@ -45,9 +45,9 @@
   flex-direction: column;
   gap: 0.1rem;
   width: 100%;
-  padding: 0.5rem 0.65rem;
+  padding: var(--s3) var(--s4);
   border: 0;
-  border-radius: 0.5rem;
+  border-radius: var(--s4);
   background: none;
   color: var(--text);
   text-align: start;
@@ -69,3 +69,5 @@
   color: var(--text-dim);
   font-size: 0.85rem;
 }
+
+.place-search:focus-within { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 30%, transparent); }

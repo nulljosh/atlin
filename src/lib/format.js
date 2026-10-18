@@ -4,6 +4,13 @@ import { formatMoney, formatMoneyCompact, formatArea } from './market'
 // wsrv.nl resizes and re-encodes them on its CDN, so a card loads a ~40 KB WebP.
 // ponytail: free third-party resizer. If it goes down, swap for Cloudflare
 // Image Resizing on the zone.
+// Managers upload "Free Rent!" graphics as the first photo; a graphic is not a home.
+const promo = /promo|graphic|banner|free[-_ ]?rent|move[-_ ]?in|logo|flyer/i
+export function cleanPhotos(l) {
+  const photos = (l.photos?.length ? l.photos : [l.photo]).filter(u => u && !promo.test(u))
+  return { ...l, photos, photo: photos[0] || null }
+}
+
 export function thumb(url, width) {
   if (!url || !/^https?:/.test(url)) return url
   const h = Math.round(width * 0.6875)

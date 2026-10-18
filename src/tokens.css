@@ -1,63 +1,65 @@
-@import url("https://jaybulb.com/tokens.css");
-:root{--clay:#B5836A;--cream:var(--color-bg2);--charcoal:var(--color-text);--accent2:#96654E;--font-display:var(--font-body);--font:var(--font-body);--cell0:var(--bg2);--cell1:#EFD6C2;--cell2:#DDB89E;--cell3:#C9A184;--cell4:#B5836A;}
+/* Brick tokens. One accent, system font, 8 point grid, one set of radii.
+   brand/tokens.css holds the accent; this file is what the app reads. */
+@import url("../brand/tokens.css");
 
-/* Brick keeps its warm brown accent on the shared portfolio geometry and type. */
 :root {
-  --surface: #FFFFFF;
-  --surface-2: #F6F1EA;
-  --text-dim: var(--text2);
-  --cream-dim: var(--text2);
-  --muted: var(--text2);
-
-  --navy: #1A1A1A;
-  --navy-light: #222222;
-  --navy-lighter: #2C2C2C;
-  --blue-dark: #96654E;
-  --blue: #B5836A;
-  --blue-light: #D2A88E;
+  /* colour */
+  --color-bg: #ffffff;
+  --color-bg2: #f5f5f7;
+  --color-text: #1d1d1f;
+  --color-secondary: rgba(29, 29, 31, 0.6);
+  --color-hairline: rgba(0, 0, 0, 0.1);
+  --text3: rgba(29, 29, 31, 0.36);
   --green: #1a7f37;
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --surface: #1E1E1E;
-    --surface-2: #262626;
-    --border2: rgba(255,255,255,0.06);
-    --text-dim: var(--text2);
+  /* type: the system font only */
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
-    --navy: #1A1A1A;
-    --navy-light: #222222;
-    --navy-lighter: #2C2C2C;
-    --cream: #F2F2F2;
-    --cream-dim: var(--text2);
-    --muted: var(--text2);
-    --blue-dark: #D2A88E;
-    --blue: #B5836A;
-    --blue-light: #E0BFA9;
-  }
-}
+  /* space, 8 point grid */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
+  --margin: 20px;
+  --control: 48px;
+  --nav: 64px;
 
-/* Neutral greys under the clay accent. The shared portfolio tokens lean
-   cream and yellow (hairlines #dcd2bd, warm text), which Brick drops. */
-:root {
-  --color-bg: #FFFFFF;
-  --color-bg2: #F4F4F4;
-  --surface-2: #F4F4F4;
-  --color-hairline: #E4E4E4;
-  --color-text: #161616;
-  --color-secondary: rgba(0, 0, 0, 0.58);
-  --text3: rgba(0, 0, 0, 0.34);
+  /* radii: cards 28, grouped lists 20, controls fully round */
+  --radius-card: 28px;
+  --radius-list: 20px;
+  --radius-pill: 999px;
+
+  --ease: 0.2s ease;
+  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --color-bg: #121212;
-    --color-bg2: #1C1C1C;
-    --color-hairline: #2E2E2E;
-    --color-text: #F2F2F2;
-    --color-secondary: rgba(255, 255, 255, 0.6);
-    --text3: rgba(255, 255, 255, 0.34);
-    --surface: #1E1E1E;
-    --surface-2: #262626;
+    --color-bg: #000000;
+    --color-bg2: #1c1c1e;
+    --color-text: #f5f5f7;
+    --color-secondary: rgba(245, 245, 247, 0.6);
+    --color-hairline: rgba(255, 255, 255, 0.14);
+    --text3: rgba(245, 245, 247, 0.36);
+    --accent: #ef5b3c;
+    --green: #30d158;
   }
+}
+
+/* Aliases the components were written against. */
+:root {
+  --bg: var(--color-bg);
+  --bg2: var(--color-bg2);
+  --surface: var(--color-bg);
+  --surface-2: var(--color-bg2);
+  --text: var(--color-text);
+  --text2: var(--color-secondary);
+  --text-dim: var(--color-secondary);
+  --cream-dim: var(--color-secondary);
+  --muted: var(--color-secondary);
+  --border: var(--color-hairline);
+  --clay: var(--accent);
+  --font-display: var(--font);
+  --radius: var(--radius-list);
+  --radius-md: var(--radius-list);
+  --radius-sm: 12px;
+  --radius-lg: var(--radius-card);
+  --spring: ease;
 }

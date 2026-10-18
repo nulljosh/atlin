@@ -8,6 +8,9 @@ import { FiltersProvider } from './context/FiltersContext'
 import { PlaceProvider } from './context/PlaceContext'
 import { I18nProvider } from './i18n'
 import './styles/index.css'
+import { migrateStorage } from './lib/migrateStorage'
+
+migrateStorage()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
