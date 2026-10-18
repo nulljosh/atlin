@@ -136,3 +136,11 @@
 
 /* Pinch to zoom on a phone; the +/- would sit under the sheet. */
 @media (max-width: 700px) { .leaflet-control-zoom { display: none; } }
+
+/* Embedded in the landing page: the same app, minus the nav, inside its own frame. */
+html.embed .page.browse { padding: 0; height: 100dvh; overflow: hidden; }
+html.embed .page.browse .map-container { position: absolute; height: 100%; }
+html.embed .browse-panel { margin: var(--s4); width: min(420px, calc(100% - var(--s5) * 2)); max-height: calc(100dvh - var(--s5) * 2); }
+@media (max-width: 700px) {
+  html.embed .browse-panel { margin: 38dvh 0 0; width: 100%; max-height: 62dvh; overflow-y: auto; }
+}

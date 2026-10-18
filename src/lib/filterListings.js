@@ -6,6 +6,8 @@ export function filterListings(listings, filters, favoriteSet = new Set()) {
     if (filters.beds > 0 && l.beds < filters.beds) return false
     if (filters.propertyType !== 'all' && l.type !== filters.propertyType) return false
     if (filters.favoritesOnly && !favoriteSet.has(l.id)) return false
+    if (filters.dealsOnly && !(l.deal >= 5)) return false
+    if (filters.freshOnly && l.listedDaysAgo > 7) return false
     return true
   })
 

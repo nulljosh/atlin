@@ -6,7 +6,6 @@ import { marketFor, formatMoneyCompact } from '../lib/market'
 import { parseAsk } from '../lib/ask'
 import './AskBar.css'
 
-const suggestions = ['ask_s_deals', 'ask_s_beds', 'ask_s_space', 'ask_s_new', 'ask_s_cheap']
 const sortKeys = { deal: 'sort_deal', 'price-asc': 'sort_price_asc', 'price-desc': 'sort_price_desc', newest: 'sort_newest', 'sqft-desc': 'sort_largest' }
 
 export default function AskBar({ resultCount, onAnswer }) {
@@ -60,11 +59,6 @@ export default function AskBar({ resultCount, onAnswer }) {
         />
         <button className="btn btn-primary" disabled={busy || !q.trim()}>{t('ask_button')}</button>
       </form>
-      <div className="ask-suggestions">
-        {suggestions.map((key, i) => (
-          <button key={key} className="chip" style={{ animationDelay: `${i * 0.05}s` }} onClick={() => ask(t(key))}>{t(key)}</button>
-        ))}
-      </div>
       {parts && (
         <p className="ask-answer" key={parts.join()} role="status">
           <strong>{t('results', { n: new Intl.NumberFormat(language).format(resultCount) })}</strong>

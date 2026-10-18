@@ -30,9 +30,9 @@ export default function Nav() {
               <option key={code} value={code}>{languageLabel(code)}</option>
             ))}
           </select>
-          <Link to="/settings" className={`nav-link ${location.pathname === '/settings' ? 'active' : ''}`}>
-            {user?.name?.split(' ')[0] || t('settings')}
-          </Link>
+          {user
+            ? <Link to="/settings" className={`nav-link ${location.pathname === '/settings' ? 'active' : ''}`}>{user.name?.split(' ')[0] || t('settings')}</Link>
+            : <Link to="/login" className="nav-link">{t('sign_in')}</Link>}
         </div>
       </div>
     </nav>

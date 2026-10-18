@@ -193,6 +193,20 @@ struct FilterRow: View {
 
     var body: some View {
         @Bindable var store = store
+        VStack(alignment: .leading, spacing: Space.s) {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: Space.s) {
+                ForEach(DealMode.allCases) { m in
+                    Button { store.apply(m) } label: {
+                        Text(m.rawValue).font(.subheadline.weight(.medium))
+                            .padding(.horizontal, Space.m).frame(minHeight: 44)
+                            .background(store.isActive(m) ? AnyShapeStyle(Color.primary) : AnyShapeStyle(.quaternary), in: Capsule())
+                            .foregroundStyle(store.isActive(m) ? AnyShapeStyle(.background) : AnyShapeStyle(.primary))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: Space.s) {
                 FilterMenu(title: "Beds", value: store.minBeds == 0 ? "Any" : "\(store.minBeds)+", active: store.minBeds > 0) {
@@ -221,6 +235,7 @@ struct FilterRow: View {
                     }
                 }
             }
+        }
         }
     }
 }

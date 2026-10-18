@@ -57,6 +57,15 @@ enum SortMode: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+enum DealMode: String, CaseIterable, Identifiable {
+    case bestDeals = "Best deals", value = "2+ beds, best value", space = "Most space", fresh = "Just listed"
+    var id: String { rawValue }
+    var sort: SortMode { self == .space ? .largest : self == .fresh ? .newest : .deal }
+    var dealsOnly: Bool { self == .bestDeals || self == .value }
+    var freshOnly: Bool { self == .fresh }
+    var beds: Int { self == .value ? 2 : 0 }
+}
+
 struct Place: Codable, Hashable, Identifiable, Sendable {
     var id: String { "\(lat),\(lng)" }
     let name: String
@@ -108,6 +117,16 @@ final class Store {
     var type: String? = nil
     var maxPrice: Double? = nil
     var sort = SortMode.deal
+    var dealsOnly = false
+    var freshOnly = false
+
+    // One tap sets the whole filter set. Same four modes as src/lib/modes.js.
+    func apply(_ m: DealMode) {
+        sort = m.sort; dealsOnly = m.dealsOnly; freshOnly = m.freshOnly; minBeds = m.beds
+    }
+    func isActive(_ m: DealMode) -> Bool {
+        sort == m.sort && dealsOnly == m.dealsOnly && freshOnly == m.freshOnly && minBeds == m.beds
+    }
 
     // Sale is offered only where a sale feed exists (US), the same rule as the web.
     var saleAvailable: Bool { place.countryCode == "US" && modes.contains("sale") }
@@ -115,6 +134,7 @@ final class Store {
     var visible: [Listing] {
         let rows = listings.filter { l in
             (minBeds == 0 || l.beds >= Double(minBeds)) && (type == nil || l.type == type) && (maxPrice == nil || l.price <= maxPrice!)
+                && (!dealsOnly || l.deal >= 5) && (!freshOnly || (l.listedDaysAgo ?? 99) <= 7)
         }
         switch sort {
         case .deal: return rows.sorted { $0.deal > $1.deal }

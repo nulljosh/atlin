@@ -82,6 +82,8 @@
   gap: var(--s3);
 }
 
-@media (min-width: 1024px) {
-  .filter-menus { grid-template-columns: repeat(4, 1fr); }
-}
+
+/* Modes: one swipeable row of one-tap presets. */
+.modes { display: flex; gap: var(--s2); overflow-x: auto; scrollbar-width: none; }
+.modes::-webkit-scrollbar { display: none; }
+.modes .chip { flex-shrink: 0; }

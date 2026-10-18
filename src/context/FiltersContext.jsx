@@ -9,7 +9,9 @@ const defaultFilters = {
   beds: 0,
   propertyType: 'all',
   sort: 'deal',
-  favoritesOnly: false
+  favoritesOnly: false,
+  dealsOnly: false,
+  freshOnly: false
 }
 
 export function FiltersProvider({ children }) {

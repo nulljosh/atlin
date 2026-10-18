@@ -3,6 +3,7 @@ import { usePlace } from '../context/PlaceContext'
 import { useI18n } from '../i18n'
 import { marketFor, formatMoneyCompact } from '../lib/market'
 import { propertyTypes } from '../data/listings'
+import { modes, modeActive } from '../lib/modes'
 import './FilterBar.css'
 
 // A fixed "under $500K" band is meaningless in Lagos and in Zurich, so the
@@ -37,7 +38,7 @@ const sortKeys = {
 }
 
 export default function FilterBar({ resultCount }) {
-  const { filters, updateFilter } = useFilters()
+  const { filters, updateFilter, applyFilters } = useFilters()
   const { place, mode, setMode, saleAvailable } = usePlace()
   const { language, t } = useI18n()
   const market = marketFor(place.countryCode)
@@ -55,6 +56,12 @@ export default function FilterBar({ resultCount }) {
 
   return (
     <div className="filter-bar">
+      <div className="modes" role="group" aria-label={t('sort')}>
+        {modes.map(m => (
+          <button key={m.key} className={`chip ${modeActive(m, filters) ? 'active' : ''}`} aria-pressed={modeActive(m, filters)}
+            onClick={() => applyFilters({ ...filters, ...m.set })}>{t(m.key)}</button>
+        ))}
+      </div>
       {saleAvailable && <div className="segmented" role="group" aria-label={place.name}>
         <button className={mode === 'sale' ? 'active' : ''} aria-pressed={mode === 'sale'} onClick={() => setMode('sale')}>{t('for_sale')}</button>
         <button className={mode === 'rent' ? 'active' : ''} aria-pressed={mode === 'rent'} onClick={() => setMode('rent')}>{t('for_rent')}</button>

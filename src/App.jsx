@@ -20,11 +20,14 @@ function ProtectedRoute({ children }) {
 
 export default function App() {
   const { user } = useAuth()
+  // The landing runs the real app in a frame-less iframe: /browse?embed.
+  const embed = new URLSearchParams(location.search).has('embed')
+  document.documentElement.classList.toggle('embed', embed)
 
   return (
     <div className="app">
       <div className="noise-overlay" />
-      {user && <Nav />}
+      {!embed && location.pathname !== '/' && <Nav />}
       {user && <WebMCP />}
       <Suspense fallback={<p role="status">Loading…</p>}>
       <Routes>
@@ -32,8 +35,8 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/" element={user ? <Navigate to="/browse" replace /> : <Landing />} />
-        <Route path="/browse" element={<ProtectedRoute><Listings /></ProtectedRoute>} />
-        <Route path="/listing/:id" element={<ProtectedRoute><ListingDetail /></ProtectedRoute>} />
+        <Route path="/browse" element={<Listings />} />
+        <Route path="/listing/:id" element={<ListingDetail />} />
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       </Routes>
       </Suspense>
