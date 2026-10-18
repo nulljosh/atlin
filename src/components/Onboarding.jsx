@@ -16,7 +16,7 @@ export default function Onboarding() {
   const [open, setOpen] = useState(() => { try { return !localStorage.getItem(KEY) } catch { return false } })
   const ref = useRef(null)
 
-  useEffect(() => { if (open && ready && !user && ref.current && !ref.current.open) ref.current.showModal() }, [open, ready, user])
+  useEffect(() => { if (open && ready && !user && ref.current && !ref.current.open) { ref.current.showModal(); ref.current.focus() } }, [open, ready, user])
   if (!open || !ready || user) return null
 
   function finish() {
@@ -26,7 +26,7 @@ export default function Onboarding() {
   const last = i === steps.length - 1
 
   return (
-    <dialog ref={ref} className="onboarding" aria-labelledby="ob-title" onCancel={finish}>
+    <dialog ref={ref} className="onboarding" tabIndex={-1} aria-labelledby="ob-title" onCancel={finish}>
       <AtlinMark className="ob-mark" size={56} />
       <h2 id="ob-title">{t(`onboard_${i + 1}_title`)}</h2>
       <p>{t(`onboard_${i + 1}_body`)}</p>

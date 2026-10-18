@@ -16,7 +16,7 @@ export function FavoritesProvider({ children }) {
   const { t } = useI18n()
   const [asking, setAsking] = useState(false)
   const dialog = useRef(null)
-  useEffect(() => { if (asking && dialog.current && !dialog.current.open) dialog.current.showModal() }, [asking])
+  useEffect(() => { if (asking && dialog.current && !dialog.current.open) { dialog.current.showModal(); dialog.current.focus() } }, [asking])
   const syncedFor = useRef(null)
 
   const favoriteSet = useMemo(() => new Set(favorites), [favorites])
@@ -67,7 +67,7 @@ export function FavoritesProvider({ children }) {
     <FavoritesContext.Provider value={{ favorites, favoriteSet, toggle, isFavorite }}>
       {children}
       {asking && !user && (
-        <dialog ref={dialog} className="save-prompt" aria-labelledby="sp-title" onClose={() => setAsking(false)}>
+        <dialog ref={dialog} className="save-prompt" tabIndex={-1} aria-labelledby="sp-title" onClose={() => setAsking(false)}>
           <h2 id="sp-title">{t('save_prompt_title')}</h2>
           <p>{t('save_prompt_body')}</p>
           <div className="ob-actions">
