@@ -38,11 +38,12 @@ Cloudflare Pages project `roost` (infra name only: Pages projects cannot be rena
 npm run build && npx wrangler pages deploy dist --project-name=roost --branch=main
 ```
 
-Listing keys
-are Pages secrets read by `functions/api/listings.js`, never in the bundle:
-`npx wrangler pages secret put RENTCAST_KEY --project-name=roost` (US sale + rent),
-`APIFY_TOKEN` (HousingFeed rentals, 30 countries). With no key the app shows
-sample homes, labeled as samples.
+Listing sources: Craigslist (no key, nearest area, photo posts only),
+HousingFeed via `APIFY_TOKEN` (rentals, 30 countries) and RentCast via
+`RENTCAST_KEY` (US sale and rent; the key currently answers 403). Keys are Pages
+secrets, never in the bundle: `npx wrangler pages secret put <NAME> --project-name=roost`.
+Photo filters (ad cards, shared logos) live in `src/lib/format.js` and are mirrored in
+`ios/Sources/Store.swift`.
 
 ## Key Files
 
@@ -61,7 +62,7 @@ sample homes, labeled as samples.
 - src/components/AskBar.jsx: the ask bar on /browse. Browse is public; no sign-in needed
 - src/lib/tools.js, functions/api/deals.js, functions/mcp.js: `/api/deals` and `/mcp` (search_deals, ask_atlin), shared tools
 - src/lib/modes.js: the one-tap deal modes, mirrored in ios/Sources/Store.swift (DealMode)
-- functions/api/listings.js: Live listings proxy (RentCast, HousingFeed), 24h KV cache
+- functions/api/listings.js: Live listings proxy (Craigslist, HousingFeed, RentCast), merged, deduped, 24h KV cache. Bump the cache key prefix when the row shape changes
 - src/data/listings.js: Per-place seeded listing generation (MLS/IDX shape)
 - src/pages/: Landing, Login, Register, ForgotPassword, Listings, ListingDetail, Settings
 - ios/Sources/Auth.swift: native sign-in against jaybulb-api (Sign in with Apple, email and password, delete account, saved homes synced as the same id list the web keeps). Refresh token in the Keychain

@@ -9,10 +9,9 @@
 
 **Terminal:** `swift build && ./.build/debug/atlin-tui "Vancouver"` — see [tui/](tui/)
 
-Browse homes anywhere on earth.
+Real homes on a map, ranked by deal.
 
-Type a city. Any city. Flip between for sale and for rent. Every price in the local
-currency, every label in the local language.
+Type a city. Atlin shows what is for rent or for sale there, scores each home against the typical price for its size, and puts the best deals first. Every price in the local currency, every label in your language.
 
 ![Landing](docs/screenshots/landing.jpg)
 
@@ -24,13 +23,14 @@ currency, every label in the local language.
 
 ## Features
 
-- Find any place on earth through Nominatim. No API key
-- Real street names from OpenStreetMap for wherever you're looking
-- Currency, price levels, rental yields and ft² or m², per country
-- Sale and rent, with price filters cut to the local market's own scale
-- 25 languages, right-to-left included, picked from your browser
-- A map with price pills, filters and favourites
-- Accounts on Cloudflare: email and password, forgot password, sessions that stick
+- Real homes for rent and for sale from Craigslist, HousingFeed and RentCast
+- Every home scored against the typical price for its size, best deals first
+- Ad cards filtered out; homes without photos show a street map
+- Any place on earth, prices in the local currency, ft² or m² per country
+- 27 languages, right-to-left included, picked from your browser
+- Search in plain words: "2 bed under 2,500"
+- Sign in with Apple, Google or email; saved homes sync to iPhone and Mac
+- iPhone and Mac app from one SwiftUI target
 
 ## Run
 
@@ -43,9 +43,7 @@ node src/data/listings.test.mjs
 
 ## Data
 
-Listings are generated per place and seeded from its coordinates, so a city always
-shows the same homes. The shape matches an MLS/IDX response. Swapping in a real
-feed is one function in `src/data/listings.js`.
+`functions/api/listings.js` asks Craigslist, HousingFeed and RentCast at once, merges and dedupes them, and caches the result for a day. With no live source for a place, the app shows sample homes and says so.
 
 ## Source
 

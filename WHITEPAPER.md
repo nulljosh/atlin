@@ -1,56 +1,46 @@
 # Atlin Technical Whitepaper
 
-**v3.0.0** | August 2026
+**v3.0.0** | October 2026
 
-Browse homes anywhere on earth.
+Atlin puts real homes for rent and for sale on a map, ranks them by how good a deal they are, and shows every price in the local currency and every label in your own language. It runs on the web, iPhone and Mac. The web app is React on Cloudflare Pages. The native app is one SwiftUI target. Both read the same listings endpoint.
 
-Atlin is a map of what's for sale or for rent, filters that narrow it, and
-favourites that survive a reload. It exists because browsing homes abroad
-usually means guessing at a foreign currency and a site that only half
-translates, so every price renders in the local currency and every
-label in the local language. React and Vite, no backend beyond the jaybulb-api Worker on Cloudflare, because nothing here needs a server to hold state that a browser can hold on its own.
+## The deal score
 
-## Problem
+The core of Atlin is one number: how far under the typical price a home sits. Atlin takes every home in the current search, groups them by bedroom count, and finds the median price in each group. A home's score is its percent under that median. Groups with fewer than three homes score zero, because there is nothing fair to compare against. A score over 60 percent is almost always a room share or a typo, so it is dropped. Rooms in shared houses never count against whole units.
 
-Every listings site optimizes for the brokerage, not the buyer, listings are
-paginated behind lead-capture forms, the map is an afterthought, and filter
-state resets on every navigation. Atlin inverts that: the map is the app, and
-the filter state is the URL.
+This is a median of what is on screen, not a valuation model. It answers the question a renter actually asks, which is whether this one is cheap for what it is, here, today.
 
-## Map and Listings
+## Listings
 
-Leaflet with Zillow-style price-pill markers rather than generic pins, the
-price is the thing a buyer scans for, so it renders in the marker instead of
-in a popup that costs a click. Filters (price range, beds, property type, sort
-order) narrow the same in-memory listing set that the map and list view share,
-so the two can never disagree about what matches.
+`/api/listings` is a Pages Function that asks three sources at once and merges the answers.
 
-The dataset is 50 mock BC listings (Vancouver, Victoria, Kelowna) in
-`src/data`. A real MLS/CREA feed is licensed per-brokerage and is the open
-dependency before this holds live inventory; the mock set exists so the UI and
-filter logic are finished and testable before that contract exists.
+- **Craigslist.** Private landlords with real photos, in every country Craigslist serves. Atlin picks the Craigslist area nearest the search and keeps photo posts within 40 km.
+- **HousingFeed.** Rental buildings in 30 countries, through Apify. Billed per row, so results are cached for a day.
+- **RentCast.** US homes for rent and for sale, when its key is set.
 
-## Auth and Persistence
+The same unit posted twice shows up once. Prices that cannot be real, under 300 a month or a sale under 50,000, are dropped.
 
-Accounts on jaybulb-api, a Cloudflare Worker with D1 (email + password, forgot-password flow, session persistence)
-gates the profile and saved-search preferences. Favorites are deliberately
-`localStorage`, not a database row: favoriting should work before signing in,
-and a favorite is worth nothing to anyone but the person who set it.
+## Photos
+
+Property managers often upload an offer card ("1 month free rent") as the main photo. Atlin drops photos that look like ads by name, square 900 by 900 tiles, and PNG graphics. A photo shared by three or more different buildings is a logo and is dropped too. A photo shared by units in one building is that building's real exterior and stays. A home with no usable photo gets a grey street map of where it is, never a blank tile. Homes with photos rank first.
+
+## Accounts
+
+Browsing never needs an account. Signing in keeps saved homes in sync across web, iPhone and Mac. Accounts live on jaybulb-api, a Cloudflare Worker on D1, with email and password, Sign in with Apple and Google. Apple and Google send an ID token that the Worker checks against the provider's published keys. The iPhone app keeps its refresh token in the Keychain. Account deletion is one button.
 
 ## Design
 
-Dark Editorial, flat backgrounds, no gradients, blue accent, `tokens.css`
-shared with the portfolio design system, because a listings app should look
-like a place to find a home, not like a brochure trying to sell you one.
+Apple's rules, applied literally: the system font, an 8 point grid, 48 point capsule controls, cards at radius 28 and grouped lists at 20, one blue accent, true black in dark mode. The icon is a folded map with a pin, built in Icon Composer.
 
 ## Stack
 
 | Layer | Tech |
 |-------|------|
-| Frontend | React + Vite, PWA |
-| Map | Leaflet |
-| Auth | jaybulb-api (Cloudflare Worker, D1) |
-| Data | Mock JSON (`src/data`), pending an MLS feed |
+| Web | React, Vite, Leaflet, PWA, Cloudflare Pages |
+| Native | SwiftUI, MapKit, iOS 17 and macOS 14 |
+| Listings | Pages Functions, Craigslist, HousingFeed, RentCast, 24 hour KV cache |
+| Accounts | jaybulb-api (Workers, D1), authmail on Resend |
+| Agents | `/api/deals` and `/mcp` |
 
 ## License
 
