@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
 import Nav from './components/Nav'
+import Onboarding from './components/Onboarding'
 import Landing from './pages/Landing'
 const Listings = lazy(() => import('./pages/Listings'))
 const ListingDetail = lazy(() => import('./pages/ListingDetail'))
@@ -22,6 +23,7 @@ export default function App() {
       <div className="noise-overlay" />
       {!embed && location.pathname !== '/' && <Nav />}
       {user && <WebMCP />}
+      {!embed && location.pathname === '/browse' && <Onboarding />}
       <Suspense fallback={<p role="status">Loading…</p>}>
       <Routes>
         <Route path="/login" element={<Login />} />

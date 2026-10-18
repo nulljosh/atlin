@@ -1,4 +1,7 @@
 import { createContext, useContext, useState, useEffect, useMemo, useRef } from 'react'
+import { Link } from 'react-router-dom'
+import { useI18n } from '../i18n'
+import '../components/Onboarding.css'
 import { useAuth } from './AuthContext'
 
 const FavoritesContext = createContext(null)
@@ -10,6 +13,10 @@ export function FavoritesProvider({ children }) {
   })
 
   const { user, updateProfile } = useAuth()
+  const { t } = useI18n()
+  const [asking, setAsking] = useState(false)
+  const dialog = useRef(null)
+  useEffect(() => { if (asking && dialog.current && !dialog.current.open) dialog.current.showModal() }, [asking])
   const syncedFor = useRef(null)
 
   const favoriteSet = useMemo(() => new Set(favorites), [favorites])
@@ -43,6 +50,8 @@ export function FavoritesProvider({ children }) {
   }, [favorites, favoriteSet, user, updateProfile])
 
   function toggle(listingId) {
+    // Saving belongs to an account; browsing never does.
+    if (!user) { setAsking(true); return }
     setFavorites(prev =>
       favoriteSet.has(listingId)
         ? prev.filter(id => id !== listingId)
@@ -57,6 +66,17 @@ export function FavoritesProvider({ children }) {
   return (
     <FavoritesContext.Provider value={{ favorites, favoriteSet, toggle, isFavorite }}>
       {children}
+      {asking && !user && (
+        <dialog ref={dialog} className="save-prompt" aria-labelledby="sp-title" onClose={() => setAsking(false)}>
+          <h2 id="sp-title">{t('save_prompt_title')}</h2>
+          <p>{t('save_prompt_body')}</p>
+          <div className="ob-actions">
+            <Link to="/register" className="btn btn-primary" onClick={() => setAsking(false)}>{t('sign_up')}</Link>
+            <Link to="/login" className="btn" onClick={() => setAsking(false)}>{t('sign_in')}</Link>
+          </div>
+          <button className="ob-skip" onClick={() => dialog.current?.close()}>{t('close')}</button>
+        </dialog>
+      )}
     </FavoritesContext.Provider>
   )
 }

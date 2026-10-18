@@ -6,7 +6,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#1C1410" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
     <meta name="description" content="Homes for sale and for rent, anywhere on earth. Search any city and read every price in the local currency, in your own language." />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Atlin" />
@@ -17,26 +17,18 @@
   </head>
   <body>
     <div id="root"></div>
+    <div id="splash" aria-hidden="true">
+      <svg width="112" height="120" viewBox="288 216 448 612" fill="#fff"><path fill-rule="evenodd" d="M512 820C388 680 296 568 296 440a216 216 0 0 1 432 0c0 128-92 240-216 380Z M512 318L650 440H600V556H424V440H374Z M486 556V488H538V556Z"/></svg>
+    </div>
+    <style>
+      #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:linear-gradient(#4aa3ff,#0a5fd6);transition:opacity .35s ease,visibility .35s}
+      #splash svg{animation:splashin .5s ease both}
+      #splash.done{opacity:0;visibility:hidden}
+      @keyframes splashin{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+      @media (prefers-reduced-motion:reduce){#splash svg{animation:none}#splash{transition:none}}
+    </style>
+
     <script type="module" src="/src/main.jsx"></script>
   
-<script src="/onboarding.js"></script>
-<script>
-    // First-run onboarding. Shows once, right after registration.
-    Onboarding.start({
-        key: "atlin",
-        finishLabel: "Get started",
-        slides: [
-                { title: "Browse without the clutter",
-                  body: "Atlin shows listings as pictures and numbers, not a wall of agent copy.",
-                  art: "<svg width=\"120\" height=\"120\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 20h16\"/><path d=\"M6 20V9l6-5 6 5v11\"/><path d=\"M10 20v-5h4v5\"/></svg>" },
-                { title: "Narrow it fast",
-                  body: "Filter by the things that actually decide it, then compare what is left.",
-                  art: "<svg width=\"120\" height=\"120\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3\"/></svg>" },
-                { title: "Keep a shortlist",
-                  body: "Save the ones worth a viewing and come back to them later.",
-                  art: "<svg width=\"120\" height=\"120\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z\"/><circle cx=\"12\" cy=\"10\" r=\"2.5\"/></svg>" }
-        ]
-    });
-</script>
 </body>
 </html>
