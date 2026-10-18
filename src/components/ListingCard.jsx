@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useFavorites } from '../context/FavoritesContext'
 import { listingFormatters, thumb, staticMap } from '../lib/format'
@@ -20,6 +21,8 @@ export default function ListingCard({ listing, index = 0 }) {
   const { toggle, isFavorite } = useFavorites()
   const { language, t } = useI18n()
   const fmt = listingFormatters(listing, language, t)
+  // A dead photo link falls back to the street map, never a broken image.
+  const [broken, setBroken] = useState(false)
   const fav = isFavorite(listing.id)
 
   return (
@@ -29,13 +32,14 @@ export default function ListingCard({ listing, index = 0 }) {
       style={{ animationDelay: `${(index % 12) * 0.04}s` }}
     >
       <div className="listing-card-img">
-        {listing.photo
+        {listing.photo && !broken
           ? <img
               src={thumb(listing.photo, 640)}
               alt={listing.address}
               loading={index < 4 ? 'eager' : 'lazy'}
               decoding="async"
               onLoad={e => e.currentTarget.classList.add('loaded')}
+              onError={() => setBroken(true)}
             />
           : <NoPhoto listing={listing} />}
         <button

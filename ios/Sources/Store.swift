@@ -137,7 +137,8 @@ final class Store {
                 && (!dealsOnly || l.deal >= 5) && (!freshOnly || (l.listedDaysAgo ?? 99) <= 7)
         }
         // Screenshots only: homes with a real photo first, so the store images are not placeholders.
-        let photosFirst = UserDefaults.standard.bool(forKey: "photosOnly")
+        // Homes with a real photo come first, same as the web; the sort orders each group.
+        let photosFirst = true
         func order(_ a: Listing, _ b: Listing, _ by: Bool) -> Bool { photosFirst && a.photos.isEmpty != b.photos.isEmpty ? !a.photos.isEmpty : by }
         switch sort {
         case .deal: return rows.sorted { order($0, $1, $0.deal > $1.deal) }

@@ -29,5 +29,7 @@ export function filterListings(listings, filters, favoriteSet = new Set()) {
       break
   }
 
-  return result
+  // Homes with a real photo come first; the sort still orders each group.
+  const hasPhoto = l => Boolean(l.photo ?? l.photos?.length)
+  return [...result.filter(hasPhoto), ...result.filter(l => !hasPhoto(l))]
 }
