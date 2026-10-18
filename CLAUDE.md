@@ -40,7 +40,7 @@ npm run build && npx wrangler pages deploy dist --project-name=roost --branch=ma
 
 Listing sources: Craigslist (no key, nearest area, photo posts only),
 HousingFeed via `APIFY_TOKEN` (rentals, 30 countries) and RentCast via
-`RENTCAST_KEY` (US sale and rent; the key currently answers 403). Keys are Pages
+`RENTCAST_KEY` (optional: the RentCast account has no plan, so it answers 403; Craigslist already covers US sale and rent, about 100 homes per city). Keys are Pages
 secrets, never in the bundle: `npx wrangler pages secret put <NAME> --project-name=roost`.
 Photo filters (ad cards, shared logos) live in `src/lib/format.js` and are mirrored in
 `ios/Sources/Store.swift`.

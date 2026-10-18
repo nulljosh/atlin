@@ -7,7 +7,6 @@
 - [ ] Test Sign in with Apple on a real signed build
 - [ ] More Mac screenshots, light-mode shots, promo video
 - [ ] Some NYC listings still carry ad-graphic photos. Swap for real photos or hide them.
-- [ ] RentCast API key pending Joshua signup (US sale and rent data feeds already wired, APIFY_TOKEN for HousingFeed 30 countries already configured).
 
 ## Worldwide build 2026-08-28
 Web app now browses anywhere on earth: Nominatim place search, real local street
