@@ -91,6 +91,46 @@ final class Auth {
         }
     }
 
+    // MARK: Google: OAuth code flow with PKCE in the system web sheet, no SDK.
+    // The iOS client has no secret; the verifier proves this app started the flow.
+
+    static let googleClient = "337798947774-5r4r4ac0f7l10ctimfcig7v8t38ddq4d.apps.googleusercontent.com"
+    static var googleScheme: String { "com.googleusercontent.apps." + googleClient.replacingOccurrences(of: ".apps.googleusercontent.com", with: "") }
+    private var verifier = ""
+
+    func googleURL() -> URL {
+        verifier = (0..<48).map { _ in String(format: "%02x", UInt8.random(in: 0...255)) }.joined()
+        let challenge = Data(SHA256.hash(data: Data(verifier.utf8))).base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
+        var c = URLComponents(string: "https://accounts.google.com/o/oauth2/v2/auth")!
+        c.queryItems = [
+            .init(name: "client_id", value: Self.googleClient),
+            .init(name: "redirect_uri", value: Self.googleScheme + ":/oauth2redirect"),
+            .init(name: "response_type", value: "code"),
+            .init(name: "scope", value: "openid email profile"),
+            .init(name: "code_challenge", value: challenge),
+            .init(name: "code_challenge_method", value: "S256"),
+        ]
+        return c.url!
+    }
+
+    func finishGoogle(_ callback: URL) async {
+        guard let code = URLComponents(url: callback, resolvingAgainstBaseURL: false)?.queryItems?.first(where: { $0.name == "code" })?.value else {
+            error = "Google did not return a sign-in"; return
+        }
+        await run {
+            var req = URLRequest(url: URL(string: "https://oauth2.googleapis.com/token")!)
+            req.httpMethod = "POST"
+            req.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+            let form = ["code": code, "client_id": Self.googleClient, "redirect_uri": Self.googleScheme + ":/oauth2redirect", "grant_type": "authorization_code", "code_verifier": self.verifier]
+            req.httpBody = form.map { "\($0.key)=\($0.value.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? "")" }.joined(separator: "&").data(using: .utf8)
+            let (data, _) = try await URLSession.shared.data(for: req)
+            struct Tokens: Decodable { let id_token: String? }
+            guard let token = try JSONDecoder().decode(Tokens.self, from: data).id_token else { throw URLError(.userAuthenticationRequired) }
+            try self.start(await self.call("POST", "/auth/token?grant_type=id_token", ["provider": "google", "id_token": token]))
+        }
+    }
+
     func signOut() async {
         _ = try? await call("POST", "/auth/logout", nil, authed: true)
         user = nil; access = nil; favorites = []
@@ -141,6 +181,7 @@ final class Auth {
 struct AccountView: View {
     @Environment(Auth.self) private var auth
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.webAuthenticationSession) private var webAuth
     @State private var email = ""
     @State private var password = ""
     @State private var creating = false
@@ -160,6 +201,18 @@ struct AccountView: View {
                         SignInWithAppleButton(.continue, onRequest: { auth.prepareApple($0) }, onCompletion: { r in Task { await auth.finishApple(r) } })
                             .frame(height: Space.control)
                             .listRowInsets(EdgeInsets())
+                        Button {
+                            Task {
+                                guard let url = try? await webAuth.authenticate(using: auth.googleURL(), callbackURLScheme: Auth.googleScheme) else { return }
+                                await auth.finishGoogle(url)
+                            }
+                        } label: {
+                            Text("Continue with Google").font(.body.weight(.medium)).frame(maxWidth: .infinity, minHeight: Space.control)
+                        }
+                        .buttonStyle(.bordered)
+                        .buttonBorderShape(.capsule)
+                        .listRowInsets(EdgeInsets(top: Space.s, leading: 0, bottom: 0, trailing: 0))
+                        .listRowBackground(Color.clear)
                     }
                     Section {
                         TextField("Email", text: $email)
