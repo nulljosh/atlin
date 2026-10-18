@@ -3,9 +3,9 @@
 # Atlin
 
 ![version](https://img.shields.io/badge/version-v3.0.0-blue)
-![license](https://img.shields.io/badge/license-MIT-green) [![GitHub](https://img.shields.io/badge/GitHub-nulljosh%2Fatlin-black?logo=github)](https://github.com/nulljosh/brick)
+![license](https://img.shields.io/badge/license-MIT-green) [![GitHub](https://img.shields.io/badge/GitHub-nulljosh%2Fatlin-black?logo=github)](https://github.com/nulljosh/atlin)
 
-**Live:** https://brick.jaybulb.com
+**Live:** https://atlin.jaybulb.com
 
 **Terminal:** `swift build && ./.build/debug/atlin-tui "Vancouver"` — see [tui/](tui/)
 
@@ -49,7 +49,7 @@ feed is one function in `src/data/listings.js`.
 
 ## Source
 
-[github.com/nulljosh/brick](https://github.com/nulljosh/brick)
+[github.com/nulljosh/atlin](https://github.com/nulljosh/atlin)
 
 ## License
 

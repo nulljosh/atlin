@@ -5,7 +5,7 @@ const FavoritesContext = createContext(null)
 
 export function FavoritesProvider({ children }) {
   const [favorites, setFavorites] = useState(() => {
-    const stored = localStorage.getItem('brick_favorites')
+    const stored = localStorage.getItem('atlin_favorites')
     return stored ? JSON.parse(stored) : []
   })
 
@@ -15,7 +15,7 @@ export function FavoritesProvider({ children }) {
   const favoriteSet = useMemo(() => new Set(favorites), [favorites])
 
   useEffect(() => {
-    localStorage.setItem('brick_favorites', JSON.stringify(favorites))
+    localStorage.setItem('atlin_favorites', JSON.stringify(favorites))
   }, [favorites])
 
   // Signing in merges rather than replaces: homes saved before logging in are

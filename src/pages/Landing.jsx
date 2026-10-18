@@ -48,7 +48,7 @@ export default function Landing() {
 
       <footer className="landing-footer">
         <a href="/privacy">Privacy</a>
-        <a href="https://github.com/nulljosh/brick">GitHub</a>
+        <a href="https://github.com/nulljosh/atlin">GitHub</a>
       </footer>
     </main>
   )

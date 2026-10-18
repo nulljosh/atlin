@@ -1,5 +1,5 @@
 # atlin (ex-Brick, ex-Roost, ex-Hemma)
-v3.0.0, worldwide real estate browsing. Repo: https://github.com/nulljosh/brick
+v3.0.0, worldwide real estate browsing. Repo: https://github.com/nulljosh/atlin
 
 ## Rules
 
@@ -32,7 +32,7 @@ Current resume state: `docs/LOOP-HANDOFF.md`. This is the App Store push for Atl
 
 ## Deploy
 
-Cloudflare Pages project `roost` (infra name only: Pages projects cannot be renamed and the listing secrets live on it) (brick.jaybulb.com), direct upload:
+Cloudflare Pages project `roost` (infra name only: Pages projects cannot be renamed and the listing secrets live on it) (atlin.jaybulb.com), direct upload:
 
 ```bash
 npm run build && npx wrangler pages deploy dist --project-name=roost --branch=main

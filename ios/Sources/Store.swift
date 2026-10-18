@@ -101,7 +101,7 @@ private struct NominatimHit: Decodable {
 
 @MainActor @Observable
 final class Store {
-    private static let api = "https://brick.jaybulb.com/api/listings"
+    private static let api = "https://atlin.jaybulb.com/api/listings"
     private let defaults = UserDefaults.standard
 
     var place: Place { didSet { save(place, "place"); if place.countryCode != "US" { mode = "rent" } } }
@@ -215,7 +215,7 @@ final class Store {
         ]
         var req = URLRequest(url: c.url!)
         // Nominatim's usage policy asks every client to identify itself.
-        req.setValue("Atlin/1.0 (brick.jaybulb.com)", forHTTPHeaderField: "User-Agent")
+        req.setValue("Atlin/1.0 (atlin.jaybulb.com)", forHTTPHeaderField: "User-Agent")
         guard let (data, _) = try? await URLSession.shared.data(for: req),
               let hits = try? JSONDecoder().decode([NominatimHit].self, from: data) else { return [] }
         return hits.compactMap { h in

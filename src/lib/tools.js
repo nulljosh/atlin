@@ -14,7 +14,7 @@ const pick = l => Object.fromEntries(SHAPE.map(k => [k, l[k] ?? null]))
 
 async function geocode(place) {
   const url = `https://nominatim.openstreetmap.org/search?${new URLSearchParams({ q: place, format: 'jsonv2', limit: '1', addressdetails: '1' })}`
-  const res = await fetch(url, { headers: { 'user-agent': 'atlin (brick.jaybulb.com)' }, signal: AbortSignal.timeout(8000) })
+  const res = await fetch(url, { headers: { 'user-agent': 'atlin (atlin.jaybulb.com)' }, signal: AbortSignal.timeout(8000) })
   const hit = res.ok ? (await res.json())[0] : null
   if (!hit) throw new ToolError(`could not find a place called "${place}"`)
   const a = hit.address || {}

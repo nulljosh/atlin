@@ -37,7 +37,7 @@ data class LiveListing(
 @Serializable
 private data class Feed(val listings: List<LiveListing> = emptyList())
 
-class LiveClient(private val base: String = "https://brick.jaybulb.com") {
+class LiveClient(private val base: String = "https://atlin.jaybulb.com") {
     private val http = HttpClient {
         install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true; coerceInputValues = true }) }
         // A first look at a new town runs the feed live and can take half a minute.

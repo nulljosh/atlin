@@ -116,7 +116,7 @@ const PROVIDERS = [rentcast, housingfeedNear]
 // Shared by /api/listings, /api/deals and /mcp, so the three can never disagree.
 export async function fetchListings(env, p) {
   const key = `v2/${p.country}/${p.city}/${p.area}/${p.lat.toFixed(1)}/${p.lng.toFixed(1)}/${p.mode}`.toLowerCase()
-  const hit = await env.BRICK_CACHE?.get(key)
+  const hit = await env.ATLIN_CACHE?.get(key)
   if (hit) return { body: JSON.parse(hit), ttl: TTL }
 
   const sources = {}
@@ -141,7 +141,7 @@ export async function fetchListings(env, p) {
   })
   const body = { listings: unique, sources, modes }
   // Errors and empty answers are not cached for long, so a feed hiccup heals itself.
-  if (unique.length) await env.BRICK_CACHE?.put(key, JSON.stringify(body), { expirationTtl: TTL })
+  if (unique.length) await env.ATLIN_CACHE?.put(key, JSON.stringify(body), { expirationTtl: TTL })
   return { body, ttl: unique.length ? TTL : 300 }
 }
 

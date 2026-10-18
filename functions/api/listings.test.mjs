@@ -11,7 +11,7 @@ globalThis.fetch = async url => {
   ])
 }
 
-const call = qs => onRequestGet({ request: new Request(`https://x.test/api/listings?${qs}`), env: { RENTCAST_KEY: 'k', BRICK_CACHE: kv } })
+const call = qs => onRequestGet({ request: new Request(`https://x.test/api/listings?${qs}`), env: { RENTCAST_KEY: 'k', ATLIN_CACHE: kv } })
 
 const ok = await (await call('lat=30.2&lng=-97.7&country=US&city=Austin&mode=sale')).json()
 assert.equal(ok.listings.length, 1, 'rows without coordinates are dropped')
@@ -42,7 +42,7 @@ globalThis.fetch = async (url, init) => {
 }
 const near = await (await onRequestGet({
   request: new Request('https://x.test/api/listings?lat=49.08&lng=-122.64&country=CA&city=Brookswood&area=Township%20of%20Langley&mode=rent'),
-  env: { APIFY_TOKEN: 't', BRICK_CACHE: kv }
+  env: { APIFY_TOKEN: 't', ATLIN_CACHE: kv }
 })).json()
 assert.deepEqual(asked, ['Brookswood', 'Langley'])
 assert.equal(near.listings[0].id, 'hf-n1', 'nearest first')

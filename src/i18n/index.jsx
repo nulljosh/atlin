@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { en, locales, rtlLanguages } from './strings'
 
-const STORAGE_KEY = 'brick-language'
+const STORAGE_KEY = 'atlin-language'
 
 // Every locale we ship strings for, plus English.
 export const supportedLanguages = ['en', ...Object.keys(locales)]

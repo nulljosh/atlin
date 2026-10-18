@@ -4,7 +4,7 @@ import { defaultPlace, streetsNear } from '../lib/geo'
 import { generateListings } from '../data/listings'
 
 const PlaceContext = createContext(null)
-const STORAGE_KEY = 'brick-place'
+const STORAGE_KEY = 'atlin-place'
 
 function storedPlace() {
   try {
@@ -17,7 +17,7 @@ function storedPlace() {
 
 export function PlaceProvider({ children }) {
   const [place, setPlaceState] = useState(storedPlace)
-  const [savedMode, setMode] = useState(() => localStorage.getItem('brick-mode') || 'rent')
+  const [savedMode, setMode] = useState(() => localStorage.getItem('atlin-mode') || 'rent')
   // Sale listings exist only where a sale feed does (RentCast, US). Elsewhere the
   // app is rent only, rather than offering a toggle that shows invented homes.
   const saleAvailable = place.countryCode === 'US'
@@ -68,7 +68,7 @@ export function PlaceProvider({ children }) {
   }
 
   function changeMode(next) {
-    localStorage.setItem('brick-mode', next)
+    localStorage.setItem('atlin-mode', next)
     setMode(next)
   }
 

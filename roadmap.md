@@ -3,7 +3,7 @@
 > Priority tier 1 (2026-10-17): live blocker, work first. Order: live blockers, ship pushes, active features, portfolio, exploratory. See ~/Documents/Code/LOOP-HANDOFF.md.
 
 ## App Store push 2026-10-04 (paused, resume at home)
-- [ ] ASC record creation paused. Apple's web sign-in returned 503 at 13:07 and 13:32 (no verification code). Resume after 14:32 (one hour throttle window). Joshua runs asc-login at home, then asc web apps create for com.nulljosh.brick named Atlin. iPhone IPA built, signed, ready to export and upload.
+- [x] ASC record created (id 6824157219, name Atlin). Bundle ID stays com.nulljosh.brick (Apple cannot change it). Next: upload build, listing, submit.
 - [ ] RentCast API key pending Joshua signup (US sale and rent data feeds already wired, APIFY_TOKEN for HousingFeed 30 countries already configured).
 
 ## Worldwide build 2026-08-28

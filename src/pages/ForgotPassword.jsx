@@ -13,7 +13,7 @@ export default function ForgotPassword() {
     if (!email.trim()) return setError('Email is required')
     if (!email.includes('@')) return setError('Enter a valid email address')
     const { error: err } = await spark.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: 'https://brick.jaybulb.com/reset-password'
+      redirectTo: 'https://atlin.jaybulb.com/reset-password'
     })
     if (err) return setError(err.message)
     setSent(true)

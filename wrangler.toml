@@ -8,5 +8,5 @@ binding = "AI"
 
 # One cache for every data center, so a city costs one paid feed run per 6 hours, not one per colo.
 [[kv_namespaces]]
-binding = "BRICK_CACHE"
+binding = "ATLIN_CACHE"
 id = "9c71995bfebe427bba16af0b056bc217"

@@ -7,7 +7,7 @@ const rows = [1500, 1800, 2000, 2100, 2400, 3900].map((price, i) => ({
   lat: 49.28, lng: -123.12, currency: 'CAD', countryCode: 'CA', listedDaysAgo: 1, mode: 'rent'
 }))
 const store = new Map()
-const env = { BRICK_CACHE: { get: async k => store.get(k) ?? null, put: async (k, v) => store.set(k, v) }, APIFY_TOKEN: 't' }
+const env = { ATLIN_CACHE: { get: async k => store.get(k) ?? null, put: async (k, v) => store.set(k, v) }, APIFY_TOKEN: 't' }
 globalThis.fetch = async url => {
   if (String(url).includes('nominatim')) return Response.json([{ lat: '49.28', lon: '-123.12', address: { city: 'Vancouver', country_code: 'ca' } }])
   return Response.json(rows.map(r => ({ id: r.id, street: r.address, city: r.city, rent_min: r.price, beds: r.beds, baths: 1, sqft_min: 700, lat: r.lat, lng: r.lng, property_type: 'condo' })))

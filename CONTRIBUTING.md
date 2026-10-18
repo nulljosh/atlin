@@ -3,7 +3,7 @@
 ## Setup
 
 ```
-git clone https://github.com/nulljosh/brick.git
+git clone https://github.com/nulljosh/atlin.git
 cd atlin
 npm install
 ```
