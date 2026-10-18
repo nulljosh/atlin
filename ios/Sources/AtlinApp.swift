@@ -290,6 +290,17 @@ struct PricePill: View {
 struct Photo: View {
     let url: String?
     var width = 640
+    // No photo: a grey street map of where the home is, same as the web card.
+    var at: (lat: Double, lng: Double)? = nil
+    @Environment(\.colorScheme) private var scheme
+
+    private var map: URL? {
+        guard url == nil, let at else { return nil }
+        let span = 0.009, h = width * 11 / 16
+        let dLat = span * Double(h) / Double(width) * cos(at.lat * .pi / 180)
+        let bbox = [at.lng - span / 2, at.lat - dLat / 2, at.lng + span / 2, at.lat + dLat / 2].map { String(format: "%.5f", $0) }.joined(separator: ",")
+        return URL(string: "https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer/export?bbox=\(bbox)&bboxSR=4326&size=\(width),\(h)&imageSR=3857&format=jpg&f=image")
+    }
 
     // Feed photos are full-size originals; wsrv.nl serves a resized WebP, same as the web app.
     private var resized: URL? {
@@ -299,8 +310,12 @@ struct Photo: View {
     }
 
     var body: some View {
-        AsyncImage(url: resized) { phase in
-            if let image = phase.image {
+        AsyncImage(url: resized ?? map) { phase in
+            if let image = phase.image, map != nil {
+                image.resizable().scaledToFill()
+                    .grayscale(1).colorInvert(scheme == .dark).contrast(0.9)
+                    .overlay { Circle().fill(Color.accentColor).frame(width: 18, height: 18).overlay(Circle().stroke(.white, lineWidth: 3)).shadow(radius: 3) }
+            } else if let image = phase.image {
                 image.resizable().scaledToFill()
             } else {
                 Rectangle().fill(.quaternary).overlay { Image(systemName: "house").foregroundStyle(.secondary) }
@@ -309,13 +324,17 @@ struct Photo: View {
     }
 }
 
+private extension View {
+    @ViewBuilder func colorInvert(_ on: Bool) -> some View { if on { colorInvert() } else { self } }
+}
+
 // The web card, on a phone: photo on top, price, stats, address.
 struct ListingCard: View {
     let listing: Listing
 
     var body: some View {
         VStack(alignment: .leading, spacing: Space.s) {
-            Photo(url: listing.photos.first, width: 800)
+            Photo(url: listing.photos.first, width: 800, at: (listing.lat, listing.lng))
                 .aspectRatio(16.0 / 11.0, contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: Space.grouped, style: .continuous))
             HStack(spacing: Space.s) {
@@ -349,13 +368,13 @@ struct ListingDetail: View {
                 #if os(iOS)
                 TabView {
                     ForEach(listing.photos.isEmpty ? [""] : listing.photos, id: \.self) { p in
-                        Photo(url: p.isEmpty ? nil : p, width: 1200).frame(maxWidth: .infinity).clipped()
+                        Photo(url: p.isEmpty ? nil : p, width: 1200, at: (listing.lat, listing.lng)).frame(maxWidth: .infinity).clipped()
                     }
                 }
                 .tabViewStyle(.page)
                 .frame(height: 280)
                 #else
-                Photo(url: listing.photos.first, width: 1200).aspectRatio(16.0 / 9.0, contentMode: .fit).clipped()
+                Photo(url: listing.photos.first, width: 1200, at: (listing.lat, listing.lng)).aspectRatio(16.0 / 9.0, contentMode: .fit).clipped()
                 #endif
 
                 VStack(alignment: .leading, spacing: Space.s) {
