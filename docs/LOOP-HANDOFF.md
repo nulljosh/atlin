@@ -19,7 +19,7 @@ The App Store push for Atlin (ex-Brick, ex-Roost). It watches the review queue, 
 1. Watch review for build 9. If Apple rejects, read the reason in Resolution Center, draft replies, and wait for Joshua's yes before sending anything.
 2. Real-device test of Sign in with Apple on a signed build.
 3. Native Google sign-in: iOS OAuth client, then build 10.
-4. More Mac screenshots (only one exists) and light-mode Mac shots. Promo video after that.
+4. iPhone store screenshots are refreshed in screenshots/ios (map, list, detail on the 6.9 inch size); upload them with build 10. Still to do: more Mac screenshots (only one exists) and light-mode Mac shots. Promo video after that.
 5. Ad-graphic photos on some NYC listings: swap for real photos or hide them.
 6. Docs pass on the README.
 7. Open issues: #13 (website login), #15 (compare to REW + Zillow), #16 (v1.1 native sync and deletion), #17 (brown color check), #18 to #21 (the roadmap items above).
