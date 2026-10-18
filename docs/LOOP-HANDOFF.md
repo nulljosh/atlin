@@ -8,7 +8,8 @@ The App Store push for Atlin (ex-Brick, ex-Roost). It watches the review queue, 
 
 - Build 9 is in review on iOS and Mac on ASC app 6824157219. It adds Sign in with Apple, email sign-in, account deletion, saves that sync through jaybulb-api, the location prompt, the final blue folded-map icon (Joshua graded it A+) and the privacy label.
 - Web at atlin.jaybulb.com has the same sign-in: Google and Apple on Login and Register. Broken photos hide themselves and the Atlin og image is live. Mac QA passed.
-- Native Google sign-in is still open. It needs an iOS OAuth client, and it ships in build 10 after build 9 clears review.
+- Web has price drops ("Dropped $X") and daily email alerts for saved searches (toggle in Settings; backend in jaybulb-api, GitHub Actions trigger). Native has the same drop line and an Account toggle for alerts.
+- Native Google sign-in, Size filter, profile, saved searches, price drops and the alerts toggle are built and compile on iOS and Mac. They ship together as build 10 (bump CURRENT_PROJECT_VERSION to 10 in project.yml) once Apple clears build 9. Not yet tested in a running app.
 - Demo account atlin-demo@jaybulb.com is created and confirmed.
 - Auth emails through authmail are Atlin blue.
 - Bundle ID stays com.nulljosh.brick and the Pages project stays roost. Those cannot be renamed.
