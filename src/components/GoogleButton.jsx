@@ -31,10 +31,10 @@ export default function GoogleButton({ onError }) {
           else navigate('/browse')
         },
       })
-      window.google.accounts.id.renderButton(box.current, { type: 'standard', shape: 'pill', size: 'large', width: 320 })
+      window.google.accounts.id.renderButton(box.current, { type: 'standard', shape: 'pill', size: 'large', width: Math.min(400, box.current.offsetWidth) })
     }).catch(() => {})
     return () => { live = false }
   }, [])
 
-  return <div ref={box} style={{ display: 'flex', justifyContent: 'center', margin: '16px 0', minHeight: 44 }} />
+  return <div ref={box} style={{ display: 'flex', justifyContent: 'center', margin: '16px 0', minHeight: 44, width: '100%' }} />
 }

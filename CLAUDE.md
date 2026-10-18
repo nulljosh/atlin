@@ -67,4 +67,4 @@ sample homes, labeled as samples.
 - ios/Sources/Auth.swift: native sign-in against jaybulb-api (Sign in with Apple, email and password, delete account, saved homes synced as the same id list the web keeps). Refresh token in the Keychain
 - ios/Sources/Locator.swift: asks for location once on first launch and starts from the town you are in
 - Photo-less listings show a grey street map thumbnail (web `staticMap` in src/lib/format.js, native `Photo(at:)`). Listings with photos rank first on both
-- src/components/GoogleButton.jsx: Google sign-in on Login and Register (Google Identity Services, id token to jaybulb-api). Origin atlin.jaybulb.com is on the jaybulb-signin web client. Native Google and web Apple are still open
+- src/components/GoogleButton.jsx: Google sign-in on Login and Register (Google Identity Services, id token to jaybulb-api). Origin atlin.jaybulb.com is on the jaybulb-signin web client. Web Apple (Services ID com.heyitsmejosh.websignin) is live. Native Google is still open (iOS client plus a build)
