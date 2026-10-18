@@ -25,7 +25,7 @@ export async function onRequest({ request: req, env }) {
 
   switch (method) {
     case 'initialize':
-      return reply({ protocolVersion: params.protocolVersion || '2025-06-18', capabilities: { tools: {} }, serverInfo: { name: 'brick', version: VERSION } })
+      return reply({ protocolVersion: params.protocolVersion || '2025-06-18', capabilities: { tools: {} }, serverInfo: { name: 'atlin', version: VERSION } })
     case 'notifications/initialized':
       return new Response(null, { status: 202, headers: CORS })
     case 'ping':
@@ -37,7 +37,7 @@ export async function onRequest({ request: req, env }) {
       try {
         result = await callTool(env, params.name, params.arguments || {})
       } catch (err) {
-        if (err instanceof ToolError) return reply({ content: [{ type: 'text', text: `brick: ${err.message}` }], isError: true })
+        if (err instanceof ToolError) return reply({ content: [{ type: 'text', text: `atlin: ${err.message}` }], isError: true })
         throw err
       }
       if (!result) return json({ jsonrpc: '2.0', id, error: { code: -32602, message: `Unknown tool: ${params.name}` } })

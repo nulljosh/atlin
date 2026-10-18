@@ -1,4 +1,4 @@
-package com.nulljosh.brick
+package com.nulljosh.atlin
 
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -8,9 +8,9 @@ import androidx.compose.ui.window.rememberWindowState
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
-        title = "Brick",
+        title = "Atlin",
         state = rememberWindowState(width = 1040.dp, height = 720.dp),
     ) {
-        BrickTheme { AppScreen() }
+        AtlinTheme { AppScreen() }
     }
 }

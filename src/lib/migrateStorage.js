@@ -1,4 +1,4 @@
-// The app was called roost; move saved favourites, place, mode and language to the brick keys once.
+// The app was called roost; move saved favourites, place, mode and language to the atlin keys once.
 const keys = { roost_favorites: 'brick_favorites', 'roost-place': 'brick-place', 'roost-mode': 'brick-mode', 'roost-language': 'brick-language' }
 
 export function migrateStorage() {

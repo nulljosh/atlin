@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useI18n, supportedLanguages, languageLabel } from '../i18n'
-import BrickMark from './BrickMark'
+import AtlinMark from './AtlinMark'
 import PlaceSearch from './PlaceSearch'
 import './Nav.css'
 
@@ -14,7 +14,7 @@ export default function Nav() {
     <nav className="nav">
       <div className="nav-inner">
         <Link to="/" className="nav-logo">
-          <BrickMark size={28} />
+          <AtlinMark size={28} />
           <span>{t('brand')}</span>
         </Link>
         <PlaceSearch />

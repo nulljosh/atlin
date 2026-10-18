@@ -1,4 +1,4 @@
-package com.nulljosh.brick
+package com.nulljosh.atlin
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body

@@ -4,7 +4,7 @@
 // count outgrows one screen.
 
 export const en = {
-  brand: 'Brick',
+  brand: 'Atlin',
   listings: 'Listings',
   settings: 'Settings',
   search_placeholder: 'Search any city, region or country',
@@ -28,7 +28,7 @@ export const en = {
   sort_largest: 'Largest',
   sort_deal: 'Best deal',
   deal_under: '{n}% under typical',
-  ask_placeholder: 'Ask Brick. Try "2 bed under 2,500, best value"',
+  ask_placeholder: 'Ask Atlin. Try "2 bed under 2,500, best value"',
   ask_button: 'Ask',
   ask_s_deals: 'Best deals',
   ask_s_beds: '2+ beds, best value',
@@ -76,7 +76,7 @@ export const en = {
   how_label: 'How it works',
   how_title: 'One search box, the whole map',
   feat2_search_title: 'Any town, any neighbourhood',
-  feat2_search_body: 'Type a city or a suburb. Brookswood works as well as Vancouver, because Brick asks the feeds for the town a neighbourhood belongs to.',
+  feat2_search_body: 'Type a city or a suburb. Brookswood works as well as Vancouver, because Atlin asks the feeds for the town a neighbourhood belongs to.',
   feat2_ask_title: 'Ask in plain words',
   feat2_ask_body: 'Type "2 bed under 2,500, best value" and the filters set themselves. No forms, no dropdowns.',
   feat2_deal_title: 'Deals, measured',
@@ -98,7 +98,7 @@ export const en = {
 
   honest_label: 'Worth knowing',
   honest_title: 'Real where a feed exists',
-  honest_body: 'Rentals in the United States, Canada, the United Kingdom and more are real listings, pulled live. Where no feed covers a place yet, Brick shows sample homes built from real market tables, and labels them as samples.',
+  honest_body: 'Rentals in the United States, Canada, the United Kingdom and more are real listings, pulled live. Where no feed covers a place yet, Atlin shows sample homes built from real market tables, and labels them as samples.',
 
   cta_title: 'Start anywhere',
   cta_body: 'Pick a city and see what a home there costs.'

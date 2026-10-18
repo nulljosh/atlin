@@ -1,13 +1,13 @@
 <img src="public/icon.svg" width="80">
 
-# Brick
+# Atlin
 
 ![version](https://img.shields.io/badge/version-v3.0.0-blue)
-![license](https://img.shields.io/badge/license-MIT-green) [![GitHub](https://img.shields.io/badge/GitHub-nulljosh%2Fbrick-black?logo=github)](https://github.com/nulljosh/brick)
+![license](https://img.shields.io/badge/license-MIT-green) [![GitHub](https://img.shields.io/badge/GitHub-nulljosh%2Fatlin-black?logo=github)](https://github.com/nulljosh/brick)
 
 **Live:** https://brick.jaybulb.com
 
-**Terminal:** `swift build && ./.build/debug/brick-tui "Vancouver"` — see [tui/](tui/)
+**Terminal:** `swift build && ./.build/debug/atlin-tui "Vancouver"` — see [tui/](tui/)
 
 Browse homes anywhere on earth.
 

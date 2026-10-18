@@ -30,11 +30,11 @@ kotlin {
 }
 
 android {
-    namespace = "com.nulljosh.brick"
+    namespace = "com.nulljosh.atlin"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.nulljosh.brick.android"
+        applicationId = "com.nulljosh.atlin.android"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -44,14 +44,14 @@ android {
 
 compose.desktop {
     application {
-        mainClass = "com.nulljosh.brick.MainKt"
+        mainClass = "com.nulljosh.atlin.MainKt"
         nativeDistributions {
             targetFormats(
                 org.jetbrains.compose.desktop.application.dsl.TargetFormat.Msi,
                 org.jetbrains.compose.desktop.application.dsl.TargetFormat.Deb,
                 org.jetbrains.compose.desktop.application.dsl.TargetFormat.Dmg,
             )
-            packageName = "Brick"
+            packageName = "Atlin"
             packageVersion = "1.0.0"
             description = "Lost and found pets, posted by neighbours."
         }

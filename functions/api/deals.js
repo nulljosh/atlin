@@ -5,7 +5,7 @@ import { callTool, ToolError } from '../../src/lib/tools.js'
 export async function onRequestGet({ request, env }) {
   const q = Object.fromEntries(new URL(request.url).searchParams)
   try {
-    const out = q.q ? await callTool(env, 'ask_brick', { ...q, question: q.q }) : await callTool(env, 'search_deals', q)
+    const out = q.q ? await callTool(env, 'ask_atlin', { ...q, question: q.q }) : await callTool(env, 'search_deals', q)
     return Response.json(out, { headers: { 'access-control-allow-origin': '*', 'cache-control': 'public, max-age=300' } })
   } catch (err) {
     if (err instanceof ToolError) return Response.json({ error: err.message }, { status: 400 })

@@ -10,8 +10,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'Brick',
-        short_name: 'Brick',
+        name: 'Atlin',
+        short_name: 'Atlin',
         description: 'Homes for sale and for rent, anywhere on earth',
         theme_color: '#1A1A1A',
         background_color: '#1A1A1A',

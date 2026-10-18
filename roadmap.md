@@ -1,9 +1,9 @@
-# Brick Roadmap
+# Atlin Roadmap
 
 > Priority tier 1 (2026-10-17): live blocker, work first. Order: live blockers, ship pushes, active features, portfolio, exploratory. See ~/Documents/Code/LOOP-HANDOFF.md.
 
 ## App Store push 2026-10-04 (paused, resume at home)
-- [ ] ASC record creation paused. Apple's web sign-in returned 503 at 13:07 and 13:32 (no verification code). Resume after 14:32 (one hour throttle window). Joshua runs asc-login at home, then asc web apps create for com.nulljosh.brick named Brick. iPhone IPA built, signed, ready to export and upload.
+- [ ] ASC record creation paused. Apple's web sign-in returned 503 at 13:07 and 13:32 (no verification code). Resume after 14:32 (one hour throttle window). Joshua runs asc-login at home, then asc web apps create for com.nulljosh.brick named Atlin. iPhone IPA built, signed, ready to export and upload.
 - [ ] RentCast API key pending Joshua signup (US sale and rent data feeds already wired, APIFY_TOKEN for HousingFeed 30 countries already configured).
 
 ## Worldwide build 2026-08-28
@@ -24,7 +24,7 @@ modes, and UI strings in 25 languages with RTL.
 - [ ] `npm test` runs two node files. No CI runs them.
 
 ## TUI pilot (2026-09-05)
-- `brick-tui` SwiftPM target (SwiftTUI). `swift build && ./.build/debug/brick-tui "Vancouver"` hits Nominatim directly, same public geocoding API src/lib/geo.js calls. Needs a real TTY.
+- `atlin-tui` SwiftPM target (SwiftTUI). `swift build && ./.build/debug/atlin-tui "Vancouver"` hits Nominatim directly, same public geocoding API src/lib/geo.js calls. Needs a real TTY.
 
 ## 2026-09-10 loading cleanup
 
@@ -34,7 +34,7 @@ Removed the unused animate.css import and dependency. App routes load on demand;
 - [ ] Sync UI/color palette more with portfolio and other projects
 
 ## Ingested 2026-10-16
-- [ ] Brick (ex-Roost): confirm the brown color has been removed. Refresh screenshots. Needs a demo video. QA the app and website.
+- [ ] Atlin (ex-Roost): confirm the brown color has been removed. Refresh screenshots. Needs a demo video. QA the app and website.
 - [ ] QA the iOS and macOS apps. Ship to the App Store.
 
 ## Ingested 2026-10-17

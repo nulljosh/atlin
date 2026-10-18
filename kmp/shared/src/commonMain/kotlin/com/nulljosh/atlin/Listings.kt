@@ -1,4 +1,4 @@
-package com.nulljosh.brick
+package com.nulljosh.atlin
 
 import kotlin.math.abs
 import kotlin.math.floor

@@ -1,6 +1,6 @@
-# Brick API
+# Atlin API
 
-Brick has one endpoint. `GET /api/listings?lat=&lng=&country=&city=&mode=sale|rent`
+Atlin has one endpoint. `GET /api/listings?lat=&lng=&country=&city=&mode=sale|rent`
 returns `{ listings, sources }` from the live feeds (RentCast, HousingFeed),
 cached for a day. It returns an empty list when no feed covers
 the place, and the client then shows labeled sample homes. Favourites live in `localStorage`; user accounts go to jaybulb-api (Cloudflare D1) from
@@ -8,7 +8,7 @@ the browser (`src/lib/spark.js`). The agent-facing interface is WebMCP.
 
 ## WebMCP
 
-With the app open and signed in, brick registers tools on
+With the app open and signed in, atlin registers tools on
 `document.modelContext`. Source: `src/lib/webmcp.jsx`.
 
 ### Read-only

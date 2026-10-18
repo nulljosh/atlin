@@ -1,4 +1,4 @@
-/* Brick tokens. One accent, system font, 8 point grid, one set of radii.
+/* Atlin tokens. One accent, system font, 8 point grid, one set of radii.
    brand/tokens.css holds the accent; this file is what the app reads. */
 @import url("../brand/tokens.css");
 

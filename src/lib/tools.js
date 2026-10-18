@@ -1,4 +1,4 @@
-// The two things an agent can do with Brick: search deals in a place, or ask in plain words.
+// The two things an agent can do with Atlin: search deals in a place, or ask in plain words.
 // REST (/api/deals) and MCP (/mcp) both call this, so they cannot describe different behaviour.
 // ponytail: the place is geocoded with Nominatim on every call; add a KV cache if it gets busy.
 
@@ -14,7 +14,7 @@ const pick = l => Object.fromEntries(SHAPE.map(k => [k, l[k] ?? null]))
 
 async function geocode(place) {
   const url = `https://nominatim.openstreetmap.org/search?${new URLSearchParams({ q: place, format: 'jsonv2', limit: '1', addressdetails: '1' })}`
-  const res = await fetch(url, { headers: { 'user-agent': 'brick (brick.jaybulb.com)' }, signal: AbortSignal.timeout(8000) })
+  const res = await fetch(url, { headers: { 'user-agent': 'atlin (brick.jaybulb.com)' }, signal: AbortSignal.timeout(8000) })
   const hit = res.ok ? (await res.json())[0] : null
   if (!hit) throw new ToolError(`could not find a place called "${place}"`)
   const a = hit.address || {}
@@ -40,7 +40,7 @@ export async function searchDeals(env, a) {
   return { place: where.name, mode, total: found.length, sources: body.sources, listings: found.slice(0, limit).map(pick) }
 }
 
-export async function askBrick(env, a) {
+export async function askAtlin(env, a) {
   if (typeof a.question !== 'string' || !a.question.trim()) throw new ToolError('question is required, for example "2 bed under 2500, best value"')
   const f = parseAsk(a.question)
   return { understood: f, ...(await searchDeals(env, { place: a.place, mode: a.mode, minPrice: f.priceMin, maxPrice: f.priceMax, beds: f.beds, type: f.propertyType, sort: f.sort, limit: a.limit })) }
@@ -67,7 +67,7 @@ export const TOOLS = [
     }
   },
   {
-    name: 'ask_brick',
+    name: 'ask_atlin',
     description: 'Same search, in plain words: "2 bed under 2500, best value".',
     inputSchema: { type: 'object', properties: { place, mode, question: { type: 'string' }, limit: { type: 'number' } }, required: ['place', 'question'] }
   }
@@ -75,6 +75,6 @@ export const TOOLS = [
 
 export async function callTool(env, name, args) {
   if (name === 'search_deals') return searchDeals(env, args)
-  if (name === 'ask_brick') return askBrick(env, args)
+  if (name === 'ask_atlin') return askAtlin(env, args)
   return null
 }

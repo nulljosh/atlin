@@ -1,4 +1,4 @@
-package com.nulljosh.brick
+package com.nulljosh.atlin
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

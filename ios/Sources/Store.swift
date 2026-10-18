@@ -215,7 +215,7 @@ final class Store {
         ]
         var req = URLRequest(url: c.url!)
         // Nominatim's usage policy asks every client to identify itself.
-        req.setValue("Brick/1.0 (brick.jaybulb.com)", forHTTPHeaderField: "User-Agent")
+        req.setValue("Atlin/1.0 (brick.jaybulb.com)", forHTTPHeaderField: "User-Agent")
         guard let (data, _) = try? await URLSession.shared.data(for: req),
               let hits = try? JSONDecoder().decode([NominatimHit].self, from: data) else { return [] }
         return hits.compactMap { h in

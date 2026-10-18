@@ -2,7 +2,7 @@ import SwiftUI
 import MapKit
 
 @main
-struct BrickApp: App {
+struct AtlinApp: App {
     @State private var store = Store()
 
     var body: some Scene {
@@ -116,7 +116,7 @@ struct ListingSheet: View {
                     ContentUnavailableView(
                         store.failed ? "Could not load listings" : "No listings here yet",
                         systemImage: store.failed ? "wifi.slash" : "house",
-                        description: Text(store.failed ? "Check your connection and pull to try again." : "Brick only shows real listings. Try a bigger town nearby.")
+                        description: Text(store.failed ? "Check your connection and pull to try again." : "Atlin only shows real listings. Try a bigger town nearby.")
                     )
                 } else {
                     ScrollView {

@@ -1,4 +1,4 @@
-rootProject.name = "brick"
+rootProject.name = "atlin"
 
 pluginManagement {
     repositories {

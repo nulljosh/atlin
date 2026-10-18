@@ -1,4 +1,4 @@
-package com.nulljosh.brick
+package com.nulljosh.atlin
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
 @Composable
-fun BrickTheme(content: @Composable () -> Unit) =
+fun AtlinTheme(content: @Composable () -> Unit) =
     MaterialTheme(colorScheme = lightColorScheme(primary = Color(0xFF96654E)), content = content)
 
 // Real listings from the shared /api/listings first. The seeded generator only
@@ -56,7 +56,7 @@ fun AppScreen(geo: GeoClient = GeoClient(), live: LiveClient = LiveClient()) {
 
     Surface {
         Column(Modifier.fillMaxSize().padding(24.dp)) {
-            Text("Brick", style = MaterialTheme.typography.headlineMedium)
+            Text("Atlin", style = MaterialTheme.typography.headlineMedium)
             Text("Browsing ${place.label}", modifier = Modifier.padding(top = 4.dp))
             Row(Modifier.padding(top = 16.dp)) {
                 OutlinedTextField(

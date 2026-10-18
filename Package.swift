@@ -2,14 +2,14 @@
 import PackageDescription
 
 let package = Package(
-    name: "brick-tui",
+    name: "atlin-tui",
     platforms: [.macOS(.v13)],
     dependencies: [
         .package(url: "https://github.com/rensbreur/SwiftTUI", branch: "main")
     ],
     targets: [
         .executableTarget(
-            name: "brick-tui",
+            name: "atlin-tui",
             dependencies: ["SwiftTUI"],
             path: "tui"
         )

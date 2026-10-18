@@ -1,4 +1,4 @@
-package com.nulljosh.brick
+package com.nulljosh.atlin
 
 // Ported from src/lib/market.js. Static tables; swap for a live index when there's a real feed.
 

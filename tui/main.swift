@@ -14,7 +14,7 @@ struct Place: Decodable, Identifiable {
 
 let args = CommandLine.arguments.dropFirst()
 guard let query = args.first else {
-    print("usage: brick-tui <place>")
+    print("usage: atlin-tui <place>")
     exit(1)
 }
 
@@ -22,7 +22,7 @@ func search(_ q: String) async -> [Place] {
     guard let encoded = q.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
           let url = URL(string: "https://nominatim.openstreetmap.org/search?q=\(encoded)&format=json&limit=5") else { return [] }
     var req = URLRequest(url: url)
-    req.setValue("brick-tui (jaybulb.com)", forHTTPHeaderField: "User-Agent")
+    req.setValue("atlin-tui (jaybulb.com)", forHTTPHeaderField: "User-Agent")
     guard let (data, _) = try? await URLSession.shared.data(for: req) else { return [] }
     return (try? JSONDecoder().decode([Place].self, from: data)) ?? []
 }
@@ -33,7 +33,7 @@ struct PlacesCard: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("brick: \(query)").bold()
+            Text("atlin: \(query)").bold()
             if places.isEmpty {
                 Text("No matches")
             } else {

@@ -1,4 +1,4 @@
-# brick (ex-Roost, ex-Hemma)
+# atlin (ex-Brick, ex-Roost, ex-Hemma)
 v3.0.0, worldwide real estate browsing. Repo: https://github.com/nulljosh/brick
 
 ## Rules
@@ -28,7 +28,7 @@ see.
 
 ## The loop
 
-Current resume state: `docs/LOOP-HANDOFF.md`. This is the App Store push for Brick iOS.
+Current resume state: `docs/LOOP-HANDOFF.md`. This is the App Store push for Atlin iOS.
 
 ## Deploy
 

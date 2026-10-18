@@ -1,10 +1,10 @@
-# Contributing to brick
+# Contributing to atlin
 
 ## Setup
 
 ```
 git clone https://github.com/nulljosh/brick.git
-cd brick
+cd atlin
 npm install
 ```
 

@@ -1,4 +1,4 @@
-// WebMCP tool registration. Exposes brick's search, favourites and filter
+// WebMCP tool registration. Exposes atlin's search, favourites and filter
 // actions to in-browser agents via document.modelContext.
 //
 // ponytail: search reuses filterListings, the same function the Listings page

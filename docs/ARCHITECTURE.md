@@ -1,6 +1,6 @@
 # Architecture
 
-Brick is a worldwide real estate browser. Search homes for sale or rent in any city globally through a deterministic listing generator seeded by coordinates. Deployed as a web app (React + Vite on Cloudflare Pages), native iOS/Android and macOS via Kotlin Multiplatform, and a CLI (Swift TUI).
+Atlin is a worldwide real estate browser. Search homes for sale or rent in any city globally through a deterministic listing generator seeded by coordinates. Deployed as a web app (React + Vite on Cloudflare Pages), native iOS/Android and macOS via Kotlin Multiplatform, and a CLI (Swift TUI).
 
 ## How it runs
 
@@ -44,7 +44,7 @@ KMP (`kmp/`): shared Kotlin business logic (`Geo.kt`, `Listings.kt`, `Market.kt`
 | `src/lib/webmcp.jsx` | Document.modelContext tool registration for in-browser agents |
 | `src/i18n/` | Locale strings (en.js source of truth, locales/* are hand-kept translations), RTL language list, language picker logic |
 | `src/styles/index.css` | Global CSS: font import, reset, body baseline |
-| `src/tokens.css` | Imports shared portfolio tokens; overrides with warm clay/cream Brick palette |
+| `src/tokens.css` | Imports shared portfolio tokens; overrides with warm clay/cream Atlin palette |
 | `public/onboarding.js` | Shared first-run auth flow, copied verbatim into any app |
 | `scripts/screenshots.mjs` | Playwright-based screenshot refresh |
 | `tui/main.swift` | Swift CLI entry point: Place struct, Nominatim search call, card render |

@@ -24,11 +24,11 @@
         {
           "glass": true,
           "image-name": "glyph.png",
-          "name": "Brick"
+          "name": "Atlin"
         }
       ],
       "lighting": "individual",
-      "name": "Brick",
+      "name": "Atlin",
       "shadow": {
         "kind": "neutral",
         "opacity": 0.3

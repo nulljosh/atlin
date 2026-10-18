@@ -1,10 +1,10 @@
-# Brick Technical Whitepaper
+# Atlin Technical Whitepaper
 
 **v3.0.0** | August 2026
 
 Browse homes anywhere on earth.
 
-Brick is a map of what's for sale or for rent, filters that narrow it, and
+Atlin is a map of what's for sale or for rent, filters that narrow it, and
 favourites that survive a reload. It exists because browsing homes abroad
 usually means guessing at a foreign currency and a site that only half
 translates, so every price renders in the local currency and every
@@ -14,7 +14,7 @@ label in the local language. React and Vite, no backend beyond the jaybulb-api W
 
 Every listings site optimizes for the brokerage, not the buyer, listings are
 paginated behind lead-capture forms, the map is an afterthought, and filter
-state resets on every navigation. Brick inverts that: the map is the app, and
+state resets on every navigation. Atlin inverts that: the map is the app, and
 the filter state is the URL.
 
 ## Map and Listings

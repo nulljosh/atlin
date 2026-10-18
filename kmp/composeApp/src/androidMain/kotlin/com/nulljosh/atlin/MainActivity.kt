@@ -1,4 +1,4 @@
-package com.nulljosh.brick
+package com.nulljosh.atlin
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

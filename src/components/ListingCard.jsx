@@ -2,14 +2,14 @@ import { Link } from 'react-router-dom'
 import { useFavorites } from '../context/FavoritesContext'
 import { listingFormatters, thumb } from '../lib/format'
 import { useI18n } from '../i18n'
-import BrickMark from './BrickMark'
+import AtlinMark from './AtlinMark'
 import './ListingCard.css'
 
-// Many real listings come without photos. A quiet brick mark beats a white hole.
+// Many real listings come without photos. A quiet atlin mark beats a white hole.
 export function NoPhoto() {
   return (
     <div className="no-photo" aria-hidden="true">
-      <BrickMark size={56} />
+      <AtlinMark size={56} />
     </div>
   )
 }

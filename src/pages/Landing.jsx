@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useI18n, supportedLanguages } from '../i18n'
-import BrickMark from '../components/BrickMark'
+import AtlinMark from '../components/AtlinMark'
 import './Landing.css'
 
 const features = [
@@ -15,7 +15,7 @@ export default function Landing() {
   return (
     <main className="landing">
       <section className="landing-hero">
-        <BrickMark className="hero-icon" size={72} />
+        <AtlinMark className="hero-icon" size={72} />
         <h1>{t('brand')}</h1>
         <p>{t('landing_pitch')}</p>
         <div className="landing-buttons">

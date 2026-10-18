@@ -14,15 +14,15 @@ globalThis.fetch = async url => {
 }
 const rpc = (method, params) => onRequest({ request: new Request('https://x.test/mcp', { method: 'POST', body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }) }), env }).then(r => r.json())
 
-assert.equal((await rpc('initialize', {})).result.serverInfo.name, 'brick')
-assert.deepEqual((await rpc('tools/list')).result.tools.map(t => t.name), ['search_deals', 'ask_brick'])
+assert.equal((await rpc('initialize', {})).result.serverInfo.name, 'atlin')
+assert.deepEqual((await rpc('tools/list')).result.tools.map(t => t.name), ['search_deals', 'ask_atlin'])
 
 const deals = (await rpc('tools/call', { name: 'search_deals', arguments: { place: 'Vancouver', beds: 2, limit: 3 } })).result.structuredContent
 assert.equal(deals.listings.length, 3)
 assert.equal(deals.listings[0].price, 1500, 'cheapest against the median is the best deal')
 assert.ok(deals.listings[0].deal > deals.listings[2].deal)
 
-const asked = (await rpc('tools/call', { name: 'ask_brick', arguments: { place: 'Vancouver', question: '2 bed under 2500' } })).result.structuredContent
+const asked = (await rpc('tools/call', { name: 'ask_atlin', arguments: { place: 'Vancouver', question: '2 bed under 2500' } })).result.structuredContent
 assert.ok(asked.listings.every(l => l.price <= 2500))
 
 assert.equal((await rpc('tools/call', { name: 'search_deals', arguments: {} })).result.isError, true, 'a bad call is a tool result, not a dead connection')
