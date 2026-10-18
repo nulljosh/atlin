@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useFilters } from '../context/FiltersContext'
 import { usePlace } from '../context/PlaceContext'
 import { useI18n } from '../i18n'
-import { marketFor, formatMoneyCompact } from '../lib/market'
+import { marketFor, formatMoneyCompact, formatArea } from '../lib/market'
 import { propertyTypes } from '../data/listings'
 import { modes, modeActive } from '../lib/modes'
 import './FilterBar.css'
@@ -30,6 +30,8 @@ function roundNice(n) {
 }
 
 const bedOptions = [0, 1, 2, 3, 4]
+// Round steps in the local unit: 500 sq ft, or 50 m² stored as square feet.
+const sizeOptions = imperial => [0, ...(imperial ? [500, 750, 1000, 1500] : [50, 75, 100, 150].map(m => Math.round(m * 10.7639)))]
 const sortOptions = ['deal', 'price-asc', 'price-desc', 'newest', 'sqft-desc']
 const sortKeys = {
   deal: 'sort_deal',
@@ -57,7 +59,7 @@ export default function FilterBar({ resultCount }) {
   const bandIndex = Math.max(0, bands.findIndex(b => b.min === filters.priceMin && b.max === filters.priceMax))
   // On a phone the four menus fold behind one Filters capsule; the count says how many are set.
   const [open, setOpen] = useState(false)
-  const active = [bandIndex > 0, filters.beds > 0, filters.propertyType !== 'all', filters.sort !== 'deal'].filter(Boolean).length
+  const active = [bandIndex > 0, filters.beds > 0, filters.sqftMin > 0, filters.propertyType !== 'all', filters.sort !== 'deal'].filter(Boolean).length
 
   const searches = useSavedSearches()
 
@@ -80,6 +82,9 @@ export default function FilterBar({ resultCount }) {
         </Menu>
         <Menu label={t('beds')} value={filters.beds} onChange={v => updateFilter('beds', +v)}>
           {bedOptions.map(v => <option key={v} value={v}>{v === 0 ? t('any_beds') : `${v}+ ${t('beds')}`}</option>)}
+        </Menu>
+        <Menu label={t('size')} value={filters.sqftMin ?? 0} onChange={v => updateFilter('sqftMin', +v)}>
+          {sizeOptions(market.imperial).map(v => <option key={v} value={v}>{v === 0 ? t('any_size') : `${formatArea(v, market.imperial, language)}+`}</option>)}
         </Menu>
         <Menu label={t('type')} value={filters.propertyType} onChange={v => updateFilter('propertyType', v)}>
           {['all', ...propertyTypes].map(v => <option key={v} value={v}>{v === 'all' ? t('all_types') : t(v)}</option>)}

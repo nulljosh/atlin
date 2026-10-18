@@ -252,6 +252,12 @@ struct FilterRow: View {
                         ForEach(1...4, id: \.self) { Text("\($0)+ beds").tag($0) }
                     }
                 }
+                FilterMenu(title: "Size", value: store.minSqft == 0 ? "Any" : store.sizeLabel(store.minSqft), active: store.minSqft > 0) {
+                    Picker("Size", selection: $store.minSqft) {
+                        Text("Any size").tag(0.0)
+                        ForEach(store.sizeSteps, id: \.self) { Text(store.sizeLabel($0)).tag($0) }
+                    }
+                }
                 FilterMenu(title: "Type", value: store.type.map { $0 == "condo" ? "Apartment" : $0.capitalized } ?? "All", active: store.type != nil) {
                     Picker("Type", selection: $store.type) {
                         Text("All types").tag(String?.none)

@@ -18,6 +18,8 @@ export const en = {
   sort: 'Sort',
   any_price: 'Any price',
   any_beds: 'Any beds',
+  size: 'Size',
+  any_size: 'Any size',
   all_types: 'All types',
   house: 'House',
   condo: 'Apartment',

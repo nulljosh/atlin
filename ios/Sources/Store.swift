@@ -130,6 +130,7 @@ final class Store {
 
     // Same four filters as the web app, same defaults.
     var minBeds = 0
+    var minSqft = 0.0
     var type: String? = nil
     var maxPrice: Double? = nil
     var sort = SortMode.deal
@@ -137,7 +138,7 @@ final class Store {
     var freshOnly = false
 
     // Saved searches in the same shape the web writes, so one list serves both.
-    var searchID: String { "\(place.id)|\(mode)|\(minBeds)|0|\(maxPrice.map { String(Int($0)) } ?? "Infinity")|\(type ?? "all")" }
+    var searchID: String { "\(place.id)|\(mode)|\(minBeds)|0|\(maxPrice.map { String(Int($0)) } ?? "Infinity")|\(type ?? "all")\(minSqft > 0 ? "|\(Int(minSqft))" : "")" }
 
     func currentSearch() -> [String: Any] {
         [
@@ -145,7 +146,7 @@ final class Store {
             "label": [place.name, mode == "sale" ? "Buy" : "Rent", minBeds > 0 ? "\(minBeds)+ bd" : nil].compactMap { $0 }.joined(separator: " · "),
             "place": ["id": place.id, "name": place.name, "lat": place.lat, "lng": place.lng, "countryCode": place.countryCode],
             "mode": mode,
-            "filters": ["beds": minBeds, "priceMin": 0, "priceMax": maxPrice.map { $0 as Any } ?? NSNull(), "propertyType": type ?? "all", "sort": "deal"],
+            "filters": ["beds": minBeds, "priceMin": 0, "priceMax": maxPrice.map { $0 as Any } ?? NSNull(), "propertyType": type ?? "all", "sort": "deal", "sqftMin": Int(minSqft)],
         ]
     }
 
@@ -156,6 +157,7 @@ final class Store {
         if let m = s["mode"] as? String { mode = m }
         let f = s["filters"] as? [String: Any] ?? [:]
         minBeds = (f["beds"] as? Int) ?? 0
+        minSqft = (f["sqftMin"] as? Double) ?? 0
         maxPrice = f["priceMax"] as? Double
         let t = f["propertyType"] as? String
         type = t == nil || t == "all" ? nil : t
@@ -174,7 +176,7 @@ final class Store {
 
     var visible: [Listing] {
         let rows = listings.filter { l in
-            (minBeds == 0 || l.beds >= Double(minBeds)) && (type == nil || l.type == type) && (maxPrice == nil || l.price <= maxPrice!)
+            (minBeds == 0 || l.beds >= Double(minBeds)) && (minSqft == 0 || l.sqft >= minSqft) && (type == nil || l.type == type) && (maxPrice == nil || l.price <= maxPrice!)
                 && (!dealsOnly || l.deal >= 5) && (!freshOnly || (l.listedDaysAgo ?? 99) <= 7)
         }
         // Screenshots only: homes with a real photo first, so the store images are not placeholders.
@@ -191,6 +193,11 @@ final class Store {
     }
 
     // "Under X" steps cut from the prices on screen, so they mean something in any market.
+    // Same steps as the web: 500 sq ft, or 50 m² kept in square feet.
+    var metric: Bool { listings.first?.imperial == false }
+    var sizeSteps: [Double] { metric ? [50, 75, 100, 150].map { ($0 * 10.7639).rounded() } : [500, 750, 1000, 1500] }
+    func sizeLabel(_ v: Double) -> String { metric ? "\(Int((v / 10.7639).rounded())) m²+" : "\(Int(v).formatted()) sq ft+" }
+
     var priceSteps: [Double] {
         let p = listings.map(\.price).sorted()
         guard p.count >= 4 else { return [] }

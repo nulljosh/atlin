@@ -15,7 +15,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node src/data/listings.test.mjs && node src/lib/mapPins.test.mjs && node functions/api/listings.test.mjs && node src/lib/ask.test.mjs && node functions/api/tools.test.mjs"
+    "test": "node src/data/listings.test.mjs && node src/lib/mapPins.test.mjs && node src/lib/filterListings.test.mjs && node functions/api/listings.test.mjs && node src/lib/ask.test.mjs && node functions/api/tools.test.mjs"
   },
   "dependencies": {
     "leaflet": "^1.9.4",

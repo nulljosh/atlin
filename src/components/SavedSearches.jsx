@@ -26,7 +26,7 @@ export function useSavedSearches() {
   const save = next => { setList(next); store(next); if (user) updateProfile({ searches: next }) }
   const { place, mode } = usePlace()
   const { filters } = useFilters()
-  const id = `${place.id}|${mode}|${filters.beds}|${filters.priceMin}|${filters.priceMax}|${filters.propertyType}`
+  const id = `${place.id}|${mode}|${filters.beds}|${filters.priceMin}|${filters.priceMax}|${filters.propertyType}${filters.sqftMin ? `|${filters.sqftMin}` : ''}`
   const saved = list.some(s => s.id === id)
   function toggle() {
     const label = [place.name, mode === 'sale' ? 'Buy' : 'Rent', filters.beds > 0 && `${filters.beds}+ bd`].filter(Boolean).join(' · ')

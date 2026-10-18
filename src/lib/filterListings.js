@@ -4,6 +4,8 @@ export function filterListings(listings, filters, favoriteSet = new Set()) {
   const result = listings.filter(l => {
     if (l.price < filters.priceMin || l.price > filters.priceMax) return false
     if (filters.beds > 0 && l.beds < filters.beds) return false
+    // A home with no size given can't be shown to meet a minimum size.
+    if (filters.sqftMin > 0 && !(l.sqft >= filters.sqftMin)) return false
     if (filters.propertyType !== 'all' && l.type !== filters.propertyType) return false
     if (filters.favoritesOnly && !favoriteSet.has(l.id)) return false
     if (filters.dealsOnly && !(l.deal >= 5)) return false

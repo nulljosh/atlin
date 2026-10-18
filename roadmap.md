@@ -43,5 +43,5 @@ Removed the unused animate.css import and dependency. App routes load on demand;
 - [ ] When logged in, just show listings.
 - [ ] Compare to REW + Zillow.
 - [ ] Native detail parity: View listing, Share, location map, similar homes, mortgage estimate (web has them)
-- [ ] Gaps vs Zillow and REW: baths and sqft filters, alerts for saved searches (saving shipped on web), draw-on-map search, price history, school and walk scores, open houses
+- [ ] Gaps vs Zillow and REW: baths filter (no feed gives bath counts yet), alerts for saved searches (saving shipped on web and native), draw-on-map search, price history, school and walk scores, open houses
 - [ ] Native saved searches (web has them, browser-only for now; sync through the account)

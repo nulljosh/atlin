@@ -7,6 +7,7 @@ const defaultFilters = {
   priceMin: 0,
   priceMax: Infinity,
   beds: 0,
+  sqftMin: 0,
   propertyType: 'all',
   sort: 'deal',
   favoritesOnly: false,
