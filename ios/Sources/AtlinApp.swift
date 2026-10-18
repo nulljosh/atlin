@@ -419,6 +419,9 @@ struct ListingDetail: View {
 
                 VStack(alignment: .leading, spacing: Space.s) {
                     Text(listing.priceText).font(.largeTitle.bold())
+                    if let was = listing.priceWas, was > listing.price {
+                        Text("Dropped \((was - listing.price).formatted(.currency(code: listing.currency).precision(.fractionLength(0))))").font(.subheadline.weight(.semibold)).foregroundStyle(Color.accentColor)
+                    }
                     if listing.deal >= 5 {
                         Text("\(listing.deal)% under typical for its size nearby").font(.subheadline.weight(.semibold)).foregroundStyle(.green)
                     }

@@ -186,6 +186,17 @@ export async function fetchListings(env, p) {
     const k = [l.address, l.price, l.beds, l.sqft].join('|').toLowerCase()
     return !seen.has(k) && seen.add(k)
   })
+  // Price drops: remember each home's last price per place and flag the ones that fell.
+  // ponytail: a home must be seen twice (a day apart) to show a drop; no deeper history.
+  const hist = (await env.ATLIN_CACHE?.get(`h/${key}`, 'json')) || {}
+  const next = {}
+  for (const l of unique) {
+    const [was, drop] = hist[l.id] || []
+    if (was && l.price < was) l.priceWas = was
+    else if (was && l.price === was && drop) l.priceWas = drop
+    next[l.id] = [l.price, l.priceWas || 0]
+  }
+  if (unique.length) await env.ATLIN_CACHE?.put(`h/${key}`, JSON.stringify(next), { expirationTtl: 60 * 864e2 })
   const body = { listings: unique, sources, modes }
   // Errors and empty answers are not cached for long, so a feed hiccup heals itself.
   if (unique.length) await env.ATLIN_CACHE?.put(key, JSON.stringify(body), { expirationTtl: TTL })

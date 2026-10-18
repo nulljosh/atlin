@@ -9,7 +9,7 @@ import { parseAsk, sorts } from './ask.js'
 
 export class ToolError extends Error {}
 
-const SHAPE = ['id', 'address', 'city', 'price', 'currency', 'beds', 'baths', 'sqft', 'type', 'deal', 'listedDaysAgo', 'url', 'photo', 'lat', 'lng']
+const SHAPE = ['id', 'address', 'city', 'price', 'priceWas', 'currency', 'beds', 'baths', 'sqft', 'type', 'deal', 'listedDaysAgo', 'url', 'photo', 'lat', 'lng']
 const pick = l => Object.fromEntries(SHAPE.map(k => [k, l[k] ?? null]))
 
 async function geocode(place) {

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useFavorites } from '../context/FavoritesContext'
+import { formatMoney } from '../lib/market'
 import { listingFormatters, thumb, staticMap } from '../lib/format'
 import { useI18n } from '../i18n'
 import AtlinMark from './AtlinMark'
@@ -58,6 +59,7 @@ export default function ListingCard({ listing, index = 0 }) {
         <div className="listing-price">
           {fmt.price}
         </div>
+        {listing.priceWas > listing.price && <div className="listing-drop">{t('price_drop', { n: formatMoney(listing.priceWas - listing.price, listing.currency, language) })}</div>}
         {listing.deal >= 5 && <div className="listing-deal"><span className="deal-badge">{t('deal_under', { n: listing.deal })}</span></div>}
         <div className="listing-meta">
           <span>{listing.beds > 0 ? `${listing.beds} ${t('bd')}` : 'Studio'}</span>

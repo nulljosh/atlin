@@ -79,6 +79,7 @@
 }
 
 .listing-deal { margin-bottom: var(--s1); }
+.listing-drop { margin-bottom: var(--s1); font-size: 0.8125rem; font-weight: 600; color: var(--accent); }
 
 .listing-card-body {
   padding: var(--s3) var(--s1) var(--s1);

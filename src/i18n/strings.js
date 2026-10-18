@@ -52,6 +52,7 @@ export const en = {
   no_results: 'No listings found',
   adjust_filters: 'Try adjusting your filters or search another place',
   new_badge: 'New',
+  price_drop: 'Dropped {n}',
   bd: 'bd',
   ba: 'ba',
   per_month: '/mo',

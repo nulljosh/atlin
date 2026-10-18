@@ -85,6 +85,7 @@ export default function ListingDetail() {
 
         <div className="detail-info">
           <div className="detail-price">{fmt.price}</div>
+          {listing.priceWas > listing.price && <div className="listing-drop">{t('price_drop', { n: money(listing.priceWas - listing.price) })}</div>}
           <div className="detail-address">{listing.address}</div>
           <div className="detail-neighborhood">{[...new Set([listing.neighborhood, listing.city].filter(Boolean))].join(', ')}</div>
           {(perArea || monthly > 0) && (
