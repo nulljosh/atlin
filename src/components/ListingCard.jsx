@@ -45,7 +45,6 @@ export default function ListingCard({ listing, index = 0 }) {
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
         </button>
-        <span className="listing-type-badge">{t(listing.type)}</span>
         {listing.listedDaysAgo <= 3 && <span className="listing-new-badge">{t('new_badge')}</span>}
       </div>
       <div className="listing-card-body">
@@ -59,8 +58,7 @@ export default function ListingCard({ listing, index = 0 }) {
           <span>{listing.baths} {t('ba')}</span>
           {fmt.area && <><span className="meta-dot" /><span>{fmt.area}</span></>}
         </div>
-        <div className="listing-address">{listing.address}</div>
-        <div className="listing-neighborhood">{listing.neighborhood}</div>
+        <div className="listing-address">{listing.address}{listing.neighborhood && listing.neighborhood !== listing.address ? `, ${listing.neighborhood}` : ''}</div>
       </div>
     </Link>
   )

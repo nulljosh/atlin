@@ -109,9 +109,9 @@
 }
 
 .listing-address {
-  font-size: 0.875rem;
-  color: var(--text);
-  margin-bottom: 0.125rem;
+  font-size: 0.9375rem;
+  line-height: 20px;
+  color: var(--text2);
 }
 
 .listing-neighborhood {

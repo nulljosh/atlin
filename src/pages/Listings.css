@@ -91,7 +91,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   margin: 0;
-  padding: var(--s4);
+  padding: var(--margin);
   border-radius: var(--radius-card);
   background: color-mix(in srgb, var(--color-bg) 62%, transparent);
   backdrop-filter: blur(30px) saturate(190%) brightness(1.1);

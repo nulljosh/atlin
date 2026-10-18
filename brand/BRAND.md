@@ -1,6 +1,6 @@
 # Brick brand kit and design system
 
-a brick wall
+a running-bond brick wall
 
 ## The mark
 One bold flat white glyph on an accent gradient tile. No text, no outline, no emblem.

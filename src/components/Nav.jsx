@@ -19,9 +19,7 @@ export default function Nav() {
         </Link>
         <PlaceSearch />
         <div className="nav-links">
-          <Link to="/browse" className={`nav-link ${location.pathname === '/browse' ? 'active' : ''}`}>
-            {t('listings')}
-          </Link>
+          {location.pathname !== '/browse' && <Link to="/browse" className="nav-link">{t('listings')}</Link>}
           <select
             className="nav-language"
             value={language}

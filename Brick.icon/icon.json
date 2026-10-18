@@ -22,7 +22,7 @@
     {
       "layers": [
         {
-          "glass": false,
+          "glass": true,
           "image-name": "glyph.png",
           "name": "Brick"
         }

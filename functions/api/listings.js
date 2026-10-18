@@ -113,21 +113,11 @@ async function housingfeedNear(env, p) {
 
 const PROVIDERS = [rentcast, housingfeedNear]
 
-export async function onRequestGet({ request, env }) {
-  const q = new URL(request.url).searchParams
-  const p = {
-    lat: +q.get('lat'), lng: +q.get('lng'),
-    country: (q.get('country') || '').toUpperCase(),
-    city: q.get('city') || '',
-    area: q.get('area') || '',
-    mode: q.get('mode') === 'rent' ? 'rent' : 'sale',
-    radius: Math.min(+q.get('radius') || 15, 50)
-  }
-  if (!Number.isFinite(p.lat) || !Number.isFinite(p.lng)) return Response.json({ error: 'lat and lng required' }, { status: 400 })
-
+// Shared by /api/listings, /api/deals and /mcp, so the three can never disagree.
+export async function fetchListings(env, p) {
   const key = `v2/${p.country}/${p.city}/${p.area}/${p.lat.toFixed(1)}/${p.lng.toFixed(1)}/${p.mode}`.toLowerCase()
   const hit = await env.BRICK_CACHE?.get(key)
-  if (hit) return new Response(hit, { headers: { 'content-type': 'application/json', 'cache-control': `public, max-age=${TTL}` } })
+  if (hit) return { body: JSON.parse(hit), ttl: TTL }
 
   const sources = {}
   const out = (await Promise.all(PROVIDERS.map(async fn => {
@@ -149,8 +139,24 @@ export async function onRequestGet({ request, env }) {
     const k = [l.address, l.price, l.beds, l.sqft].join('|').toLowerCase()
     return !seen.has(k) && seen.add(k)
   })
-  const res = Response.json({ listings: unique, sources, modes }, { headers: { 'cache-control': `public, max-age=${unique.length ? TTL : 300}` } })
+  const body = { listings: unique, sources, modes }
   // Errors and empty answers are not cached for long, so a feed hiccup heals itself.
-  if (unique.length) await env.BRICK_CACHE?.put(key, JSON.stringify({ listings: unique, sources, modes }), { expirationTtl: TTL })
-  return res
+  if (unique.length) await env.BRICK_CACHE?.put(key, JSON.stringify(body), { expirationTtl: TTL })
+  return { body, ttl: unique.length ? TTL : 300 }
+}
+
+export const placeParams = q => ({
+  lat: +q.get('lat'), lng: +q.get('lng'),
+  country: (q.get('country') || '').toUpperCase(),
+  city: q.get('city') || '',
+  area: q.get('area') || '',
+  mode: q.get('mode') === 'rent' ? 'rent' : 'sale',
+  radius: Math.min(+q.get('radius') || 15, 50)
+})
+
+export async function onRequestGet({ request, env }) {
+  const p = placeParams(new URL(request.url).searchParams)
+  if (!Number.isFinite(p.lat) || !Number.isFinite(p.lng)) return Response.json({ error: 'lat and lng required' }, { status: 400 })
+  const { body, ttl } = await fetchListings(env, p)
+  return Response.json(body, { headers: { 'cache-control': `public, max-age=${ttl}` } })
 }
