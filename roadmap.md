@@ -36,7 +36,6 @@ Removed the unused animate.css import and dependency. App routes load on demand;
 ## Ingested 2026-10-16
 - [ ] Brick (ex-Roost): confirm the brown color has been removed. Refresh screenshots. Needs a demo video. QA the app and website.
 - [ ] QA the iOS and macOS apps. Ship to the App Store.
-- [x] (fixed locally 2026-10-17, not deployed: login/register went to the landing page, register needs an email-confirm screen; `/` now redirects signed-in users to /browse) Website login doesn't work. We created an account, it redirected to the home page without logging in.
 
 ## Ingested 2026-10-17
 - [ ] When logged in, just show listings.
