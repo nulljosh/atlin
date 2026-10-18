@@ -40,6 +40,9 @@ export default function ListingDetail() {
   const similar = listings.filter(l => l.id !== listing.id && l.mode === listing.mode && Math.floor(l.beds) === Math.floor(listing.beds) && Math.abs(l.price - listing.price) <= listing.price * 0.25).slice(0, 4)
   const hasPin = Number.isFinite(listing.lat) && Number.isFinite(listing.lng)
 
+  const days = listing.listedDaysAgo
+  const listed = language === 'en' && days <= 1 ? (days < 1 ? 'Today' : 'Yesterday') : t('listed_ago', { n: days })
+
   async function share() {
     const data = { title: listing.address, url: location.href }
     if (navigator.share) { try { await navigator.share(data) } catch {} return }
@@ -51,7 +54,7 @@ export default function ListingDetail() {
       <div className="detail-layout fade-up">
         <div className="detail-gallery">
           <div className="detail-main-photo">
-            {listing.photos[photoIdx] ? <img src={thumb(listing.photos[photoIdx], 1200)} alt={listing.address} onError={e => { e.currentTarget.style.display = "none" }} /> : <NoPhoto listing={listing} width={1200} />}
+            {listing.photos[photoIdx] ? <img src={thumb(listing.photos[photoIdx], 1200)} alt={listing.address} onError={e => { e.currentTarget.style.display = "none" }} /> : <NoPhoto listing={listing} width={800} />}
             <button className="detail-back" onClick={() => navigate(-1)}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
@@ -83,7 +86,7 @@ export default function ListingDetail() {
         <div className="detail-info">
           <div className="detail-price">{fmt.price}</div>
           <div className="detail-address">{listing.address}</div>
-          <div className="detail-neighborhood">{listing.neighborhood}, {listing.city}</div>
+          <div className="detail-neighborhood">{[...new Set([listing.neighborhood, listing.city].filter(Boolean))].join(', ')}</div>
           {(perArea || monthly > 0) && (
             <div className="detail-sub">
               {perArea && <span>{perArea} / {listing.imperial ? 'sq ft' : 'm²'}{listing.mode === 'rent' ? ' / mo' : ''}</span>}
@@ -100,10 +103,12 @@ export default function ListingDetail() {
               <span className="detail-stat-value">{listing.beds}</span>
               <span className="detail-stat-label">{t('beds')}</span>
             </div>
-            <div className="detail-stat">
-              <span className="detail-stat-value">{listing.baths}</span>
-              <span className="detail-stat-label">{t('ba')}</span>
-            </div>
+            {listing.baths > 0 && (
+              <div className="detail-stat">
+                <span className="detail-stat-value">{listing.baths}</span>
+                <span className="detail-stat-label">{t('ba')}</span>
+              </div>
+            )}
             {fmt.area && (
               <div className="detail-stat">
                 <span className="detail-stat-value">{fmt.area}</span>
@@ -119,17 +124,14 @@ export default function ListingDetail() {
           </div>
 
 
-          <div className="detail-section">
-            <h3 className="section-label">{t('features')}</h3>
-            <div className="detail-meta-grid">
-              <div><span className="detail-meta-label">{t('type')}</span><span className="detail-meta-value">{t(listing.type)}</span></div>
-              {listing.refNumber && <div><span className="detail-meta-label">#</span><span className="detail-meta-value">{listing.refNumber}</span></div>}
-              {listing.source && <div><span className="detail-meta-label">via</span><span className="detail-meta-value">{listing.url ? <a href={listing.url} target="_blank" rel="noopener noreferrer">{listing.source}</a> : listing.source}</span></div>}
-              <div><span className="detail-meta-label">{t('sort_newest')}</span><span className="detail-meta-value">{t('listed_ago', { n: listing.listedDaysAgo })}</span></div>
-            </div>
+          <div className="detail-list">
+            <div><span>{t('type')}</span><span>{t(listing.type)}</span></div>
+            {listing.refNumber && <div><span>#</span><span>{listing.refNumber}</span></div>}
+            {listing.source && <div><span>via</span><span>{listing.url ? <a href={listing.url} target="_blank" rel="noopener noreferrer">{listing.source}</a> : listing.source}</span></div>}
+            <div><span>{t('sort_newest')}</span><span>{listed}</span></div>
           </div>
 
-          {hasPin && (
+          {hasPin && listing.photos.length > 0 && (
             <div className="no-photo detail-map">
               <img src={staticMap(listing.lat, listing.lng, 800, 400)} alt="" loading="lazy" onError={e => { e.currentTarget.style.display = 'none' }} />
               <span className="no-photo-pin" />
@@ -140,7 +142,7 @@ export default function ListingDetail() {
 
       {similar.length > 0 && (
         <div className="detail-similar">
-          <h3 className="section-label">Similar homes</h3>
+          <h3 className="detail-h">Similar homes</h3>
           <div className="listings-grid">
             {similar.map((l, i) => <ListingCard key={l.id} listing={l} index={i} />)}
           </div>

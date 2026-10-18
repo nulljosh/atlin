@@ -13,13 +13,19 @@ export function staticMap(lat, lng, w = 640, h = 440, span = 0.009) {
 // ponytail: free third-party resizer. If it goes down, swap for Cloudflare
 // Image Resizing on the zone.
 // Managers upload "Free Rent!" graphics as the first photo; a graphic is not a home.
-const promo = /promo|graphic|banner|free[-_ ]?rent|move[-_ ]?in|logo|flyer|incentive|\.png(\?|$)/i
-// One photo reused by three or more homes is the building's ad or logo, not the home.
+// Square 900x900 tiles and RentSync uploads are the managers' offer cards.
+const promo = /promo|graphic|banner|free[-_ ]?rent|move[-_ ]?in|logo|flyer|incentive|rent[-_ ]?sync|[-_](\d{3,4})x\1\b|\.png(\?|$)/i
+// One photo reused across three or more different buildings is an ad or a logo.
+// Units in the same building sharing its exterior shot is normal, so count buildings, not homes.
+const building = l => (l.address || '').split('#')[0].trim().toLowerCase()
 export function dropSharedPhotos(listings) {
   const seen = new Map()
-  for (const l of listings) for (const u of new Set(l.photos || [])) seen.set(u, (seen.get(u) || 0) + 1)
+  for (const l of listings) for (const u of new Set(l.photos || [])) {
+    if (!seen.has(u)) seen.set(u, new Set())
+    seen.get(u).add(building(l))
+  }
   return listings.map(l => {
-    const photos = (l.photos || []).filter(u => seen.get(u) < 3)
+    const photos = (l.photos || []).filter(u => seen.get(u).size < 3)
     return { ...l, photos, photo: photos[0] || null }
   })
 }

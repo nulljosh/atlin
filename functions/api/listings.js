@@ -111,11 +111,58 @@ async function housingfeedNear(env, p) {
     .map(x => x.l)
 }
 
-const PROVIDERS = [rentcast, housingfeedNear]
+// Craigslist: private landlords with real photos, every country it serves.
+// Read through the same JSON search craigslist.org's own pages use, nearest
+// area to the place, photo posts only. Rows are positional; tag 4 is images,
+// 5 is [beds, sqft], 6 the slug, 13 the uuid; the title is the last plain string.
+// ponytail: unofficial endpoint, no key. If it changes shape this provider
+// returns [] and the others carry on.
+const CL_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
+async function craigslist(env, p) {
+  const areas = await (await fetch('https://reference.craigslist.org/Areas', { cf: { cacheTtl: 86400, cacheEverything: true }, signal: AbortSignal.timeout(8000) })).json()
+  const near = areas.map(a => ({ a, d: km(p, { lat: a.Latitude, lng: a.Longitude }) })).sort((x, y) => x.d - y.d)[0]
+  if (!near || near.d > 150) return []
+  const q = new URLSearchParams({ batch: `${near.a.AreaID}-0-360-0-0`, cc: 'US', lang: 'en', searchPath: p.mode === 'rent' ? 'apa' : 'rea', hasPic: '1' })
+  const res = await fetch(`https://sapi.craigslist.org/web/v8/postings/search/full?${q}`, { headers: { 'User-Agent': CL_UA }, signal: AbortSignal.timeout(12000) })
+  if (!res.ok) throw new Error(`craigslist ${res.status}`)
+  const { decode, items } = (await res.json()).data
+  return items.map(item => {
+    const [idOff, dateOff, , price, geo] = item
+    const title = item.slice(5).filter(x => typeof x === 'string').pop() || ''
+    let uuid, slug, images = [], beds = 0, sqft = 0
+    for (const f of item.slice(6)) {
+      if (!Array.isArray(f)) continue
+      if (f[0] === 4) images = f.slice(1)
+      if (f[0] === 5) { beds = num(f[1]); sqft = num(f[2]) }
+      if (f[0] === 6) slug = f[1]
+      if (f[0] === 13) uuid = f[1]
+    }
+    const [idx, lat, lng] = typeof geo === 'string' ? geo.split('~') : []
+    const where = decode.locationDescriptions?.[Number(String(idx).split(':')[1])] || near.a.ShortDescription
+    const photos = images.map(t => `https://images.craigslist.org/${t.replace(/^\d+:/, '')}_600x450.jpg`)
+    return shape(p, p.mode, {
+      id: `cl-${decode.minPostingId + idOff}`,
+      source: 'Craigslist',
+      url: uuid && slug ? `https://www.craigslist.org/view/d/${slug}/${uuid}` : null,
+      address: title, neighborhood: where, city: p.city || where,
+      price, beds, baths: 0, sqft,
+      type: typeOfRaw(title),
+      lat: +lat, lng: +lng,
+      photo: photos[0] || null, photos,
+      listedDaysAgo: Math.max(0, Math.round((Date.now() / 1000 - (decode.minPostedDate + dateOff)) / 86400))
+    })
+  })
+    // Under 300 a month is a parking spot or a weekly room; under 50k is not a home for sale.
+    .filter(l => l.price >= (p.mode === 'rent' ? 300 : 50000) && Number.isFinite(l.lat) && Number.isFinite(l.lng) && km(p, l) <= 40)
+    .sort((a, b) => km(p, a) - km(p, b))
+    .slice(0, 120)
+}
+
+const PROVIDERS = [rentcast, housingfeedNear, craigslist]
 
 // Shared by /api/listings, /api/deals and /mcp, so the three can never disagree.
 export async function fetchListings(env, p) {
-  const key = `v2/${p.country}/${p.city}/${p.area}/${p.lat.toFixed(1)}/${p.lng.toFixed(1)}/${p.mode}`.toLowerCase()
+  const key = `v4/${p.country}/${p.city}/${p.area}/${p.lat.toFixed(1)}/${p.lng.toFixed(1)}/${p.mode}`.toLowerCase()
   const hit = await env.ATLIN_CACHE?.get(key)
   if (hit) return { body: JSON.parse(hit), ttl: TTL }
 
@@ -132,7 +179,7 @@ export async function fetchListings(env, p) {
   }))).flat()
 
   // Lets the native app hide Buy until a sale feed is switched on.
-  const modes = env.RENTCAST_KEY ? ['rent', 'sale'] : ['rent']
+  const modes = ['rent', 'sale']
   // One unit re-posted by several sources shows up once.
   const seen = new Set()
   const unique = out.filter(l => {

@@ -61,8 +61,8 @@ export default function ListingCard({ listing, index = 0 }) {
         {listing.deal >= 5 && <div className="listing-deal"><span className="deal-badge">{t('deal_under', { n: listing.deal })}</span></div>}
         <div className="listing-meta">
           <span>{listing.beds} {t('bd')}</span>
-          <span className="meta-dot" />
-          <span>{listing.baths} {t('ba')}</span>
+          {listing.baths > 0 && <span className="meta-dot" />}
+          {listing.baths > 0 && <><span>{listing.baths} {t('ba')}</span></>}
           {fmt.area && <><span className="meta-dot" /><span>{fmt.area}</span></>}
         </div>
         <div className="listing-address">{listing.address}{listing.neighborhood && listing.neighborhood !== listing.address ? `, ${listing.neighborhood}` : ''}</div>
