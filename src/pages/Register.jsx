@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import AppleButton from '../components/AppleButton'
 import GoogleButton from '../components/GoogleButton'
 import { useAuth } from '../context/AuthContext'
+import { useI18n } from '../i18n'
 
 export default function Register() {
   const [name, setName] = useState('')
@@ -12,15 +13,16 @@ export default function Register() {
   const [error, setError] = useState('')
   const [sent, setSent] = useState(false)
   const { register } = useAuth()
+  const { t } = useI18n()
 
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
-    if (!name.trim()) return setError('Name is required')
-    if (!email.trim()) return setError('Email is required')
-    if (password.length < 8) return setError('Password must be at least 8 characters')
-    if (password !== confirm) return setError('Passwords do not match')
+    if (!name.trim()) return setError(t('auth_err_name'))
+    if (!email.trim()) return setError(t('auth_err_email'))
+    if (password.length < 8) return setError(t('auth_err_pw_short'))
+    if (password !== confirm) return setError(t('auth_err_pw_match'))
 
     const result = await register(name.trim(), email.trim(), password)
     if (result.error) return setError(result.error)
@@ -30,9 +32,9 @@ export default function Register() {
   if (sent) return (
     <div className="page-auth">
       <div className="auth-card fade-up">
-        <h1>Check your email</h1>
-        <p className="subtitle">We sent a link to {email.trim()}. Open it to confirm, then sign in.</p>
-        <p className="auth-switch"><Link to="/login">Go to sign in</Link></p>
+        <h1>{t('auth_check_email')}</h1>
+        <p className="subtitle">{t('auth_sent', { email: email.trim() })}</p>
+        <p className="auth-switch"><Link to="/login">{t('auth_go_signin')}</Link></p>
       </div>
     </div>
   )
@@ -40,13 +42,13 @@ export default function Register() {
   return (
     <div className="page-auth">
       <div className="auth-card fade-up">
-        <h1>Create account</h1>
-        <p className="subtitle">Start browsing homes anywhere</p>
+        <h1>{t('auth_create')}</h1>
+        <p className="subtitle">{t('auth_create_sub')}</p>
         <AppleButton onError={setError} />
         <GoogleButton onError={setError} />
         <form onSubmit={handleSubmit}>
           <div className="input-group">
-            <label htmlFor="name">Full name</label>
+            <label htmlFor="name">{t('auth_name')}</label>
             <input
               id="name"
               type="text"
@@ -57,7 +59,7 @@ export default function Register() {
             />
           </div>
           <div className="input-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t('email')}</label>
             <input
               id="email"
               type="email"
@@ -68,22 +70,22 @@ export default function Register() {
             />
           </div>
           <div className="input-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">{t('password')}</label>
             <input
               id="password"
               type="password"
-              placeholder="Min. 6 characters"
+              placeholder={t('auth_pw_new_ph')}
               value={password}
               onChange={e => setPassword(e.target.value)}
               autoComplete="new-password"
             />
           </div>
           <div className="input-group">
-            <label htmlFor="confirm">Confirm password</label>
+            <label htmlFor="confirm">{t('auth_confirm')}</label>
             <input
               id="confirm"
               type="password"
-              placeholder="Repeat password"
+              placeholder={t('auth_confirm_ph')}
               value={confirm}
               onChange={e => setConfirm(e.target.value)}
               autoComplete="new-password"
@@ -91,11 +93,11 @@ export default function Register() {
           </div>
           {error && <p className="error-text">{error}</p>}
           <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-            Create account
+            {t('auth_create')}
           </button>
         </form>
         <div className="auth-footer">
-          Already have an account? <Link to="/login">Sign in</Link>
+          {t('auth_have_account')} <Link to="/login">{t('sign_in')}</Link>
         </div>
       </div>
     </div>

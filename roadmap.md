@@ -14,7 +14,6 @@ names from Overpass, per-country currency/units/price levels, sale and rent
 modes, and UI strings in 25 languages with RTL.
 
 - [ ] Hero line translatable into all 26 languages (currently English-only on landing).
-- [ ] Login/Register/ForgotPassword copy localization (strings dict has keys, pages need `t()` calls).
 
 ## Polish and optimization
 
@@ -22,8 +21,6 @@ modes, and UI strings in 25 languages with RTL.
       construction, but the no-streets fallback can still put a home in water.
 - [ ] Service worker serves the previous build for one load after a deploy.
       Every check of a fresh deploy needs a hard reload or an unregister first.
-- [ ] JS bundle split: Leaflet loads on landing where no map exists. Route-level code splitting wanted.
-- [ ] `npm test` runs two node files. No CI runs them.
 
 ## TUI pilot (2026-09-05)
 - `atlin-tui` SwiftPM target (SwiftTUI). `swift build && ./.build/debug/atlin-tui "Vancouver"` hits Nominatim directly, same public geocoding API src/lib/geo.js calls. Needs a real TTY.
