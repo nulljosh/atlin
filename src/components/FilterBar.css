@@ -87,3 +87,10 @@
 .modes { display: flex; gap: var(--s2); overflow-x: auto; scrollbar-width: none; }
 .modes::-webkit-scrollbar { display: none; }
 .modes .chip { flex-shrink: 0; }
+
+/* Phone: the menus fold behind one Filters capsule. Desktop has room for all four. */
+.filters-toggle { display: none; }
+@media (max-width: 700px) {
+  .filters-toggle { display: inline-flex; margin-inline-start: auto; }
+  .filter-menus:not(.open) { display: none; }
+}

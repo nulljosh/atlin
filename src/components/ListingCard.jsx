@@ -1,15 +1,17 @@
 import { Link } from 'react-router-dom'
 import { useFavorites } from '../context/FavoritesContext'
-import { listingFormatters, thumb } from '../lib/format'
+import { listingFormatters, thumb, staticMap } from '../lib/format'
 import { useI18n } from '../i18n'
 import AtlinMark from './AtlinMark'
 import './ListingCard.css'
 
-// Many real listings come without photos. A quiet atlin mark beats a white hole.
-export function NoPhoto() {
+// Many real listings come without photos. A map of the street beats a white hole.
+export function NoPhoto({ listing, width = 640 }) {
+  const ok = Number.isFinite(listing?.lat) && Number.isFinite(listing?.lng)
   return (
     <div className="no-photo" aria-hidden="true">
-      <AtlinMark size={56} />
+      {ok ? <img src={staticMap(listing.lat, listing.lng, width, Math.round(width * 0.6875))} alt="" loading="lazy" decoding="async" onLoad={e => e.currentTarget.classList.add('loaded')} /> : <AtlinMark size={56} />}
+      {ok && <span className="no-photo-pin" />}
     </div>
   )
 }
@@ -35,7 +37,7 @@ export default function ListingCard({ listing, index = 0 }) {
               decoding="async"
               onLoad={e => e.currentTarget.classList.add('loaded')}
             />
-          : <NoPhoto />}
+          : <NoPhoto listing={listing} />}
         <button
           className={`fav-btn ${fav ? 'active' : ''}`}
           onClick={e => { e.preventDefault(); toggle(listing.id) }}
@@ -51,8 +53,8 @@ export default function ListingCard({ listing, index = 0 }) {
       <div className="listing-card-body">
         <div className="listing-price">
           {fmt.price}
-          {listing.deal >= 5 && <span className="deal-badge">{t('deal_under', { n: listing.deal })}</span>}
         </div>
+        {listing.deal >= 5 && <div className="listing-deal"><span className="deal-badge">{t('deal_under', { n: listing.deal })}</span></div>}
         <div className="listing-meta">
           <span>{listing.beds} {t('bd')}</span>
           <span className="meta-dot" />

@@ -28,6 +28,7 @@
   font: inherit;
   font-size: 1.0625rem;
   padding: 0;
+  text-overflow: ellipsis;
 }
 
 .ask-spark {

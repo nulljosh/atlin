@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { useI18n, supportedLanguages, languageLabel } from '../i18n'
+import { useI18n } from '../i18n'
 import AtlinMark from './AtlinMark'
 import PlaceSearch from './PlaceSearch'
 import './Nav.css'
@@ -8,7 +8,7 @@ import './Nav.css'
 export default function Nav() {
   const { user } = useAuth()
   const location = useLocation()
-  const { language, setLanguage, t } = useI18n()
+  const { t } = useI18n()
 
   return (
     <nav className="nav">
@@ -20,16 +20,6 @@ export default function Nav() {
         <PlaceSearch />
         <div className="nav-links">
           {location.pathname !== '/browse' && <Link to="/browse" className="nav-link">{t('listings')}</Link>}
-          <select
-            className="nav-language"
-            value={language}
-            onChange={e => setLanguage(e.target.value)}
-            aria-label={t('language')}
-          >
-            {supportedLanguages.map(code => (
-              <option key={code} value={code}>{languageLabel(code)}</option>
-            ))}
-          </select>
           <Link to="/settings" className={`nav-link ${location.pathname === '/settings' ? 'active' : ''}`}>{user?.name?.split(' ')[0] || t('settings')}</Link>
         </div>
       </div>

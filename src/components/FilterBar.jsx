@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useFilters } from '../context/FiltersContext'
 import { usePlace } from '../context/PlaceContext'
 import { useI18n } from '../i18n'
@@ -53,6 +54,9 @@ export default function FilterBar({ resultCount }) {
 
   const bands = priceBands(market, mode)
   const bandIndex = Math.max(0, bands.findIndex(b => b.min === filters.priceMin && b.max === filters.priceMax))
+  // On a phone the four menus fold behind one Filters capsule; the count says how many are set.
+  const [open, setOpen] = useState(false)
+  const active = [bandIndex > 0, filters.beds > 0, filters.propertyType !== 'all', filters.sort !== 'deal'].filter(Boolean).length
 
   return (
     <div className="filter-bar">
@@ -66,7 +70,7 @@ export default function FilterBar({ resultCount }) {
         <button className={mode === 'sale' ? 'active' : ''} aria-pressed={mode === 'sale'} onClick={() => setMode('sale')}>{t('for_sale')}</button>
         <button className={mode === 'rent' ? 'active' : ''} aria-pressed={mode === 'rent'} onClick={() => setMode('rent')}>{t('for_rent')}</button>
       </div>}
-      <div className="filter-menus">
+      <div className={`filter-menus ${open ? 'open' : ''}`} id="filter-menus">
         <Menu label={t('price')} value={bandIndex} onChange={i => { updateFilter('priceMin', bands[i].min); updateFilter('priceMax', bands[i].max) }}>
           {bands.map((band, i) => <option key={i} value={i}>{bandLabel(band, i)}</option>)}
         </Menu>
@@ -82,6 +86,10 @@ export default function FilterBar({ resultCount }) {
       </div>
       <div className="filter-result-count">
         <span className="section-label">{t('results', { n: new Intl.NumberFormat(language).format(resultCount) })}</span>
+        <button className={`chip filters-toggle ${open || active ? 'active' : ''}`} aria-expanded={open} aria-controls="filter-menus" onClick={() => setOpen(o => !o)}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+          {t('filters')}{active > 0 && ` · ${active}`}
+        </button>
         <button
           className={`chip ${filters.favoritesOnly ? 'active' : ''}`}
           aria-pressed={filters.favoritesOnly}

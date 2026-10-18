@@ -35,7 +35,7 @@ export default function ListingDetail() {
       <div className="detail-layout fade-up">
         <div className="detail-gallery">
           <div className="detail-main-photo">
-            {listing.photos[photoIdx] ? <img src={thumb(listing.photos[photoIdx], 1200)} alt={listing.address} /> : <NoPhoto />}
+            {listing.photos[photoIdx] ? <img src={thumb(listing.photos[photoIdx], 1200)} alt={listing.address} /> : <NoPhoto listing={listing} width={1200} />}
             <button className="detail-back" onClick={() => navigate(-1)}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>

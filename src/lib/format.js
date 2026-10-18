@@ -1,5 +1,13 @@
 import { formatMoney, formatMoneyCompact, formatArea } from './market'
 
+// A listing with no photo still gets a thumbnail: a street map of where it is.
+// ponytail: Esri's free export endpoint, no key. Swap for our own tiles if it ever limits us.
+export function staticMap(lat, lng, w = 640, h = 440, span = 0.009) {
+  const dLat = (span * h / w) * Math.cos(lat * Math.PI / 180)
+  const bbox = [lng - span / 2, lat - dLat / 2, lng + span / 2, lat + dLat / 2].map(n => n.toFixed(5)).join(',')
+  return `https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer/export?bbox=${bbox}&bboxSR=4326&size=${w},${h}&imageSR=3857&format=jpg&f=image`
+}
+
 // Feed photos are full-size originals from the source sites, often a few MB.
 // wsrv.nl resizes and re-encodes them on its CDN, so a card loads a ~40 KB WebP.
 // ponytail: free third-party resizer. If it goes down, swap for Cloudflare

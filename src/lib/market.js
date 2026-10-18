@@ -73,6 +73,7 @@ const zeroDecimal = new Set(['JPY', 'KRW', 'VND', 'IDR', 'CLP', 'ISK', 'HUF', 'T
 export function formatMoney(amount, currency, locale) {
   return new Intl.NumberFormat(locale, {
     style: 'currency',
+    currencyDisplay: 'narrowSymbol',
     currency,
     maximumFractionDigits: 0,
     minimumFractionDigits: 0
@@ -83,6 +84,7 @@ export function formatMoney(amount, currency, locale) {
 export function formatMoneyCompact(amount, currency, locale) {
   return new Intl.NumberFormat(locale, {
     style: 'currency',
+    currencyDisplay: 'narrowSymbol',
     currency,
     notation: 'compact',
     maximumFractionDigits: 1
