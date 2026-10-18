@@ -7,4 +7,5 @@ jobs:
   alerts:
     runs-on: ubuntu-latest
     steps:
-      - run: curl -fsS -X POST https://api.jaybulb.com/functions/atlin-alerts -H "x-alerts-secret: ${{ secrets.ALERTS_SECRET }}"
+      - run: |
+          curl -fsS -X POST https://api.jaybulb.com/functions/atlin-alerts -H "x-alerts-secret: ${{ secrets.ALERTS_SECRET }}"
