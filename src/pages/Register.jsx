@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function Register() {
@@ -8,8 +8,8 @@ export default function Register() {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
+  const [sent, setSent] = useState(false)
   const { register } = useAuth()
-  const navigate = useNavigate()
 
 
   async function handleSubmit(e) {
@@ -22,8 +22,18 @@ export default function Register() {
 
     const result = await register(name.trim(), email.trim(), password)
     if (result.error) return setError(result.error)
-    navigate('/')
+    setSent(true)
   }
+
+  if (sent) return (
+    <div className="page-auth">
+      <div className="auth-card fade-up">
+        <h1>Check your email</h1>
+        <p className="subtitle">We sent a link to {email.trim()}. Open it to confirm, then sign in.</p>
+        <p className="auth-switch"><Link to="/login">Go to sign in</Link></p>
+      </div>
+    </div>
+  )
 
   return (
     <div className="page-auth">

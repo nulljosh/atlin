@@ -17,7 +17,7 @@ export default function Login() {
 
     const result = await login(email.trim(), password)
     if (result.error) return setError(result.error)
-    navigate('/')
+    navigate('/browse')
   }
 
 

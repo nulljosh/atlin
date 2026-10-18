@@ -31,7 +31,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/" element={<Landing />} />
+        <Route path="/" element={user ? <Navigate to="/browse" replace /> : <Landing />} />
         <Route path="/browse" element={<ProtectedRoute><Listings /></ProtectedRoute>} />
         <Route path="/listing/:id" element={<ProtectedRoute><ListingDetail /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
