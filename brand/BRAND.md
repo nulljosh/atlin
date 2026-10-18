@@ -1,6 +1,6 @@
 # Atlin brand kit and design system
 
-a map pin: every home, one tap
+a map pin with a home in it
 
 ## The mark
 One bold flat white glyph on an accent gradient tile. No text, no outline, no emblem.
