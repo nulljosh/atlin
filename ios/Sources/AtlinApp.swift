@@ -4,10 +4,11 @@ import MapKit
 @main
 struct AtlinApp: App {
     @State private var store = Store()
+    @State private var auth = Auth()
 
     var body: some Scene {
         WindowGroup {
-            BrowseView().environment(store)
+            BrowseView().environment(store).environment(auth)
             #if os(macOS)
                 .frame(minWidth: 960, minHeight: 640)
             #endif
@@ -104,6 +105,8 @@ extension View {
 
 struct ListingSheet: View {
     @Environment(Store.self) private var store
+    @Environment(Auth.self) private var auth
+    @State private var showAccount = false
     @Binding var detent: PresentationDetent
     @State private var query = ""
     @State private var results: [Place] = []
@@ -147,6 +150,14 @@ struct ListingSheet: View {
                 if n > 0, path.isEmpty, UserDefaults.standard.bool(forKey: "openFirst"), let first = store.visible.first(where: { !$0.photos.isEmpty }) ?? store.visible.first { path = [first] }
             }
             .refreshable { await store.load() }
+            .sheet(isPresented: $showAccount) { AccountView() }
+            .onChange(of: auth.user) { _, u in
+                // Signing in merges this device's saved homes with the account's, both ways.
+                guard u != nil else { return }
+                let mine = Set(store.saved.map(\.id)), theirs = Set(auth.favorites)
+                for l in store.listings where theirs.contains(l.id) && !mine.contains(l.id) { store.saved.append(l) }
+                Task { await auth.saveFavorites(Array(mine.union(theirs))) }
+            }
             .navigationTitle(store.place.name)
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -156,6 +167,10 @@ struct ListingSheet: View {
                 ToolbarItem(placement: .navigation) {
                     NavigationLink { SavedView() } label: { Image(systemName: "heart") }
                         .accessibilityLabel("Saved homes")
+                }
+                ToolbarItem(placement: .primaryAction) {
+                    Button { showAccount = true } label: { Image(systemName: auth.user == nil ? "person.crop.circle" : "person.crop.circle.fill") }
+                        .accessibilityLabel(auth.user == nil ? "Sign in" : "Account")
                 }
                 if store.saleAvailable {
                     ToolbarItem(placement: .primaryAction) {
@@ -359,6 +374,7 @@ struct ListingCard: View {
 }
 
 struct ListingDetail: View {
+    @Environment(Auth.self) private var auth
     @Environment(Store.self) private var store
     let listing: Listing
 
@@ -414,7 +430,7 @@ struct ListingDetail: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .toolbar {
-            Button { store.toggle(listing) } label: {
+            Button { store.toggle(listing); Task { await auth.saveFavorites(store.saved.map(\.id)) } } label: {
                 Image(systemName: store.isSaved(listing) ? "heart.fill" : "heart")
             }
             .accessibilityLabel(store.isSaved(listing) ? "Remove from saved" : "Save")
