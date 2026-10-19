@@ -50,6 +50,7 @@ export const en = {
   transit_near: 'Transit stops nearby',
   schools_near: 'Schools nearby',
   price_history: 'Price history',
+  open_house: 'Open house',
   approx_locations: 'Map data is unavailable right now, so these homes are placed approximately.',
   demo_label: 'See it work',
   demo_title: 'Half a minute, start to finish',

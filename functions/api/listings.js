@@ -129,8 +129,11 @@ export function zillowRows(p, r) {
   if (!price) return []
   // A building pin ("Lirica, $2,206+/mo") carries its cheapest plan as min beds, baths and size.
   const building = !r.hdpData && /\/apartments\//.test(r.detailUrl || '')
+  // Open houses: Zillow's own local wording ("Sat. 11am-3pm") plus the times, so a cached day can hide past ones.
+  const shows = (h.open_house_info?.open_house_showing || []).map(x => [x.open_house_start, x.open_house_end]).filter(([, end]) => end > Date.now()).slice(0, 3)
   return [{
     ...base(r.zpid || r.plid || r.lotId), price,
+    ...(shows.length && { openHouse: h.openHouse || String(r.flexFieldText || '').replace(/^Open: /, ''), openHouses: shows }),
     beds: num(r.beds ?? h.bedrooms ?? r.minBeds), baths: num(r.baths ?? h.bathrooms ?? r.minBaths), sqft: num(r.area ?? h.livingArea ?? r.minArea),
     type: building ? 'condo' : typeOf(h.homeType || r.statusText || '', address)
   }]

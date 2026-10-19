@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { walkNear, walkLabel } from '../lib/walk'
 import { usePlace } from '../context/PlaceContext'
-import { listingFormatters, thumb, staticMap } from '../lib/format'
+import { listingFormatters, thumb, staticMap, openHouse } from '../lib/format'
 import { formatMoney } from '../lib/market'
 import ListingCard from '../components/ListingCard'
 import { useI18n } from '../i18n'
@@ -141,6 +141,7 @@ export default function ListingDetail() {
             {listing.refNumber && <div><span>#</span><span>{listing.refNumber}</span></div>}
             {listing.source && <div><span>{t('source')}</span><span>{listing.url ? <a href={listing.url} target="_blank" rel="noopener noreferrer">{listing.source}</a> : listing.source}</span></div>}
             <div><span>{t('sort_newest')}</span><span>{listed}</span></div>
+            {openHouse(listing) && <div><span>{t('open_house')}</span><span>{openHouse(listing)}</span></div>}
           </div>
 
           {listing.priceHistory?.length > 1 && (

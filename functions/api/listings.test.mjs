@@ -101,5 +101,10 @@ console.log('listings api: ok')
   const [h] = zillowRows(p, { zpid: '5', price: '$1,415/mo', beds: 2, baths: 2, area: 1201, latLong: { latitude: 30.19, longitude: -97.83 }, hdpData: { homeInfo: { streetAddress: '8700 W Gate Blvd #24011', city: 'Austin', price: 1415, homeType: 'APARTMENT', daysOnZillow: 16 } } })
   assert.deepEqual([h.price, h.beds, h.type, h.listedDaysAgo], [1415, 2, 'condo', 16])
   assert.deepEqual(zillowRows(p, { price: '$900' }), [], 'no coordinates, no row')
+  const soon = Date.now() + 864e5
+  const [o] = zillowRows({ ...p, mode: 'sale' }, { zpid: '7', price: '$300K', latLong: { latitude: 30.2, longitude: -97.7 }, hdpData: { homeInfo: { price: 300000, openHouse: 'Sat. 11am-3pm', open_house_info: { open_house_showing: [{ open_house_start: 1, open_house_end: 2 }, { open_house_start: soon, open_house_end: soon + 36e5 }] } } } })
+  assert.equal(o.openHouse, 'Sat. 11am-3pm')
+  assert.deepEqual(o.openHouses, [[soon, soon + 36e5]], 'past showings are dropped')
+  assert.equal(h.openHouse, undefined)
   console.log('zillow rows: ok')
 }

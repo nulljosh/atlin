@@ -53,3 +53,6 @@ export function listingFormatters(listing, locale, t) {
     area: listing.sqft > 0 ? formatArea(listing.sqft, listing.imperial, locale) : ''
   }
 }
+
+// "Sat. 11am-3pm" while a showing is still ahead; the listing cache can be a day old.
+export const openHouse = l => (l.openHouses?.some(([, end]) => end > Date.now()) ? l.openHouse : null)
