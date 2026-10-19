@@ -21,8 +21,7 @@ The App Store push for Atlin (ex-Brick, ex-Roost). It watches the review queue, 
 2. Real-device test of Sign in with Apple on a signed build.
 3. Native Google sign-in: confirm the iOS OAuth client exists, test it in a running app, then ship build 10.
 4. Light-mode Mac shots.
-5. Ad-graphic photos on some NYC listings: swap for real photos or hide them.
-6. Open issues: #13, #15, #16, #17, #18, #19, #23 and #25. Do not run the roadmap-to-issues sync until its duplicates are sorted, since it would reopen mirrors under new titles.
+5. Open issues: #13, #15, #16, #17, #18, #19, #23 and #25. Do not run the roadmap-to-issues sync until its duplicates are sorted, since it would reopen mirrors under new titles.
 
 ## Restart prompt
 

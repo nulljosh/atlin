@@ -13,7 +13,6 @@ Open work only. Resume state lives in `docs/LOOP-HANDOFF.md`.
 - [ ] Price history, school and walk scores, open houses (need a data source; no scraping REW or Zillow)
 
 ## Polish
-- [ ] Some NYC listings still carry ad-graphic photos. Swap for real photos or hide them.
 - [ ] Sample homes can land in water: the no-streets fallback has no land check.
 - [ ] Service worker serves the previous build for one load after a deploy.
 - [ ] Landing body paragraphs translated beyond the major languages.
