@@ -9,6 +9,17 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      // The page itself always comes from the network when there is one, so a deploy shows on the
+      // next load instead of the one after; the precached copy is only the offline fallback.
+      workbox: {
+        navigateFallback: null,
+        globIgnores: ['**/index.html'],
+        runtimeCaching: [{
+          urlPattern: ({ request }) => request.mode === 'navigate',
+          handler: 'NetworkFirst',
+          options: { cacheName: 'pages', networkTimeoutSeconds: 3 }
+        }]
+      },
       manifest: {
         name: 'Atlin',
         short_name: 'Atlin',

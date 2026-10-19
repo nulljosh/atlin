@@ -11,6 +11,5 @@ Open work only. Resume state lives in `docs/LOOP-HANDOFF.md`.
 
 ## Polish
 - [ ] Sample homes can land in water: the no-streets fallback has no land check.
-- [ ] Service worker serves the previous build for one load after a deploy.
 - [ ] Landing body paragraphs translated beyond the major languages.
 - [ ] Sync the colour palette with the portfolio and other projects.

@@ -21,9 +21,8 @@ npm run build
 npm test
 ```
 
-A deploy is served from the service worker cache for one load, so verify a fresh
-deploy with a hard reload (or unregister the worker) before believing what you
-see.
+The service worker fetches the page network-first (vite.config.js), so a deploy shows on
+the next load. Hashed assets stay precached for offline use.
 
 
 ## The loop
