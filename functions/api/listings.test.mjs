@@ -76,3 +76,16 @@ console.log('listings api: ok')
   assert.equal(e.history.length, 12, 'capped at 12 changes')
   console.log('price history: ok')
 }
+
+// REW cards: everything but the coordinates comes off the area page.
+{
+  const { rewCards } = await import('./listings.js')
+  const { readFileSync } = await import('node:fs')
+  const cards = rewCards(readFileSync(new URL('./rew.fixture.html', import.meta.url), 'utf8'))
+  assert.equal(cards.length, 2)
+  const c = cards[0]
+  assert.ok(c.url.startsWith('https://www.rew.ca/rentals/'))
+  assert.ok(c.price > 500 && c.beds >= 0 && c.baths > 0 && c.sqft > 100, JSON.stringify(c))
+  assert.ok(/, BC, /.test(c.title) && c.neighborhood && c.city === 'Vancouver' && c.kind)
+  console.log('rew cards: ok')
+}

@@ -132,6 +132,74 @@ async function zillow(env, p) {
   return (await zillowRaw(env, p)).map(r => zillowRow(p, r)).filter(Boolean)
 }
 
+// REW.ca rentals (BC and Alberta), read from its public area pages: price, address, beds, baths,
+// size, type and photo per card, two pages a town. The cards carry no coordinates, so each street
+// address is geocoded once through Photon and kept in KV. Off until env.REW is "on".
+const REW_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140 Safari/537.36'
+const text = s => s.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&#39;/g, "'").trim()
+
+export function rewCards(html) {
+  return html.split("<article class='displaycard'").slice(1).map(a => {
+    const href = a.match(/href="(https:\/\/www\.rew\.ca\/rentals\/(\d+)\/[^"]+)"/)
+    const title = a.match(/title="([^"]+)"/)?.[1]
+    const price = money(a.match(/displaycard-title'>([^<]+)</)?.[1])
+    if (!href || !title || !price) return null
+    const lists = [...a.matchAll(/<ul class='inlinelist'>(.*?)<\/ul>/g)].map(m => [...m[1].matchAll(/<li[^>]*>(.*?)<\/li>/g)].map(x => text(x[1])))
+    const facts = lists.find(l => l.some(x => / bd$| ba$| sf$/.test(x))) || []
+    const fact = suffix => num(facts.find(x => x.endsWith(suffix))?.replace(/[^\d.]/g, ''))
+    const wraps = [...a.matchAll(/displaycard-wrap'>([^<]+)</g)].map(m => text(m[1]))
+    return {
+      id: href[2], url: href[1], title: text(title), price,
+      neighborhood: lists[0]?.[0] || '', city: lists[0]?.[1] || '',
+      beds: fact(' bd'), baths: fact(' ba'), sqft: fact(' sf'), kind: wraps[1] || '',
+      photo: a.match(/<img itemprop="image"[^>]*src="([^"?]+)/)?.[1] || null
+    }
+  }).filter(Boolean)
+}
+
+async function geocode(env, address, near) {
+  const k = `g/${address.toLowerCase()}`
+  const hit = await env.ATLIN_CACHE?.get(k, 'json')
+  if (hit) return hit
+  const res = await fetch(`https://photon.komoot.io/api/?${new URLSearchParams({ q: address, limit: '1', lat: near.lat, lon: near.lng })}`, { signal: AbortSignal.timeout(8000) })
+  const c = res.ok ? (await res.json()).features?.[0]?.geometry?.coordinates : null
+  const at = c ? { lat: c[1], lng: c[0] } : null
+  if (at) await env.ATLIN_CACHE?.put(k, JSON.stringify(at), { expirationTtl: 365 * 864e2 })
+  return at
+}
+
+export async function rewRaw(env, p) {
+  if (p.country !== 'CA' || p.mode !== 'rent' || !p.city) return []
+  const town = townName(p.area || p.city).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  for (const prov of ['bc', 'ab']) {
+    const pages = await Promise.all(['', '/page/2'].map(async page => {
+      const res = await fetch(`https://www.rew.ca/rentals/areas/${town}-${prov}${page}`, { headers: { 'user-agent': REW_UA }, signal: AbortSignal.timeout(10000) })
+      return res.ok ? rewCards(await res.text()) : []
+    }))
+    const cards = pages.flat()
+    if (cards.length) return cards
+  }
+  return []
+}
+
+async function rew(env, p) {
+  if (env.REW !== 'on') return []
+  const cards = await rewRaw(env, p)
+  const rows = await Promise.all(cards.map(async c => {
+    // "401-1331 Alberni Street, Vancouver, BC, V6E 4S1": the unit number does not geocode.
+    const at = await geocode(env, c.title.replace(/^[^,\s]+-(?=\d)/, ''), p).catch(() => null)
+    if (!at || km(at, p) > 40) return null
+    return shape(p, 'rent', {
+      id: `rew-${c.id}`, source: 'REW', url: c.url,
+      address: c.title.split(',')[0], neighborhood: c.neighborhood, city: c.city || p.city,
+      price: c.price, beds: c.beds, baths: c.baths, sqft: c.sqft,
+      type: typeOf(c.kind, c.title), lat: at.lat, lng: at.lng,
+      photo: c.photo, photos: c.photo ? [c.photo] : [], listedDaysAgo: 7
+    })
+  }))
+  return rows.filter(Boolean)
+}
+
 const promo = /promo|graphic|banner|free[-_ ]?rent|move[-_ ]?in|logo|flyer|incentive|\.png(\?|$)/i
 
 // "Township of Langley" -> "Langley".
@@ -208,7 +276,7 @@ async function craigslist(env, p) {
     .slice(0, 120)
 }
 
-const PROVIDERS = [rentcast, housingfeedNear, craigslist, zillow]
+const PROVIDERS = [rentcast, housingfeedNear, craigslist, zillow, rew]
 
 // Shared by /api/listings, /api/deals and /mcp, so the three can never disagree.
 export async function fetchListings(env, p) {
@@ -283,6 +351,14 @@ export async function onRequestGet({ request, env }) {
   const probe = new URL(request.url).searchParams.get('zillowProbe')
   if (probe && await sha256(probe) === '27ed71adc5426382b3235fd98661c9a874f64574d1adec1123c8444671e69c52') {
     const t = Date.now()
+    if (new URL(request.url).searchParams.get('source') === 'rew') {
+      try {
+        const rows = await rew({ ...env, REW: 'on' }, p)
+        return Response.json({ ms: Date.now() - t, cards: (await rewRaw(env, p)).length, rows: rows.length, first: rows[0] })
+      } catch (e) {
+        return Response.json({ ms: Date.now() - t, error: e.message })
+      }
+    }
     try {
       const raw = await zillowRaw(env, p)
       return Response.json({ ms: Date.now() - t, count: raw.length, mapped: raw.map(r => zillowRow(p, r)).filter(Boolean).length, first: raw[0], firstMapped: raw[0] && zillowRow(p, raw[0]) })
