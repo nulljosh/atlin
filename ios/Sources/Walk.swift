@@ -32,15 +32,21 @@ enum Walk {
     /// Counts per row key, or nil when every mirror failed.
     static func near(_ lat: Double, _ lng: Double) async -> [String: Int]? {
         struct Reply: Decodable { struct El: Decodable { let tags: [String: String] }; let elements: [El] }
+        // Cached per ~100 m spot, like the web's localStorage copy.
+        let key = String(format: "walk:%.3f,%.3f", lat, lng)
+        if let hit = UserDefaults.standard.dictionary(forKey: key) as? [String: Int] { return hit }
         var body = URLComponents(); body.queryItems = [.init(name: "data", value: query(lat, lng))]
-        for m in mirrors {
+        // Public Overpass is often at capacity or answers with a timeout remark, so go round twice.
+        for m in mirrors + mirrors {
             var req = URLRequest(url: URL(string: m)!)
             req.httpMethod = "POST"
             req.httpBody = body.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B").data(using: .utf8)
             req.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
             guard let (data, res) = try? await URLSession.shared.data(for: req), (res as? HTTPURLResponse)?.statusCode == 200,
                   let reply = try? JSONDecoder().decode(Reply.self, from: data), reply.elements.count == rows.count else { continue }
-            return Dictionary(uniqueKeysWithValues: zip(rows.map(\.key), reply.elements.map { Int($0.tags["total"] ?? "") ?? 0 }))
+            let counts = Dictionary(uniqueKeysWithValues: zip(rows.map(\.key), reply.elements.map { Int($0.tags["total"] ?? "") ?? 0 }))
+            UserDefaults.standard.set(counts, forKey: key)
+            return counts
         }
         return nil
     }
@@ -51,6 +57,7 @@ struct WalkSection: View {
     @State private var counts: [String: Int]?
 
     var body: some View {
+        // Always a real view, even before the counts arrive, so .task runs.
         Group {
             if let counts {
                 let s = Walk.score(counts)
@@ -62,6 +69,8 @@ struct WalkSection: View {
                     row("Schools nearby", "\(counts["schools"] ?? 0)")
                 }
                 .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: Space.grouped, style: .continuous))
+            } else {
+                Color.clear.frame(height: 1)
             }
         }
         .task(id: "\(lat),\(lng)") { counts = await Walk.near(lat, lng) }

@@ -10,7 +10,13 @@ final class Auth {
     struct User: Codable, Equatable { let id: String; let email: String?; var name: String?; var provider: String? }
 
     private static let api = "https://api.jaybulb.com"
-    private static let service = "com.nulljosh.brick.session"
+    // Debug builds keep their own slot, so a locally re-signed test build never asks for the
+    // login keychain password to read the shipped app's session.
+    #if DEBUG
+    private static let service = "com.nulljosh.atlin.session.debug"
+    #else
+    private static let service = "com.nulljosh.atlin.session"
+    #endif
 
     var user: User?
     var favorites: [String] = []

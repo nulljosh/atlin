@@ -34,7 +34,8 @@ const KEY = 'atlin-walk:'
 export async function walkNear(lat, lng, signal) {
   const id = KEY + lat.toFixed(3) + ',' + lng.toFixed(3)
   try { const hit = JSON.parse(localStorage.getItem(id)); if (hit) return hit } catch {}
-  for (const endpoint of MIRRORS) {
+  // Public Overpass is often at capacity or answers with a timeout remark, so go round twice.
+  for (const endpoint of [...MIRRORS, ...MIRRORS]) {
     try {
       const res = await fetch(endpoint, { method: 'POST', body: new URLSearchParams({ data: walkQuery(lat, lng) }), signal })
       if (!res.ok) continue
