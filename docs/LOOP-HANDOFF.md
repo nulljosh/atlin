@@ -17,6 +17,8 @@ The App Store push for Atlin (ex-Brick, ex-Roost). It watches the review queue, 
 - The keychain slot is now com.nulljosh.atlin.session, and debug builds use their own .debug slot, so a re-signed test build never asks for the login password.
 - Native account QA on Mac against a local jaybulb-api (`npx wrangler dev --local`, launch the debug build with `-apiBase http://127.0.0.1:8787`, throwaway creds in the gitignored .env): email sign-in, restore on relaunch, delete account (row gone, signed out) and Forgot password (recover 200, notice shown) all pass. Apple and Google cannot be tested locally.
 - Sign-in sheet: Apple and Google are matching 48 point capsules with their marks (our own Apple button runs ASAuthorizationController), and Forgot password is in the native sheet. Ships in build 10.
+- Price history: functions/api/listings.js keeps a [day, price] series per home in `h/<key>` (one point per change, last 12) and sends `priceHistory` once a price has moved. Web shows a step line and rows (QA'd light and dark with injected data); native PriceHistory.swift (Swift Charts) compiles for build 10 but has not been seen in a running app. Real histories build up as the daily cache refreshes.
+- Listing sources today: Craigslist and HousingFeed (Vancouver 120 and 60). No REW or Zillow scraping.
 - Bundle ID stays com.nulljosh.brick and the Pages project stays roost. Those cannot be renamed.
 
 ## Next, in order

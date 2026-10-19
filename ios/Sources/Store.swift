@@ -21,11 +21,13 @@ struct Listing: Codable, Identifiable, Hashable, Sendable {
     let year: Int?
     let listedDaysAgo: Int?
     let priceWas: Double?
+    // [day since 1970, price] per change, oldest first; only sent once the price has moved.
+    let priceHistory: [[Double]]?
     // Percent under the median for the same bedroom count, set by Store. Same rule as src/lib/deals.js.
     var deal = 0
 
     private enum CodingKeys: String, CodingKey {
-        case id, source, url, address, city, currency, imperial, mode, price, beds, baths, sqft, type, lat, lng, photos, year, listedDaysAgo, priceWas
+        case id, source, url, address, city, currency, imperial, mode, price, beds, baths, sqft, type, lat, lng, photos, year, listedDaysAgo, priceWas, priceHistory
     }
 
     // Managers upload "Free Rent!" graphics as the first photo; a graphic is not a home.
