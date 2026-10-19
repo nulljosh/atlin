@@ -16,26 +16,20 @@ const de = generateListings(berlin, [{ name: 'Kastanienallee', lat: 52.53, lng: 
 assert.match(de[0].address, /^Kastanienallee \d+$/)
 assert.notEqual(de[0].price, jp[0].price, 'different places, different inventory')
 
-const rent = generateListings(tokyo, [], 'rent')
+const rent = generateListings(tokyo, [{ name: '青山通り', lat: 35.67, lng: 139.71 }], 'rent')
 assert.ok(rent[0].price < jp[0].price / 50, 'rent is a monthly figure, not a sale price')
 assert.ok(rent.every(l => l.mode === 'rent' && l.price > 0))
 
-// An unmapped country still has to produce a browsable market.
-const fallback = generateListings(nowhere, [])
-assert.equal(fallback[0].currency, 'USD')
-assert.equal(fallback[0].neighborhood, 'Somewhere', 'no streets means fall back to the place name')
+// An unmapped country still prices in a currency.
+assert.equal(generateListings(nowhere, [{ name: 'Main St', lat: 0, lng: 0 }])[0].currency, 'USD')
 
 assert.equal(marketFor('jp').currency, 'JPY', 'country code case must not matter')
 assert.ok(!formatMoney(52000000, 'JPY', 'ja').includes('.'), 'yen has no minor unit')
 assert.ok(formatArea(1200, false, 'de').includes('m'), 'metric outside the imperial set')
 
-// No streets used to anchor every home to the one city point, so the map drew
-// a single blob instead of a city of pins.
-const spread = arr => Math.max(...arr.map(l => l.lat)) - Math.min(...arr.map(l => l.lat))
-assert.ok(spread(fallback) > 0.015, 'no-street listings must still spread across the place')
-const boxed = generateListings({ ...berlin, bbox: [52.34, 13.09, 52.68, 13.76] }, [])
-// Wide enough to look like a city, tight enough that a coastal place does not
-// drop homes in open water.
-assert.ok(spread(boxed) < 0.06, 'fallback stays near the centroid, not out to sea')
+// No streets means no way to tell land from water, so no sample homes rather than pins in the sea.
+assert.deepEqual(generateListings({ ...berlin, bbox: [52.34, 13.09, 52.68, 13.76] }, []), [])
+const near = generateListings(berlin, [{ name: 'Kastanienallee', lat: 52.53, lng: 13.41 }])
+assert.ok(near.every(l => Math.abs(l.lat - 52.53) <= 0.002 && Math.abs(l.lng - 13.41) <= 0.002), 'homes stay about a block from their street')
 
 console.log('listings: ok')

@@ -55,15 +55,9 @@ const pick = (rand, arr) => arr[Math.floor(rand() * arr.length)]
 // ponytail: no land mask. A real one needs coastline polygons or a water query;
 // the street anchors are on land by construction, so this only has to cover the
 // degraded path, which the UI already labels as approximate.
-function spreadFor(place) {
-  const [s, w, n, e] = place.bbox || []
-  const span = place.bbox ? Math.min(n - s, e - w) : 0.06
-  return Math.min(Math.max(span * 0.5, 0.02), 0.04)
-}
-
 /**
  * @param place  from geo.js — needs lat/lng/name/countryCode
- * @param streets optional real streets from Overpass; falls back to the place name
+ * @param streets real streets from Overpass; none means no sample homes
  * @param mode   'sale' | 'rent'
  */
 export function generateListings(place, streets = [], mode = 'sale', count = 60) {
@@ -73,13 +67,15 @@ export function generateListings(place, streets = [], mode = 'sale', count = 60)
   // Base value of a mid-market home in this country, before size/type.
   const base = 400000 * market.level
 
+  // Without real streets there is no telling land from water, so no sample homes at all:
+  // the page says nothing is listed instead of dropping pins in the sea.
+  if (!streets.length) return []
   for (let i = 0; i < count; i++) {
     const type = pick(rand, propertyTypes)
-    const anchor = streets.length ? pick(rand, streets) : place
-    const street = streets.length ? anchor.name : place.name
-    // Without real streets every home would anchor to the one city point and
-    // the map would show a single blob, so fall back to the place's own bbox.
-    const jitter = streets.length ? 0.012 : spreadFor(place)
+    const anchor = pick(rand, streets)
+    const street = anchor.name
+    // About a block either side of a real named street.
+    const jitter = 0.004
 
     let beds, baths, sqft, sizeFactor
     if (type === 'house') {
@@ -110,7 +106,7 @@ export function generateListings(place, streets = [], mode = 'sale', count = 60)
     listings.push({
       id: `${place.id}-${mode}-${i}`,
       address: formatAddress(Math.floor(rand() * 220) + 1, street, market.countryCode),
-      neighborhood: streets.length ? street : place.name,
+      neighborhood: street,
       city: place.name,
       countryCode: market.countryCode,
       currency: market.currency,
