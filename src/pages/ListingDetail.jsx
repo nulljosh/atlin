@@ -1,6 +1,7 @@
 import { NoPhoto } from '../components/ListingCard'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { walkNear, walkLabel } from '../lib/walk'
 import { usePlace } from '../context/PlaceContext'
 import { listingFormatters, thumb, staticMap } from '../lib/format'
 import { formatMoney } from '../lib/market'
@@ -18,6 +19,16 @@ export default function ListingDetail() {
   const { toggle, isFavorite } = useFavorites()
   const [photoIdx, setPhotoIdx] = useState(0)
   const [copied, setCopied] = useState(false)
+  const [walk, setWalk] = useState(null)
+  const lat = listing?.lat, lng = listing?.lng
+
+  useEffect(() => {
+    setWalk(null)
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return
+    const ctrl = new AbortController()
+    walkNear(lat, lng, ctrl.signal).then(w => { if (!ctrl.signal.aborted) setWalk(w) })
+    return () => ctrl.abort()
+  }, [lat, lng])
 
   if (!listing && fetching) return <div className="page" role="status" aria-busy="true" />
 
@@ -131,6 +142,14 @@ export default function ListingDetail() {
             {listing.source && <div><span>{t('source')}</span><span>{listing.url ? <a href={listing.url} target="_blank" rel="noopener noreferrer">{listing.source}</a> : listing.source}</span></div>}
             <div><span>{t('sort_newest')}</span><span>{listed}</span></div>
           </div>
+
+          {walk && (
+            <div className="detail-list">
+              <div><span>{t('walk_score')}</span><span>{walk.score} · {t(walkLabel(walk.score))}</span></div>
+              <div><span>{t('transit_near')}</span><span>{walk.counts.transit}</span></div>
+              <div><span>{t('schools_near')}</span><span>{walk.counts.schools}</span></div>
+            </div>
+          )}
 
           {hasPin && listing.photos.length > 0 && (
             <div className="no-photo detail-map">
