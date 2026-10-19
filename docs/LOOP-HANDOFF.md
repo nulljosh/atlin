@@ -7,7 +7,7 @@ The App Store push for Atlin (ex-Brick, ex-Roost). It watches the review queue, 
 ## Where things stand
 
 - Build 9 (iOS and Mac 1.0.0) is WAITING_FOR_REVIEW on ASC app 6824157219. It adds Sign in with Apple, email sign-in, account deletion, synced saves, the location prompt, the blue folded-map icon and the privacy label.
-- Build 10 is built and compiles on iOS and Mac: native Google sign-in, profile, saved searches, Size filter, price drops, the alerts toggle, pin culling and the Mac fixes. It ships after build 9 clears. Native Google sign-in and the Mac Return-to-search key have not been tested in a running app.
+- Build 10 is built and compiles on iOS and Mac: native Google sign-in, profile, saved searches, Size filter, price drops, the alerts toggle, pin culling and the Mac fixes. It ships after build 9 clears. Mac Return-to-search works in a running app (Langley to Vancouver, 119 homes). Native Google sign-in has not been tested in a running app.
 - Web has draw-on-map search: a Draw capsule at the top right of the map, trace a loop, only homes inside it stay (count, pins and cards). Clear area undoes it; a new place clears it. iOS and Mac have it too (same Draw capsule, same ray-casting check in Store.swift), QA'd in a running Mac app, ships in build 10.
 - Web at atlin.jaybulb.com has Google and Apple sign-in, price drops, the Size filter, daily saved-search email alerts (toggle in Settings; sender in jaybulb-api, run by a GitHub Action), and translations in all 27 languages with the auth pages localized.
 - The iOS and Mac Account sheets have the email-alerts toggle. Store screenshots for iPhone and Mac are refreshed, and the web promo video (27 seconds) is live.
