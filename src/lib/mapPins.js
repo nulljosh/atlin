@@ -57,3 +57,15 @@ export function visibleForZoom(listings, zoom, labelFor = () => '') {
   }
   return out
 }
+
+// Draw-on-map search: is a home inside the loop the person traced? Ray casting
+// over [lat, lng] points; the loop closes itself, so the last point joins the first.
+export function insideArea([lat, lng], area) {
+  let inside = false
+  for (let i = 0, j = area.length - 1; i < area.length; j = i++) {
+    const [yi, xi] = area[i]
+    const [yj, xj] = area[j]
+    if ((yi > lat) !== (yj > lat) && lng < (xj - xi) * (lat - yi) / (yj - yi) + xi) inside = !inside
+  }
+  return inside
+}

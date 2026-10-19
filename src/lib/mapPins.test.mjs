@@ -29,3 +29,14 @@ const separate = Array.from({ length: 4 }, (_, id) => ({ id, lat: 49, lng: -123 
 assert.equal(visibleForZoom(separate, 12, () => 'CA$500K').length, 4)
 
 console.log('mapPins: ok')
+
+// Draw-on-map: a traced square around downtown Vancouver.
+import { insideArea } from './mapPins.js'
+const square = [[49.27, -123.13], [49.27, -123.10], [49.29, -123.10], [49.29, -123.13]]
+assert.ok(insideArea([49.28, -123.12], square), 'a home inside the loop is kept')
+assert.ok(!insideArea([49.26, -123.12], square), 'south of the loop is dropped')
+assert.ok(!insideArea([49.28, -123.05], square), 'east of the loop is dropped')
+// A U shape: the notch between the arms is outside even though it sits within the bounds.
+const u = [[0, 0], [0, 3], [3, 3], [3, 2], [1, 2], [1, 1], [3, 1], [3, 0]]
+assert.ok(!insideArea([2, 1.5], u), 'the notch of a U is outside')
+assert.ok(insideArea([2, 0.5], u), 'an arm of the U is inside')

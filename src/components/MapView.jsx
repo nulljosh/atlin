@@ -1,6 +1,6 @@
 import 'leaflet/dist/leaflet.css'
-import { useEffect, useState } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMap, useMapEvents } from 'react-leaflet'
+import { useCallback, useEffect, useState } from 'react'
+import { MapContainer, TileLayer, Marker, Popup, ZoomControl, Polygon, Polyline, useMap, useMapEvents } from 'react-leaflet'
 import { useNavigate } from 'react-router-dom'
 import L from 'leaflet'
 import { listingFormatters, thumb } from '../lib/format'
@@ -86,7 +86,41 @@ function RecenterOn({ place, listings }) {
   return null
 }
 
-export default function MapView({ listings, favorites, place }) {
+// Draw-on-map search. While drawing, the map stops panning and a drag traces a
+// loop; letting go closes it and hands the points up to filter the homes.
+function DrawArea({ drawing, onDone }) {
+  const map = useMap()
+  const [trace, setTrace] = useState([])
+  useEffect(() => {
+    if (!drawing) return
+    const el = map.getContainer()
+    map.dragging.disable()
+    map.touchZoom.disable()
+    el.classList.add('drawing')
+    let pts = null
+    const at = e => { const p = map.mouseEventToLatLng(e); return [p.lat, p.lng] }
+    const down = e => { pts = [at(e)]; setTrace(pts); el.setPointerCapture(e.pointerId) }
+    const move = e => { if (pts) { pts = [...pts, at(e)]; setTrace(pts) } }
+    const up = () => { if (!pts) return; onDone(pts.length > 2 ? pts : null); pts = null; setTrace([]) }
+    el.addEventListener('pointerdown', down)
+    el.addEventListener('pointermove', move)
+    el.addEventListener('pointerup', up)
+    return () => {
+      el.removeEventListener('pointerdown', down)
+      el.removeEventListener('pointermove', move)
+      el.removeEventListener('pointerup', up)
+      el.classList.remove('drawing')
+      map.dragging.enable()
+      map.touchZoom.enable()
+    }
+  }, [drawing, map, onDone])
+  return trace.length > 1 ? <Polyline positions={trace} pathOptions={{ color: '#0071e3', weight: 3 }} /> : null
+}
+
+export default function MapView({ listings, frame = listings, favorites, place, area, onArea }) {
+  const { t } = useI18n()
+  const [drawing, setDrawing] = useState(false)
+  const finish = useCallback(pts => { setDrawing(false); if (pts) onArea(pts) }, [onArea])
   const [dark, setDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches)
   useEffect(() => {
     const query = window.matchMedia('(prefers-color-scheme: dark)')
@@ -113,9 +147,20 @@ export default function MapView({ listings, favorites, place }) {
           url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
         />}
         <ZoomControl position="bottomright" />
-        <RecenterOn place={place} listings={listings} />
+        <RecenterOn place={place} listings={frame} />
+        {onArea && <DrawArea drawing={drawing} onDone={finish} />}
+        {area && <Polygon positions={area} pathOptions={{ color: '#0071e3', weight: 2, fillOpacity: 0.08 }} />}
         <MapMarkers listings={listings} favorites={favorites} />
       </MapContainer>
+      {onArea && (
+        <button
+          className={`map-draw${drawing ? ' active' : ''}`}
+          aria-pressed={drawing}
+          onClick={() => area ? onArea(null) : setDrawing(d => !d)}
+        >
+          {area ? t('clear_area') : drawing ? t('drawing_area') : t('draw_area')}
+        </button>
+      )}
     </div>
   )
 }

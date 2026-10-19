@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { filterListings } from '../lib/filterListings'
 import { useFilters } from '../context/FiltersContext'
 import { useFavorites } from '../context/FavoritesContext'
@@ -9,6 +9,7 @@ import MapView from '../components/MapView'
 import ListingCard from '../components/ListingCard'
 import AskBar from '../components/AskBar'
 import { scoreDeals } from '../lib/deals'
+import { insideArea } from '../lib/mapPins'
 import './Listings.css'
 
 export default function Listings() {
@@ -27,26 +28,33 @@ export default function Listings() {
     () => filterListings(scored, filters, favoriteSet),
     [scored, filters, favoriteSet]
   )
+  // A loop drawn on the map narrows the homes to inside it; a new place clears it.
+  const [area, setArea] = useState(null)
+  useEffect(() => setArea(null), [place.id])
+  const shownHomes = useMemo(
+    () => area ? filtered.filter(l => insideArea([l.lat, l.lng], area)) : filtered,
+    [filtered, area]
+  )
 
   return (
     <div className="page browse">
       {/* The map is the backdrop; everything else floats over it on glass. */}
-      <MapView listings={filtered} favorites={favorites} place={place} />
+      <MapView listings={shownHomes} frame={filtered} favorites={favorites} place={place} area={area} onArea={setArea} />
       <div className="browse-panel">
-      <AskBar resultCount={filtered.length} onAnswer={() => setAskCount(n => n + 1)} />
-      <FilterBar resultCount={filtered.length} />
+      <AskBar resultCount={shownHomes.length} onAnswer={() => setAskCount(n => n + 1)} />
+      <FilterBar resultCount={shownHomes.length} />
       {fetching && <p className="listings-notice listings-fetching" role="status">{t('fetching_listings', { place: place.name })}</p>}
       {!fetching && !isLive && <p className="listings-notice">{t('sample_listings')}</p>}
       {!isLive && streetsUnavailable && <p className="listings-notice">{t('approx_locations')}</p>}
       <div className="listings-grid" key={askCount}>
-        {filtered.slice(0, shown).map((listing, i) => (
+        {shownHomes.slice(0, shown).map((listing, i) => (
           <ListingCard key={listing.id} listing={listing} index={i} />
         ))}
-        {!embed && filtered.length > shown && (
+        {!embed && shownHomes.length > shown && (
           <button className="btn btn-ghost listings-more" onClick={() => setShown(n => n + 24)}>Show more</button>
         )}
         {fetching && Array.from({ length: 8 }, (_, i) => <div key={i} className="listing-card card skeleton" aria-hidden="true" />)}
-        {!fetching && filtered.length === 0 && (
+        {!fetching && shownHomes.length === 0 && (
           <div className="listings-empty fade-up">
             <h3>{t('no_results')}</h3>
             <p>{t('adjust_filters')}</p>

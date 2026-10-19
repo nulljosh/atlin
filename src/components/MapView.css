@@ -68,3 +68,29 @@
 }
 
 .leaflet-bar a, .leaflet-touch .leaflet-bar a { width: 44px !important; height: 44px !important; line-height: 44px !important; }
+
+/* Draw-on-map: a glass capsule at the top right, clear of the panel on every width. */
+.map-draw {
+  position: absolute;
+  top: calc(var(--nav) + var(--s4));
+  right: var(--margin);
+  z-index: 1001;
+  height: 48px;
+  padding: 0 var(--s5);
+  border: 0;
+  border-radius: 999px;
+  font: 600 15px/20px var(--font);
+  color: var(--text);
+  background: color-mix(in srgb, var(--color-bg) 62%, transparent);
+  backdrop-filter: blur(30px) saturate(190%) brightness(1.1);
+  -webkit-backdrop-filter: blur(30px) saturate(190%) brightness(1.1);
+  box-shadow: 0 1px 0 color-mix(in srgb, #fff 70%, transparent) inset, 0 8px 24px -8px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.map-draw.active { background: #0071e3; color: #fff; }
+.map-draw:focus-visible { outline: 4px solid color-mix(in srgb, #0071e3 30%, transparent); }
+/* Phones: the nav wraps to two rows (Nav.css sets 112px without touching --nav). */
+@media (max-width: 700px) { .map-draw { top: calc(112px + var(--s3)); } }
+html.embed .map-draw { top: var(--s4); }
+.leaflet-container.drawing { cursor: crosshair; touch-action: none; }
