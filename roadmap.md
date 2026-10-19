@@ -9,5 +9,3 @@ Open work only. Resume state lives in `docs/LOOP-HANDOFF.md`.
 ## Gaps vs Zillow and REW
 
 ## Polish
-- [ ] Landing body paragraphs translated beyond the major languages.
-- [ ] Sync the colour palette with the portfolio and other projects.
