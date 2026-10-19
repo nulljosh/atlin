@@ -53,19 +53,61 @@ struct BrowseView: View {
         return out
     }
 
+    @State private var drawing = false
+    @State private var trace: [CLLocationCoordinate2D] = []
+
     private var map: some View {
-        Map(position: $camera) {
-            ForEach(pins) { l in
-                Annotation(l.priceText, coordinate: .init(latitude: l.lat, longitude: l.lng)) {
-                    PricePill(text: l.priceText)
+        MapReader { proxy in
+            Map(position: $camera, interactionModes: drawing ? [] : .all) {
+                ForEach(pins) { l in
+                    Annotation(l.priceText, coordinate: .init(latitude: l.lat, longitude: l.lng)) {
+                        PricePill(text: l.priceText)
+                    }
+                    .annotationTitles(.hidden)
                 }
-                .annotationTitles(.hidden)
+                if let area = store.area {
+                    MapPolygon(coordinates: (area + [area[0]]).map { .init(latitude: $0.lat, longitude: $0.lng) })
+                        .foregroundStyle(Color.accentColor.opacity(0.08))
+                        .stroke(Color.accentColor, lineWidth: 2)
+                }
+                if trace.count > 1 {
+                    MapPolyline(coordinates: trace).stroke(Color.accentColor, lineWidth: 2)
+                }
             }
+            .mapStyle(.standard(pointsOfInterest: .excludingAll))
+            .onMapCameraChange(frequency: .onEnd) { lonSpan = $0.region.span.longitudeDelta }
+            .onGeometryChange(for: Double.self) { $0.size.width } action: { mapWidth = $0 }
+            // While drawing, a finger or the pointer traces a loop; letting go keeps the homes inside it.
+            .overlay {
+                if drawing {
+                    Color.clear.contentShape(Rectangle()).gesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { if let c = proxy.convert($0.location, from: .local) { trace.append(c) } }
+                            .onEnded { _ in
+                                if trace.count > 2 { store.area = trace.map { ($0.latitude, $0.longitude) } }
+                                trace = []; drawing = false
+                            }
+                    )
+                }
+            }
+            .ignoresSafeArea()
         }
-        .mapStyle(.standard(pointsOfInterest: .excludingAll))
-        .onMapCameraChange(frequency: .onEnd) { lonSpan = $0.region.span.longitudeDelta }
-        .onGeometryChange(for: Double.self) { $0.size.width } action: { mapWidth = $0 }
-        .ignoresSafeArea()
+        .overlay(alignment: .topTrailing) {
+            Button {
+                if store.area != nil { store.area = nil } else { drawing.toggle() }
+            } label: {
+                Label(store.area != nil ? "Clear area" : drawing ? "Trace a loop on the map" : "Draw",
+                      systemImage: store.area != nil ? "xmark" : "scribble")
+                    .font(.subheadline.weight(.semibold))
+                    .padding(.horizontal, Space.m)
+                    .frame(height: Space.control)
+                    .foregroundStyle(drawing ? .white : .primary)
+                    .background(drawing ? Color.accentColor : .clear, in: Capsule())
+                    .glassPill()
+            }
+            .buttonStyle(.plain)
+            .padding(Space.m)
+        }
     }
 
     var body: some View {

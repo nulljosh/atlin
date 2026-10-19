@@ -116,12 +116,25 @@ private struct NominatimHit: Decodable {
     let address: Address?
 }
 
+typealias Point = (lat: Double, lng: Double)
+
+// Ray casting, the same check as insideArea in src/lib/mapPins.js.
+func insideArea(_ p: Point, _ area: [Point]) -> Bool {
+    var inside = false, j = area.count - 1
+    for i in area.indices {
+        let a = area[i], b = area[j]
+        if (a.lat > p.lat) != (b.lat > p.lat), p.lng < (b.lng - a.lng) * (p.lat - a.lat) / (b.lat - a.lat) + a.lng { inside.toggle() }
+        j = i
+    }
+    return inside
+}
+
 @MainActor @Observable
 final class Store {
     private static let api = "https://atlin.jaybulb.com/api/listings"
     private let defaults = UserDefaults.standard
 
-    var place: Place { didSet { save(place, "place"); if place.countryCode != "US" { mode = "rent" } } }
+    var place: Place { didSet { save(place, "place"); area = nil; if place.countryCode != "US" { mode = "rent" } } }
     var mode = "rent"
     var modes = ["rent"]
     var listings: [Listing] = []
@@ -137,6 +150,8 @@ final class Store {
     var sort = SortMode.deal
     var dealsOnly = false
     var freshOnly = false
+    // A loop drawn on the map, as (lat, lng) points. Only homes inside it show.
+    var area: [Point]? = nil
 
     // Saved searches in the same shape the web writes, so one list serves both.
     var searchID: String { "\(place.id)|\(mode)|\(minBeds)|0|\(maxPrice.map { String(Int($0)) } ?? "Infinity")|\(type ?? "all")\(minSqft > 0 ? "|\(Int(minSqft))" : "")" }
@@ -179,6 +194,7 @@ final class Store {
         let rows = listings.filter { l in
             (minBeds == 0 || l.beds >= Double(minBeds)) && (minSqft == 0 || l.sqft >= minSqft) && (type == nil || l.type == type) && (maxPrice == nil || l.price <= maxPrice!)
                 && (!dealsOnly || l.deal >= 5) && (!freshOnly || (l.listedDaysAgo ?? 99) <= 7)
+                && (area.map { insideArea((l.lat, l.lng), $0) } ?? true)
         }
         // Screenshots only: homes with a real photo first, so the store images are not placeholders.
         // Homes with a real photo come first, same as the web; the sort orders each group.

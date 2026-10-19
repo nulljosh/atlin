@@ -9,7 +9,6 @@ Open work only. Resume state lives in `docs/LOOP-HANDOFF.md`.
 - [ ] Light-mode Mac screenshots
 
 ## Gaps vs Zillow and REW
-- [ ] Draw-on-map search on iOS and Mac (web shipped 2026-10-18)
 - [ ] Baths filter (no feed gives bath counts yet)
 - [ ] Price history, school and walk scores, open houses (need a data source; no scraping REW or Zillow)
 
