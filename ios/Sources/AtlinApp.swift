@@ -519,6 +519,8 @@ struct ListingDetail: View {
                 }
                 .padding(.horizontal, Space.margin)
 
+                WalkSection(lat: listing.lat, lng: listing.lng).padding(.horizontal, Space.margin)
+
                 Map(initialPosition: .region(.init(center: .init(latitude: listing.lat, longitude: listing.lng),
                                                    span: .init(latitudeDelta: 0.02, longitudeDelta: 0.02)))) {
                     Marker(listing.priceText, coordinate: .init(latitude: listing.lat, longitude: listing.lng)).tint(Color.accentColor)
