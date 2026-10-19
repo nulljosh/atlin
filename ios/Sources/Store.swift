@@ -23,11 +23,14 @@ struct Listing: Codable, Identifiable, Hashable, Sendable {
     let priceWas: Double?
     // [day since 1970, price] per change, oldest first; only sent once the price has moved.
     let priceHistory: [[Double]]?
+    // Zillow's own wording ("Sat. 11am-3pm") and the showings as [start, end] in ms since 1970.
+    let openHouse: String?
+    let openHouses: [[Double]]?
     // Percent under the median for the same bedroom count, set by Store. Same rule as src/lib/deals.js.
     var deal = 0
 
     private enum CodingKeys: String, CodingKey {
-        case id, source, url, address, city, currency, imperial, mode, price, beds, baths, sqft, type, lat, lng, photos, year, listedDaysAgo, priceWas, priceHistory
+        case id, source, url, address, city, currency, imperial, mode, price, beds, baths, sqft, type, lat, lng, photos, year, listedDaysAgo, priceWas, priceHistory, openHouse, openHouses
     }
 
     // Managers upload "Free Rent!" graphics as the first photo; a graphic is not a home.
@@ -83,6 +86,14 @@ enum DealMode: String, CaseIterable, Identifiable {
     var dealsOnly: Bool { self == .bestDeals || self == .value }
     var freshOnly: Bool { self == .fresh }
     var beds: Int { self == .value ? 2 : 0 }
+}
+
+extension Listing {
+    /// The open house text while a showing is still ahead; the listing cache can be a day old.
+    var upcomingOpenHouse: String? {
+        let now = Date().timeIntervalSince1970 * 1000
+        return openHouses?.contains { $0.count > 1 && $0[1] > now } == true ? openHouse : nil
+    }
 }
 
 struct Place: Codable, Hashable, Identifiable, Sendable {

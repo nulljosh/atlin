@@ -464,6 +464,9 @@ struct ListingCard: View {
             }
             .padding(.horizontal, Space.xs)
             VStack(alignment: .leading, spacing: 2) {
+                if let open = listing.upcomingOpenHouse {
+                    Text("Open house \(open)").font(.subheadline.weight(.semibold)).foregroundStyle(Color.accentColor)
+                }
                 Text(listing.statsText).font(.subheadline).foregroundStyle(.secondary)
                 Text(listing.address ?? listing.city ?? "").font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
             }
@@ -504,6 +507,9 @@ struct ListingDetail: View {
                     Text(listing.priceText).font(.largeTitle.bold())
                     if let was = listing.priceWas, was > listing.price {
                         Text("Dropped \((was - listing.price).formatted(.currency(code: listing.currency).precision(.fractionLength(0))))").font(.subheadline.weight(.semibold)).foregroundStyle(Color.accentColor)
+                    }
+                    if let open = listing.upcomingOpenHouse {
+                        Text("Open house \(open)").font(.subheadline.weight(.semibold)).foregroundStyle(Color.accentColor)
                     }
                     if listing.deal >= 5 {
                         Text("\(listing.deal)% under typical for its size nearby").font(.subheadline.weight(.semibold)).foregroundStyle(.green)

@@ -9,7 +9,6 @@ Open work only. Resume state lives in `docs/LOOP-HANDOFF.md`.
 
 ## Gaps vs Zillow and REW
 - [ ] Baths filter (no feed gives bath counts yet)
-- [ ] Open houses (need a data source; no scraping REW or Zillow)
 
 ## Polish
 - [ ] Sample homes can land in water: the no-streets fallback has no land check.
