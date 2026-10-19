@@ -19,6 +19,7 @@ The App Store push for Atlin (ex-Brick, ex-Roost). It watches the review queue, 
 - Sign-in sheet: Apple and Google are matching 48 point capsules with their marks (our own Apple button runs ASAuthorizationController), and Forgot password is in the native sheet. Ships in build 10.
 - Price history: functions/api/listings.js keeps a [day, price] series per home in `h/<key>` (one point per change, last 12) and sends `priceHistory` once a price has moved. Web shows a step line and rows (QA'd light and dark with injected data); native PriceHistory.swift (Swift Charts) compiles for build 10 but has not been seen in a running app. Real histories build up as the daily cache refreshes.
 - Listing sources today: Craigslist and HousingFeed (Vancouver 120 and 60). No REW or Zillow scraping.
+- Zillow (US) is wired through the Apify actor maxcopell~zillow-scraper in functions/api/listings.js, off until the Pages var ZILLOW is "on" (Joshua: switch it on after build 9 clears). Blocked now: the Apify account hit its monthly usage hard limit (403 platform-feature-disabled), which also stops HousingFeed until the month rolls over or Joshua raises the limit. Probe: `/api/listings?...&zillowProbe=$ZILLOW_PROBE` (key in .env, sha256 in code). REW has no usable actor (one buy-only actor, 2 users) and Canada is rent-only, so REW waits.
 - Bundle ID stays com.nulljosh.brick and the Pages project stays roost. Those cannot be renamed.
 
 ## Next, in order

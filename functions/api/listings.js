@@ -3,7 +3,7 @@ import { marketFor } from '../../src/lib/market.js'
 // Live listings proxy. Keys live in Pages env vars, never in the bundle.
 // Each provider is skipped when its key is missing or it does not cover the
 // place, so the client falls back to sample homes only when this returns none.
-// ponytail: two providers. Add one by adding an entry to PROVIDERS; idealista
+// ponytail: one entry per provider in PROVIDERS; idealista
 // (Spain/Italy/Portugal) is approval-gated, Repliers/SimplyRETS need a broker.
 
 // Rentals turn over in days, and every fresh lookup is billed per home (about
@@ -82,6 +82,56 @@ async function housingfeed(env, p) {
   })
 }
 
+// Zillow (US, rent and sale) through an Apify actor. Joshua chose to carry it knowing Zillow's
+// terms forbid scraping; it stays off until env.ZILLOW is "on". Runs are billed per home, and
+// Apify stops the run at the timeout, so a slow search costs what it found, not a full run.
+async function zillowRaw(env, p) {
+  if (!env.APIFY_TOKEN || p.country !== 'US') return []
+  const d = 0.08
+  const filterState = p.mode === 'rent'
+    ? { fr: { value: true }, fsba: { value: false }, fsbo: { value: false }, nc: { value: false }, cmsn: { value: false }, auc: { value: false }, fore: { value: false } }
+    : {}
+  const state = { isMapVisible: true, mapBounds: { north: p.lat + d, south: p.lat - d, east: p.lng + d * 1.4, west: p.lng - d * 1.4 }, filterState }
+  const url = `https://www.zillow.com/homes/for_${p.mode === 'rent' ? 'rent' : 'sale'}/?searchQueryState=${encodeURIComponent(JSON.stringify(state))}`
+  const res = await fetch(`https://api.apify.com/v2/acts/maxcopell~zillow-scraper/run-sync-get-dataset-items?token=${env.APIFY_TOKEN}&timeout=22`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ searchUrls: [{ url }], resultsLimit: 40 }),
+    signal: AbortSignal.timeout(25000)
+  })
+  if (!res.ok) throw new Error(`zillow ${res.status} ${(await res.text()).slice(0, 200)}`)
+  return res.json()
+}
+
+const money = v => num(String(v ?? '').replace(/[^\d.]/g, ''))
+
+export function zillowRow(p, r) {
+  const h = r.hdpData?.homeInfo || {}
+  const unit = r.units?.[0] || {}
+  const lat = r.latLong?.latitude ?? h.latitude, lng = r.latLong?.longitude ?? h.longitude
+  const price = num(r.unformattedPrice) || num(h.price) || money(r.price) || money(unit.price)
+  if (!lat || !lng || !price) return null
+  const address = r.addressStreet || r.address || h.streetAddress || ''
+  const photos = (r.carouselPhotos?.map(x => x.url) || [r.imgSrc]).filter(u => u && !promo.test(u))
+  const link = r.detailUrl ? (r.detailUrl.startsWith('http') ? r.detailUrl : `https://www.zillow.com${r.detailUrl}`) : null
+  return shape(p, p.mode, {
+    id: `zw-${r.zpid || r.id || `${lat},${lng}`}`.replace(/[^\w-]/g, '_'),
+    source: 'Zillow', url: link,
+    address, neighborhood: r.addressCity || h.city || p.city, city: r.addressCity || h.city || p.city,
+    price,
+    beds: num(r.beds ?? h.bedrooms ?? unit.beds), baths: num(r.baths ?? h.bathrooms), sqft: num(r.area ?? h.livingArea),
+    type: typeOf(h.homeType || r.statusText || '', address),
+    lat, lng,
+    photo: photos[0] || null, photos,
+    listedDaysAgo: Number.isFinite(h.daysOnZillow) ? h.daysOnZillow : 30
+  })
+}
+
+async function zillow(env, p) {
+  if (env.ZILLOW !== 'on') return []
+  return (await zillowRaw(env, p)).map(r => zillowRow(p, r)).filter(Boolean)
+}
+
 const promo = /promo|graphic|banner|free[-_ ]?rent|move[-_ ]?in|logo|flyer|incentive|\.png(\?|$)/i
 
 // "Township of Langley" -> "Langley".
@@ -158,7 +208,7 @@ async function craigslist(env, p) {
     .slice(0, 120)
 }
 
-const PROVIDERS = [rentcast, housingfeedNear, craigslist]
+const PROVIDERS = [rentcast, housingfeedNear, craigslist, zillow]
 
 // Shared by /api/listings, /api/deals and /mcp, so the three can never disagree.
 export async function fetchListings(env, p) {
@@ -224,9 +274,22 @@ export const placeParams = q => ({
   radius: Math.min(+q.get('radius') || 15, 50)
 })
 
+const sha256 = async s => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2, '0')).join('')
+
 export async function onRequestGet({ request, env }) {
   const p = placeParams(new URL(request.url).searchParams)
   if (!Number.isFinite(p.lat) || !Number.isFinite(p.lng)) return Response.json({ error: 'lat and lng required' }, { status: 400 })
+  // Setup only: the key whose sha256 matches runs one Zillow search uncached and shows what came back.
+  const probe = new URL(request.url).searchParams.get('zillowProbe')
+  if (probe && await sha256(probe) === '27ed71adc5426382b3235fd98661c9a874f64574d1adec1123c8444671e69c52') {
+    const t = Date.now()
+    try {
+      const raw = await zillowRaw(env, p)
+      return Response.json({ ms: Date.now() - t, count: raw.length, mapped: raw.map(r => zillowRow(p, r)).filter(Boolean).length, first: raw[0], firstMapped: raw[0] && zillowRow(p, raw[0]) })
+    } catch (e) {
+      return Response.json({ ms: Date.now() - t, error: e.message })
+    }
+  }
   const { body, ttl } = await fetchListings(env, p)
   return Response.json(body, { headers: { 'cache-control': `public, max-age=${ttl}` } })
 }
