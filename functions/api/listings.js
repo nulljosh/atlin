@@ -82,54 +82,64 @@ async function housingfeed(env, p) {
   })
 }
 
-// Zillow (US, rent and sale) through an Apify actor. Joshua chose to carry it knowing Zillow's
-// terms forbid scraping; it stays off until env.ZILLOW is "on". Runs are billed per home, and
-// Apify stops the run at the timeout, so a slow search costs what it found, not a full run.
-async function zillowRaw(env, p) {
-  if (!env.APIFY_TOKEN || p.country !== 'US') return []
+// Zillow (US, rent and sale) from the JSON its own search page asks for. Joshua chose to carry it
+// knowing Zillow's terms forbid scraping; it stays off until env.ZILLOW is "on".
+const ZILLOW_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36'
+
+export async function zillowRaw(env, p) {
+  if (p.country !== 'US') return []
   const d = 0.08
-  const filterState = p.mode === 'rent'
-    ? { fr: { value: true }, fsba: { value: false }, fsbo: { value: false }, nc: { value: false }, cmsn: { value: false }, auc: { value: false }, fore: { value: false } }
+  const rent = p.mode === 'rent'
+  const filterState = rent
+    ? { isForRent: { value: true }, isForSaleByAgent: { value: false }, isForSaleByOwner: { value: false }, isNewConstruction: { value: false }, isComingSoon: { value: false }, isAuction: { value: false }, isForSaleForeclosure: { value: false } }
     : {}
-  const state = { isMapVisible: true, mapBounds: { north: p.lat + d, south: p.lat - d, east: p.lng + d * 1.4, west: p.lng - d * 1.4 }, filterState }
-  const url = `https://www.zillow.com/homes/for_${p.mode === 'rent' ? 'rent' : 'sale'}/?searchQueryState=${encodeURIComponent(JSON.stringify(state))}`
-  const res = await fetch(`https://api.apify.com/v2/acts/maxcopell~zillow-scraper/run-sync-get-dataset-items?token=${env.APIFY_TOKEN}&timeout=22`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ searchUrls: [{ url }], resultsLimit: 40 }),
-    signal: AbortSignal.timeout(25000)
+  const searchQueryState = { isMapVisible: true, isListVisible: true, filterState, mapBounds: { north: p.lat + d, south: p.lat - d, east: p.lng + d * 1.4, west: p.lng - d * 1.4 } }
+  const res = await fetch('https://www.zillow.com/async-create-search-page-state', {
+    method: 'PUT',
+    headers: { 'content-type': 'application/json', accept: '*/*', 'accept-language': 'en-US,en;q=0.9', origin: 'https://www.zillow.com', referer: `https://www.zillow.com/homes/for_${rent ? 'rent' : 'sale'}/`, 'user-agent': ZILLOW_UA },
+    body: JSON.stringify({ searchQueryState, wants: { cat1: ['mapResults'] }, requestId: 2 }),
+    signal: AbortSignal.timeout(12000)
   })
-  if (!res.ok) throw new Error(`zillow ${res.status} ${(await res.text()).slice(0, 200)}`)
-  return res.json()
+  if (!res.ok) throw new Error(`zillow ${res.status}`)
+  return (await res.json()).cat1?.searchResults?.mapResults || []
 }
 
 const money = v => num(String(v ?? '').replace(/[^\d.]/g, ''))
+const bigPhoto = u => u?.replace(/-p_e\.jpg$/, '-cc_ft_768.jpg') || null
 
-export function zillowRow(p, r) {
+// One row per home, or one per floor plan for an apartment building (its units carry beds and a from-price).
+export function zillowRows(p, r) {
   const h = r.hdpData?.homeInfo || {}
-  const unit = r.units?.[0] || {}
   const lat = r.latLong?.latitude ?? h.latitude, lng = r.latLong?.longitude ?? h.longitude
-  const price = num(r.unformattedPrice) || num(h.price) || money(r.price) || money(unit.price)
-  if (!lat || !lng || !price) return null
-  const address = r.addressStreet || r.address || h.streetAddress || ''
-  const photos = (r.carouselPhotos?.map(x => x.url) || [r.imgSrc]).filter(u => u && !promo.test(u))
+  if (!lat || !lng) return []
+  const address = h.streetAddress || r.addressStreet || (r.address || '').split(',')[0]
+  const photo = bigPhoto(r.imgSrc)
   const link = r.detailUrl ? (r.detailUrl.startsWith('http') ? r.detailUrl : `https://www.zillow.com${r.detailUrl}`) : null
-  return shape(p, p.mode, {
-    id: `zw-${r.zpid || r.id || `${lat},${lng}`}`.replace(/[^\w-]/g, '_'),
-    source: 'Zillow', url: link,
-    address, neighborhood: r.addressCity || h.city || p.city, city: r.addressCity || h.city || p.city,
-    price,
-    beds: num(r.beds ?? h.bedrooms ?? unit.beds), baths: num(r.baths ?? h.bathrooms), sqft: num(r.area ?? h.livingArea),
-    type: typeOf(h.homeType || r.statusText || '', address),
-    lat, lng,
-    photo: photos[0] || null, photos,
+  const base = id => shape(p, p.mode, {
+    id: `zw-${id}`.replace(/[^\w-]/g, '_'), source: 'Zillow', url: link,
+    address, neighborhood: h.city || r.addressCity || p.city, city: h.city || r.addressCity || p.city,
+    lat, lng, photo, photos: photo ? [photo] : [],
     listedDaysAgo: Number.isFinite(h.daysOnZillow) ? h.daysOnZillow : 30
   })
+  if (r.units?.length) {
+    return r.units.map(u => ({ ...base(`${r.zpid || r.buildingId}-${u.beds}`), price: money(u.price), beds: num(u.beds), baths: 0, sqft: 0, type: 'condo' }))
+      .filter(x => x.price > 0)
+  }
+  const price = num(h.price) || money(r.price)
+  if (!price) return []
+  // A building pin ("Lirica, $2,206+/mo") carries its cheapest plan as min beds, baths and size.
+  const building = !r.hdpData && /\/apartments\//.test(r.detailUrl || '')
+  return [{
+    ...base(r.zpid || r.plid || r.lotId), price,
+    beds: num(r.beds ?? h.bedrooms ?? r.minBeds), baths: num(r.baths ?? h.bathrooms ?? r.minBaths), sqft: num(r.area ?? h.livingArea ?? r.minArea),
+    type: building ? 'condo' : typeOf(h.homeType || r.statusText || '', address)
+  }]
 }
 
 async function zillow(env, p) {
   if (env.ZILLOW !== 'on') return []
-  return (await zillowRaw(env, p)).map(r => zillowRow(p, r)).filter(Boolean)
+  // ponytail: the first 150 rows; the map culls pins anyway.
+  return (await zillowRaw(env, p)).flatMap(r => zillowRows(p, r)).slice(0, 150)
 }
 
 // REW.ca rentals (BC and Alberta), read from its public area pages: price, address, beds, baths,
@@ -361,7 +371,8 @@ export async function onRequestGet({ request, env }) {
     }
     try {
       const raw = await zillowRaw(env, p)
-      return Response.json({ ms: Date.now() - t, count: raw.length, mapped: raw.map(r => zillowRow(p, r)).filter(Boolean).length, first: raw[0], firstMapped: raw[0] && zillowRow(p, raw[0]) })
+      const rows = raw.flatMap(r => zillowRows(p, r))
+      return Response.json({ ms: Date.now() - t, count: raw.length, rows: rows.length, first: rows[0] })
     } catch (e) {
       return Response.json({ ms: Date.now() - t, error: e.message })
     }
