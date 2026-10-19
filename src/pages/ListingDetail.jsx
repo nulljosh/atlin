@@ -143,6 +143,21 @@ export default function ListingDetail() {
             <div><span>{t('sort_newest')}</span><span>{listed}</span></div>
           </div>
 
+          {listing.priceHistory?.length > 1 && (
+            <>
+              <h3 className="detail-h detail-h-small">{t('price_history')}</h3>
+              <div className="detail-list">
+                <div className="price-spark"><PriceSpark points={listing.priceHistory} /></div>
+                {[...listing.priceHistory].reverse().map(([day, price]) => (
+                  <div key={day}>
+                    <span>{new Date(day * 864e5).toLocaleDateString(language, { month: 'short', day: 'numeric', timeZone: 'UTC' })}</span>
+                    <span>{money(price)}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
           {walk && (
             <div className="detail-list">
               <div><span>{t('walk_score')}</span><span>{walk.score} · {t(walkLabel(walk.score))}</span></div>
@@ -169,5 +184,21 @@ export default function ListingDetail() {
         </div>
       )}
     </div>
+  )
+}
+
+// A step line through the price changes, oldest on the left. No axes: the rows below carry the numbers.
+function PriceSpark({ points }) {
+  const days = points.map(p => p[0]), prices = points.map(p => p[1])
+  // The line runs on to today, so the current price reads as a flat stretch, not a drop at the edge.
+  const d0 = Math.min(...days), dSpan = Math.max(...days, Math.floor(Date.now() / 864e5)) - d0 || 1
+  const lo = Math.min(...prices), pSpan = Math.max(...prices) - lo || 1
+  const x = d => 4 + (d - d0) / dSpan * 292
+  const y = p => 44 - (p - lo) / pSpan * 40
+  const path = points.map(([d, p], i) => (i ? `H${x(d)}V${y(p)}` : `M${x(d)} ${y(p)}`)).join('') + 'H296'
+  return (
+    <svg viewBox="0 0 300 48" preserveAspectRatio="none" role="img" aria-label="Price history">
+      <path d={path} fill="none" stroke="var(--accent)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+    </svg>
   )
 }

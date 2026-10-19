@@ -186,21 +186,33 @@ export async function fetchListings(env, p) {
     const k = [l.address, l.price, l.beds, l.sqft].join('|').toLowerCase()
     return !seen.has(k) && seen.add(k)
   })
-  // Price drops: remember each home's last price per place and flag the ones that fell.
-  // ponytail: a home must be seen twice (a day apart) to show a drop; no deeper history.
+  // Price drops and history: remember each home's prices per place, one point per change.
   const hist = (await env.ATLIN_CACHE?.get(`h/${key}`, 'json')) || {}
   const next = {}
+  const day = Math.floor(Date.now() / 864e5)
   for (const l of unique) {
-    const [was, drop] = hist[l.id] || []
-    if (was && l.price < was) l.priceWas = was
-    else if (was && l.price === was && drop) l.priceWas = drop
-    next[l.id] = [l.price, l.priceWas || 0]
+    const t = trackPrice(hist[l.id], l.price, day)
+    if (t.priceWas) l.priceWas = t.priceWas
+    if (t.history) l.priceHistory = t.history
+    next[l.id] = t.entry
   }
   if (unique.length) await env.ATLIN_CACHE?.put(`h/${key}`, JSON.stringify(next), { expirationTtl: 60 * 864e2 })
   const body = { listings: unique, sources, modes }
   // Errors and empty answers are not cached for long, so a feed hiccup heals itself.
   if (unique.length) await env.ATLIN_CACHE?.put(key, JSON.stringify(body), { expirationTtl: TTL })
   return { body, ttl: unique.length ? TTL : 300 }
+}
+
+// prev is the KV entry [lastPrice, dropFrom, series], series as [day, price] pairs (days since 1970).
+// The listing gets priceWas when it fell, and priceHistory once it has changed price at least once.
+// ponytail: the last 12 changes; entries written before the series existed start one from what they remember.
+export function trackPrice(prev, price, day) {
+  const [was, drop, series] = prev || []
+  const priceWas = was && price < was ? was : was && price === was && drop ? drop : 0
+  const seed = was && was !== price ? was : drop
+  let s = series || (seed ? [[day - 1, seed]] : [])
+  if (!s.length || s[s.length - 1][1] !== price) s = [...s, [day, price]].slice(-12)
+  return { entry: [price, priceWas, s], priceWas, history: s.length > 1 ? s : null }
 }
 
 export const placeParams = q => ({

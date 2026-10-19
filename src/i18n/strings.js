@@ -49,6 +49,7 @@ export const en = {
   walk_car: 'Car needed',
   transit_near: 'Transit stops nearby',
   schools_near: 'Schools nearby',
+  price_history: 'Price history',
   approx_locations: 'Map data is unavailable right now, so these homes are placed approximately.',
   demo_label: 'See it work',
   demo_title: 'Half a minute, start to finish',

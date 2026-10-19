@@ -49,3 +49,30 @@ assert.equal(near.listings[0].id, 'hf-n1', 'nearest first')
 assert.ok(!near.listings.some(l => l.id === 'hf-far'), 'homes 30+ km away are dropped')
 
 console.log('listings api: ok')
+
+// Price history: one point per change, priceWas only while the price sits below an older one.
+{
+  const { trackPrice } = await import('./listings.js')
+  let t = trackPrice(undefined, 2000, 100)
+  assert.equal(t.history, null, 'a first sighting has no history')
+  assert.equal(t.priceWas, 0)
+  t = trackPrice(t.entry, 2000, 101)
+  assert.equal(t.history, null, 'an unchanged price adds no point')
+  t = trackPrice(t.entry, 1900, 102)
+  assert.equal(t.priceWas, 2000)
+  assert.deepEqual(t.history, [[100, 2000], [102, 1900]])
+  t = trackPrice(t.entry, 1900, 103)
+  assert.equal(t.priceWas, 2000, 'a drop stays flagged while the price holds')
+  assert.equal(t.history.length, 2)
+  t = trackPrice(t.entry, 1950, 104)
+  assert.equal(t.priceWas, 0, 'a rise clears the drop')
+  assert.equal(t.history.length, 3)
+  // Entries written before the series existed: [lastPrice, dropFrom].
+  assert.deepEqual(trackPrice([1800, 2000], 1800, 50).history, [[49, 2000], [50, 1800]])
+  assert.deepEqual(trackPrice([1800, 0], 1700, 50).history, [[49, 1800], [50, 1700]])
+  assert.equal(trackPrice([1800, 0], 1800, 50).history, null)
+  let e
+  for (let d = 0; d < 20; d++) e = trackPrice(e?.entry, 1000 + d, d)
+  assert.equal(e.history.length, 12, 'capped at 12 changes')
+  console.log('price history: ok')
+}
