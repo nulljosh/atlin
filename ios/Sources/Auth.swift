@@ -9,14 +9,13 @@ import Security
 final class Auth {
     struct User: Codable, Equatable { let id: String; let email: String?; var name: String?; var provider: String? }
 
-    private static let api = "https://api.jaybulb.com"
-    // Debug builds keep their own slot, so a locally re-signed test build never asks for the
-    // login keychain password to read the shipped app's session.
+    // QA only: `-apiBase http://127.0.0.1:8787` points a debug build at a local jaybulb-api.
     #if DEBUG
-    private static let service = "com.nulljosh.atlin.session.debug"
+    private static let api = UserDefaults.standard.string(forKey: "apiBase") ?? "https://api.jaybulb.com"
     #else
-    private static let service = "com.nulljosh.atlin.session"
+    private static let api = "https://api.jaybulb.com"
     #endif
+    private static let service = "com.nulljosh.atlin.session"
 
     var user: User?
     var favorites: [String] = []
@@ -191,6 +190,13 @@ final class Auth {
 
     // MARK: keychain
 
+    // Debug builds keep the token in UserDefaults: every ad-hoc re-sign changes the code hash,
+    // and the keychain would ask for the login password on each launch.
+    #if DEBUG
+    @discardableResult
+    private static func keychain(set value: String?) -> Bool { UserDefaults.standard.set(value, forKey: "debugRefreshToken"); return true }
+    private static func keychain() -> String? { UserDefaults.standard.string(forKey: "debugRefreshToken") }
+    #else
     @discardableResult
     private static func keychain(set value: String?) -> Bool {
         let q: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service]
@@ -204,6 +210,7 @@ final class Auth {
         guard SecItemCopyMatching(q as CFDictionary, &out) == errSecSuccess, let d = out as? Data else { return nil }
         return String(data: d, encoding: .utf8)
     }
+    #endif
 }
 
 // The account sheet: sign in, create an account, or manage the one you have.
