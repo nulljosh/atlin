@@ -15,6 +15,8 @@ The App Store push for Atlin (ex-Brick, ex-Roost). It watches the review queue, 
 - The docs (ARCHITECTURE, API, README, WHITEPAPER) were rewritten today.
 - Demo account atlin-demo@jaybulb.com is created and confirmed. Auth emails through authmail are Atlin blue.
 - The keychain slot is now com.nulljosh.atlin.session, and debug builds use their own .debug slot, so a re-signed test build never asks for the login password.
+- Native account QA on Mac against a local jaybulb-api (`npx wrangler dev --local`, launch the debug build with `-apiBase http://127.0.0.1:8787`, throwaway creds in the gitignored .env): email sign-in, restore on relaunch, delete account (row gone, signed out) and Forgot password (recover 200, notice shown) all pass. Apple and Google cannot be tested locally.
+- Sign-in sheet: Apple and Google are matching 48 point capsules with their marks (our own Apple button runs ASAuthorizationController), and Forgot password is in the native sheet. Ships in build 10.
 - Bundle ID stays com.nulljosh.brick and the Pages project stays roost. Those cannot be renamed.
 
 ## Next, in order

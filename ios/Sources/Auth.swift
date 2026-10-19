@@ -78,6 +78,14 @@ final class Auth {
         await run { try self.start(await self.call("POST", "/auth/token?grant_type=password", ["email": email, "password": password])) }
     }
 
+    // Same as the web's Forgot password: the link opens the reset page on atlin.jaybulb.com.
+    func recover(email: String) async {
+        await run {
+            _ = try await self.call("POST", "/auth/recover", ["email": email, "redirect_to": "https://atlin.jaybulb.com/reset-password"])
+            self.notice = "If that email has an account, a reset link is on its way."
+        }
+    }
+
     func signUp(email: String, password: String) async {
         await run {
             _ = try await self.call("POST", "/auth/signup", ["email": email, "password": password, "redirect_to": "https://atlin.jaybulb.com/browse"])
@@ -218,6 +226,8 @@ struct AccountView: View {
     @Environment(Auth.self) private var auth
     @Environment(\.dismiss) private var dismiss
     @Environment(\.webAuthenticationSession) private var webAuth
+    @Environment(\.colorScheme) private var scheme
+    @State private var apple = AppleSignIn()
     @Environment(Store.self) private var store
     @State private var name = ""
     @State private var email = ""
@@ -268,19 +278,39 @@ struct AccountView: View {
                     }
                 } else {
                     Section {
-                        SignInWithAppleButton(.continue, onRequest: { auth.prepareApple($0) }, onCompletion: { r in Task { await auth.finishApple(r) } })
-                            .frame(height: Space.control)
-                            .listRowInsets(EdgeInsets())
+                        // Apple and Google share one size and shape: 48 tall capsules, each with its own mark.
+                        Button {
+                            apple.start({ auth.prepareApple($0) }) { r in Task { await auth.finishApple(r) } }
+                        } label: {
+                            HStack(spacing: Space.s) {
+                                Image(systemName: "applelogo").font(.system(size: 17, weight: .medium))
+                                Text("Continue with Apple").font(.body.weight(.medium))
+                            }
+                            .foregroundStyle(scheme == .dark ? .black : .white)
+                            .frame(maxWidth: .infinity, minHeight: Space.control, maxHeight: Space.control)
+                            .background(scheme == .dark ? .white : .black, in: Capsule())
+                            .contentShape(Capsule())
+                        }
+                        .buttonStyle(.plain)
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
                         Button {
                             Task {
                                 guard let url = try? await webAuth.authenticate(using: auth.googleURL(), callbackURLScheme: Auth.googleScheme) else { return }
                                 await auth.finishGoogle(url)
                             }
                         } label: {
-                            Text("Continue with Google").font(.body.weight(.medium)).frame(maxWidth: .infinity, minHeight: Space.control)
+                            HStack(spacing: Space.s) {
+                                Image("GoogleG").resizable().frame(width: 18, height: 18)
+                                Text("Continue with Google").font(.body.weight(.medium))
+                            }
+                            .foregroundStyle(Color(white: 0.12))
+                            .frame(maxWidth: .infinity, minHeight: Space.control, maxHeight: Space.control)
+                            .background(.white, in: Capsule())
+                            .overlay(Capsule().strokeBorder(Color(white: 0.75), lineWidth: 1))
+                            .contentShape(Capsule())
                         }
-                        .buttonStyle(.bordered)
-                        .buttonBorderShape(.capsule)
+                        .buttonStyle(.plain)
                         .listRowInsets(EdgeInsets(top: Space.s, leading: 0, bottom: 0, trailing: 0))
                         .listRowBackground(Color.clear)
                     }
@@ -295,6 +325,10 @@ struct AccountView: View {
                             Task { creating ? await auth.signUp(email: email, password: password) : await auth.signIn(email: email, password: password) }
                         }
                         .disabled(auth.busy || email.isEmpty || password.count < 8)
+                        if !creating {
+                            Button("Forgot password?") { Task { await auth.recover(email: email) } }
+                                .disabled(auth.busy || !email.contains("@"))
+                        }
                         Button(creating ? "I have an account" : "Create an account") { creating.toggle(); auth.error = nil; auth.notice = nil }
                             .font(.footnote)
                     } footer: {
@@ -317,5 +351,40 @@ struct AccountView: View {
         .frame(width: 460, height: 520)
         #endif
         .onChange(of: auth.user) { _, u in if u != nil { dismiss() } }
+    }
+}
+
+// Runs Sign in with Apple from our own button, so it can be the same 48 point capsule as
+// Google's on both platforms (the system button will not grow past its own height on the Mac).
+@MainActor
+final class AppleSignIn: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
+    private var done: ((Result<ASAuthorization, Error>) -> Void)?
+
+    func start(_ prepare: (ASAuthorizationAppleIDRequest) -> Void, done: @escaping (Result<ASAuthorization, Error>) -> Void) {
+        let request = ASAuthorizationAppleIDProvider().createRequest()
+        prepare(request)
+        self.done = done
+        let c = ASAuthorizationController(authorizationRequests: [request])
+        c.delegate = self
+        c.presentationContextProvider = self
+        c.performRequests()
+    }
+
+    nonisolated func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        MainActor.assumeIsolated { done?(.success(authorization)); done = nil }
+    }
+
+    nonisolated func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        MainActor.assumeIsolated { done?(.failure(error)); done = nil }
+    }
+
+    nonisolated func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        MainActor.assumeIsolated {
+            #if os(iOS)
+            UIApplication.shared.connectedScenes.compactMap { ($0 as? UIWindowScene)?.keyWindow }.first ?? ASPresentationAnchor()
+            #else
+            NSApplication.shared.keyWindow ?? ASPresentationAnchor()
+            #endif
+        }
     }
 }
