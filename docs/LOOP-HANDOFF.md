@@ -21,6 +21,7 @@ The App Store push for Atlin (ex-Brick, ex-Roost). It watches the review queue, 
 - Listing sources today: Craigslist and HousingFeed (Vancouver 120 and 60). No REW or Zillow scraping.
 - Zillow (US, rent and sale) and REW.ca (BC and Alberta rentals) are wired in functions/api/listings.js, both off until the Pages vars ZILLOW and REW are "on". Joshua: switch them on after build 9 clears. Both are free. Zillow reads the JSON its own search page asks for (async-create-search-page-state) straight from the Function: Austin gives 493 rentals and 503 sales in under a second; building pins carry their cheapest plan. REW reads two area pages a town and geocodes addresses through Photon, cached in KV (Vancouver: 40 cards, about 34 placed once the cache fills). Apify is at its monthly hard limit (HousingFeed paused) and Joshua said no to paying more. Probe: `/api/listings?...&zillowProbe=$ZILLOW_PROBE`, add `&source=rew` for REW (key in .env, sha256 in code).
 - Open houses come with Zillow (US sale pins): `openHouse` text plus `openHouses` times; web shows them on the card and the listing page, native in the card and detail (build 10). They appear once ZILLOW is on.
+- Baths filter (Any, 1+, 1.5+, 2+, 3+) on web (live) and native (build 10); homes with no bath count drop out once a minimum is set.
 - Bundle ID stays com.nulljosh.brick and the Pages project stays roost. Those cannot be renamed.
 
 ## Next, in order

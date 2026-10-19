@@ -59,7 +59,7 @@ export default function FilterBar({ resultCount }) {
   const bandIndex = Math.max(0, bands.findIndex(b => b.min === filters.priceMin && b.max === filters.priceMax))
   // On a phone the four menus fold behind one Filters capsule; the count says how many are set.
   const [open, setOpen] = useState(false)
-  const active = [bandIndex > 0, filters.beds > 0, filters.sqftMin > 0, filters.propertyType !== 'all', filters.sort !== 'deal'].filter(Boolean).length
+  const active = [bandIndex > 0, filters.beds > 0, filters.bathsMin > 0, filters.sqftMin > 0, filters.propertyType !== 'all', filters.sort !== 'deal'].filter(Boolean).length
 
   const searches = useSavedSearches()
 
@@ -82,6 +82,9 @@ export default function FilterBar({ resultCount }) {
         </Menu>
         <Menu label={t('beds')} value={filters.beds} onChange={v => updateFilter('beds', +v)}>
           {bedOptions.map(v => <option key={v} value={v}>{v === 0 ? t('any_beds') : `${v}+ ${t('beds')}`}</option>)}
+        </Menu>
+        <Menu label={t('baths')} value={filters.bathsMin ?? 0} onChange={v => updateFilter('bathsMin', +v)}>
+          {[0, 1, 1.5, 2, 3].map(v => <option key={v} value={v}>{v === 0 ? t('any_baths') : `${v}+ ${t('baths')}`}</option>)}
         </Menu>
         <Menu label={t('size')} value={filters.sqftMin ?? 0} onChange={v => updateFilter('sqftMin', +v)}>
           {sizeOptions(market.imperial).map(v => <option key={v} value={v}>{v === 0 ? t('any_size') : `${formatArea(v, market.imperial, language)}+`}</option>)}

@@ -157,6 +157,7 @@ final class Store {
 
     // Same four filters as the web app, same defaults.
     var minBeds = 0
+    var minBaths = 0.0
     var minSqft = 0.0
     var type: String? = nil
     var maxPrice: Double? = nil
@@ -205,7 +206,7 @@ final class Store {
 
     var visible: [Listing] {
         let rows = listings.filter { l in
-            (minBeds == 0 || l.beds >= Double(minBeds)) && (minSqft == 0 || l.sqft >= minSqft) && (type == nil || l.type == type) && (maxPrice == nil || l.price <= maxPrice!)
+            (minBeds == 0 || l.beds >= Double(minBeds)) && (minBaths == 0 || l.baths >= minBaths) && (minSqft == 0 || l.sqft >= minSqft) && (type == nil || l.type == type) && (maxPrice == nil || l.price <= maxPrice!)
                 && (!dealsOnly || l.deal >= 5) && (!freshOnly || (l.listedDaysAgo ?? 99) <= 7)
                 && (area.map { insideArea((l.lat, l.lng), $0) } ?? true)
         }

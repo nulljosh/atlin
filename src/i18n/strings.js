@@ -18,6 +18,8 @@ export const en = {
   sort: 'Sort',
   any_price: 'Any price',
   any_beds: 'Any beds',
+  baths: 'Baths',
+  any_baths: 'Any baths',
   size: 'Size',
   source: 'Source',
   any_size: 'Any size',

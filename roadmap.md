@@ -8,7 +8,6 @@ Open work only. Resume state lives in `docs/LOOP-HANDOFF.md`.
 - [ ] Light-mode Mac screenshots
 
 ## Gaps vs Zillow and REW
-- [ ] Baths filter (no feed gives bath counts yet)
 
 ## Polish
 - [ ] Sample homes can land in water: the no-streets fallback has no land check.

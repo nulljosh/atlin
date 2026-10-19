@@ -335,6 +335,12 @@ struct FilterRow: View {
                         ForEach(1...4, id: \.self) { Text("\($0)+ beds").tag($0) }
                     }
                 }
+                FilterMenu(title: "Baths", value: store.minBaths == 0 ? "Any" : "\(store.minBaths.formatted())+", active: store.minBaths > 0) {
+                    Picker("Baths", selection: $store.minBaths) {
+                        Text("Any baths").tag(0.0)
+                        ForEach([1.0, 1.5, 2.0, 3.0], id: \.self) { Text("\($0.formatted())+ baths").tag($0) }
+                    }
+                }
                 FilterMenu(title: "Size", value: store.minSqft == 0 ? "Any" : store.sizeLabel(store.minSqft), active: store.minSqft > 0) {
                     Picker("Size", selection: $store.minSqft) {
                         Text("Any size").tag(0.0)
