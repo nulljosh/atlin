@@ -11,7 +11,7 @@ Open work only. Resume state lives in `docs/LOOP-HANDOFF.md`.
 - [ ] Zillow rent results include junk cards, like the "Apply now, Austin" card at $550 with 1 bd and 717 ft2; drop rows that are not a home
 - [ ] Zillow detail shows "$1 / sq ft / mo"; fix the per-square-foot rent math
 - [ ] RentCast returns 403 (the account has no paid plan); pay for it or drop it
-- [ ] HousingFeed returns 403 outside Vancouver; check whether APIFY_TOKEN is dead
+- [x] HousingFeed returns 403 outside Vancouver; check whether APIFY_TOKEN is dead. 2026-10-21: the token is fine. Every city gets 403 `platform-feature-disabled`, which means the Apify account hit its monthly hard limit (you said no to paying more). The feed comes back when the Apify cycle resets. Craigslist still covers each city. The error now shows Apify's reason under `sources`
 - [ ] Mobile /browse is 2px wider than a 390px screen
 - [ ] Footer links are 24px tall, under the 44px tap target
 - [ ] Native iOS and Mac not yet tested against the Zillow and REW results

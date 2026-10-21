@@ -62,7 +62,8 @@ async function housingfeed(env, p) {
   })
   // 400 is how it answers a country outside its list: not covered, not broken.
   if (res.status === 400) return []
-  if (!res.ok) throw new Error(`housingfeed ${res.status}`)
+  // Apify's own reason (monthly limit, bad token) rides along in sources.
+  if (!res.ok) throw new Error(`housingfeed ${res.status} ${(await res.json().catch(() => ({}))).error?.type || ''}`.trim())
   return (await res.json()).filter(r => r.lat && r.lng && (r.rent_min || r.rent_max)).map(r => {
     // Property managers upload promo graphics ("Free Rent!") as the first photo; a graphic is not a home.
     const photos = (r.images?.length ? r.images : [r.image]).filter(u => u && !promo.test(u))
