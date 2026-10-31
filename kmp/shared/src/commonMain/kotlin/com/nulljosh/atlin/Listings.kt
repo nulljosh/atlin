@@ -8,9 +8,8 @@ import kotlin.math.roundToLong
 // Ported from src/data/listings.js. Listings are generated for whatever
 // place the user is browsing, seeded by that place's coordinates, so the
 // same city always yields the same homes.
-// ponytail: generated inventory, no real streets (streetsNear/Overpass not
-// ported -- see Geo.kt), so every listing anchors to the place centroid
-// with the fallback jitter spread, same as the web app's degraded path.
+// ponytail: generated inventory. Real street anchors keep sample homes on
+// land; this port does not fetch them yet, so a no-streets call returns none.
 
 val PROPERTY_TYPES = listOf("house", "condo", "townhouse")
 
@@ -38,9 +37,13 @@ private fun seedFor(place: Place): Double =
 
 private fun <T> pick(rand: SeededRandom, list: List<T>): T = list[(rand.next() * list.size).toInt()]
 
-private fun spreadFor(): Double = 0.06 * 0.5 // no bbox ported, so always the no-bbox default span
-
 private fun roundTo(n: Double, step: Double): Double = max(step, (n / step).roundToLong() * step)
+
+data class StreetAnchor(
+    val name: String,
+    val lat: Double,
+    val lng: Double,
+)
 
 data class Listing(
     val id: String,
@@ -63,16 +66,26 @@ data class Listing(
     val refNumber: String,
 )
 
-fun generateListings(place: Place, mode: String = "sale", count: Int = 60): List<Listing> {
+fun generateListings(
+    place: Place,
+    mode: String = "sale",
+    count: Int = 60,
+    streets: List<StreetAnchor> = emptyList(),
+): List<Listing> {
     val market = marketFor(place.countryCode)
     val rand = SeededRandom(seedFor(place) + if (mode == "rent") 7919.0 else 0.0)
     val listings = mutableListOf<Listing>()
     val base = 400000 * market.level
 
+    // Without real streets there is no telling land from water, so no sample
+    // homes at all rather than pins in the sea.
+    if (streets.isEmpty()) return emptyList()
     repeat(count) { i ->
         val type = pick(rand, PROPERTY_TYPES)
-        val street = place.name
-        val jitter = spreadFor()
+        val anchor = pick(rand, streets)
+        val street = anchor.name
+        // About a block either side of a real named street.
+        val jitter = 0.004
 
         val beds: Int; val baths: Int; val sqft: Int; val sizeFactor: Double
         when (type) {
@@ -104,7 +117,7 @@ fun generateListings(place: Place, mode: String = "sale", count: Int = 60): List
             Listing(
                 id = "${place.id}-$mode-$i",
                 address = formatAddress(floor(rand.next() * 220).toInt() + 1, street, market.countryCode),
-                neighborhood = place.name,
+                neighborhood = street,
                 city = place.name,
                 countryCode = market.countryCode,
                 currency = market.currency,
@@ -115,8 +128,8 @@ fun generateListings(place: Place, mode: String = "sale", count: Int = 60): List
                 baths = baths,
                 sqft = sqft,
                 type = type,
-                lat = place.lat + (rand.next() - 0.5) * jitter,
-                lng = place.lng + (rand.next() - 0.5) * jitter,
+                lat = anchor.lat + (rand.next() - 0.5) * jitter,
+                lng = anchor.lng + (rand.next() - 0.5) * jitter,
                 year = floor(rand.next() * 60).toInt() + 1965,
                 listedDaysAgo = floor(rand.next() * 30).toInt() + 1,
                 refNumber = "R${100000 + floor(rand.next() * 899999).toInt()}",

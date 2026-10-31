@@ -33,8 +33,9 @@ import kotlinx.coroutines.launch
 fun AtlinTheme(content: @Composable () -> Unit) =
     MaterialTheme(colorScheme = lightColorScheme(primary = Color(0xFF96654E)), content = content)
 
-// Real listings from the shared /api/listings first. The seeded generator only
-// stands in where no feed covers the place, and says so on screen.
+// Real listings from the shared /api/listings. Safe sample homes need real
+// street anchors, which this port does not fetch yet, so no feed means an
+// empty state rather than generated locations that could be in the water.
 // ponytail: English-only (the web app has 27 languages), no map.
 @Composable
 fun AppScreen(geo: GeoClient = GeoClient(), live: LiveClient = LiveClient()) {
@@ -105,16 +106,7 @@ fun AppScreen(geo: GeoClient = GeoClient(), live: LiveClient = LiveClient()) {
                     }
                 }
                 else -> {
-                    val samples = remember(place, mode) { generateListings(place, mode) }
-                    Text("Sample homes. No live feed covers ${place.name} yet.", Modifier.padding(top = 16.dp), style = MaterialTheme.typography.labelLarge)
-                    LazyColumn(Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        items(samples) { l ->
-                            Column {
-                                Text(l.address, style = MaterialTheme.typography.titleMedium)
-                                Text("${formatMoney(l.price, l.currency)} - ${l.beds} bd / ${l.baths} ba - ${formatArea(l.sqft, l.imperial)}")
-                            }
-                        }
-                    }
+                    Text("No live feed covers ${place.name} yet.", Modifier.padding(top = 16.dp), style = MaterialTheme.typography.labelLarge)
                 }
             }
         }
