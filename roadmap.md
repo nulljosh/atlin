@@ -15,4 +15,3 @@ Open work only. Resume state lives in `docs/LOOP-HANDOFF.md`.
 
 ## Ingested 2026-10-30
 - [ ] Needs Hermes' landing page
-- [x] Splash animation should only be for apps, not on loading the website itself
