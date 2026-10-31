@@ -14,22 +14,23 @@ export default function Landing() {
 
   return (
     <main className="landing">
+      {/* Hermes layout: the real app runs behind the hero, faded under the copy. */}
       <section className="landing-hero">
-        <AtlinMark className="hero-icon" size={72} />
-        <h1>{t('brand')}</h1>
-        <p>{t('landing_pitch')}</p>
-        <div className="landing-buttons">
-          <Link to="/browse" className="btn btn-primary">{t('listings')}</Link>
-          <Link to="/login" className="btn btn-ghost">{t('sign_in')}</Link>
+        <div className="landing-app" aria-hidden="true">
+          <iframe src="/browse?embed" title={t('brand')} loading="lazy" tabIndex={-1} />
+        </div>
+        <div className="landing-hero-copy">
+          <AtlinMark className="hero-icon" size={72} />
+          <h1>{t('brand')}</h1>
+          <p>{t('landing_pitch')}</p>
+          <div className="landing-buttons">
+            <Link to="/browse" className="btn btn-primary">{t('listings')}</Link>
+            <Link to="/login" className="btn btn-ghost">{t('sign_in')}</Link>
+          </div>
         </div>
       </section>
 
-      {/* The real app, running. No device, no window, no screenshot. */}
-      <section className="landing-app">
-        <iframe src="/browse?embed" title={t('brand')} loading="lazy" />
-      </section>
-
-      <section className="landing-section">
+      <section className="landing-section landing-band">
         <div className="feature-grid">
           {features.map(([title, body]) => (
             <article key={title} className="feature">

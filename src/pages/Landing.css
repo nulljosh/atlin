@@ -1,23 +1,38 @@
-/* Landing: one idea per screen, 8 point grid, the app itself as the picture. */
+/* Landing in the Hermes layout: the real app behind the hero, a full-bleed band of cells, one CTA. 8 point grid. */
 .landing { padding-bottom: var(--s7); }
 
 .landing-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: min(92svh, 920px);
+  display: grid;
+  place-items: center;
+}
+
+/* The app as the hero's backdrop: faded, inert, the copy reads on top. */
+.landing-app { position: absolute; inset: 0; z-index: 0; opacity: 0.35; pointer-events: none; }
+.landing-app iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--bg2); }
+.landing-hero::after { content: ""; position: absolute; inset: 0; z-index: 1; background: color-mix(in srgb, var(--bg) 45%, transparent); }
+
+.landing-hero-copy {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  max-width: 720px;
-  margin: 0 auto;
-  padding: var(--s7) var(--margin) var(--s6);
+  max-width: 760px;
+  padding: var(--s7) var(--margin);
 }
 
 .hero-icon { color: var(--accent); margin-bottom: var(--s5); }
 
 .landing-hero h1 {
-  font-size: clamp(3.5rem, 11vw, 6rem);
-  line-height: 1;
+  font-size: clamp(4rem, 13vw, 8rem);
+  line-height: 0.95;
   font-weight: 700;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.05em;
   margin-bottom: var(--s4);
 }
 
@@ -31,34 +46,28 @@
 
 .landing-buttons { display: flex; gap: var(--s3); flex-wrap: wrap; justify-content: center; }
 
-.landing-app {
-  max-width: 1200px;
-  margin: var(--s6) auto 0;
-  padding: 0 var(--margin);
+/* The band: accent ground, white type, cells split by thin rules. */
+.landing-band {
+  max-width: none;
+  margin: 0 clamp(0px, 3vw, 44px);
+  padding: 0;
+  background: var(--accent);
+  color: #fff;
+  overflow: hidden;
 }
 
-.landing-app iframe {
-  display: block;
-  width: 100%;
-  height: clamp(480px, 70vh, 760px);
-  border: 0;
-  border-radius: var(--radius-card);
-  background: var(--bg2);
-  box-shadow: 0 32px 80px -32px rgba(0, 0, 0, 0.35);
-}
-
-.landing-section { max-width: 1200px; margin: 0 auto; padding: var(--s7) var(--margin) 0; }
-
-.feature-grid { display: grid; grid-template-columns: 1fr; gap: var(--s4); }
+.feature-grid { display: grid; grid-template-columns: 1fr; gap: 0; }
 
 .feature {
-  padding: var(--s5);
-  border-radius: var(--radius-card);
-  background: var(--bg2);
+  padding: var(--s6) var(--s6) var(--s7);
+  border-radius: 0;
+  background: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
 }
+.feature:last-child { border-bottom: 0; }
 
-.feature h3 { font-size: 1.375rem; line-height: 28px; letter-spacing: -0.022em; margin-bottom: var(--s2); }
-.feature p { color: var(--text2); font-size: 1.0625rem; line-height: 24px; }
+.feature h3 { font-size: 1.375rem; line-height: 28px; letter-spacing: -0.022em; margin-bottom: var(--s2); color: #fff; }
+.feature p { color: rgba(255, 255, 255, 0.82); font-size: 1.0625rem; line-height: 24px; }
 
 .landing-cta {
   max-width: 720px;
@@ -67,7 +76,7 @@
   text-align: center;
 }
 
-.landing-cta h2 { font-size: clamp(2rem, 5vw, 2.75rem); line-height: 1.1; font-weight: 700; letter-spacing: -0.03em; }
+.landing-cta h2 { font-size: clamp(2.5rem, 7vw, 4.5rem); line-height: 1; font-weight: 700; letter-spacing: -0.04em; }
 .landing-cta p { color: var(--text2); margin: var(--s3) 0 var(--s5); font-size: 1.0625rem; line-height: 24px; }
 
 .landing-footer { display: flex; justify-content: center; gap: var(--s5); padding: 0 var(--margin) var(--s6); font-size: 0.9375rem; }
@@ -75,4 +84,6 @@
 
 @media (min-width: 768px) {
   .feature-grid { grid-template-columns: repeat(3, 1fr); }
+  .feature { border-bottom: 0; border-right: 1px solid rgba(255, 255, 255, 0.22); }
+  .feature:last-child { border-right: 0; }
 }
