@@ -17,16 +17,6 @@
   </head>
   <body>
     <div id="root"></div>
-    <div id="splash" aria-hidden="true">
-      <svg width="136" height="110" viewBox="192 252 656 528" fill="#fff" fill-rule="evenodd"><path fill-opacity=".78" d="M196 304L372 256V728L196 776Z"/><path d="M404 256L636 304V776L404 728ZM520 696C520 696 432 590 432 448a88 88 0 0 1 176 0C608 590 520 696 520 696ZM556 448a36 36 0 1 0-72 0a36 36 0 1 0 72 0Z"/><path fill-opacity=".78" d="M668 304L844 256V728L668 776Z"/></svg>
-    </div>
-    <style>
-      #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:linear-gradient(#4aa3ff,#0a5fd6);transition:opacity .35s ease,visibility .35s}
-      #splash svg{animation:splashin .5s ease both}
-      #splash.done{opacity:0;visibility:hidden}
-      @keyframes splashin{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
-      @media (prefers-reduced-motion:reduce){#splash svg{animation:none}#splash{transition:none}}
-    </style>
 
     <script type="module" src="/src/main.jsx"></script>
   

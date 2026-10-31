@@ -12,8 +12,6 @@ import { migrateStorage } from './lib/migrateStorage'
 
 migrateStorage()
 
-// The splash in index.html covers the load; lift it once the app has painted.
-setTimeout(() => document.getElementById('splash')?.classList.add('done'), 700)
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
