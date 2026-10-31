@@ -114,6 +114,8 @@ export function zillowRows(p, r) {
   const lat = r.latLong?.latitude ?? h.latitude, lng = r.latLong?.longitude ?? h.longitude
   if (!lat || !lng) return []
   const address = h.streetAddress || r.addressStreet || (r.address || '').split(',')[0]
+  // "Apply now" promos carry a price, beds and an area, but there is no home behind the card.
+  if (/^apply now\b/i.test(address)) return []
   const photo = bigPhoto(r.imgSrc)
   const link = r.detailUrl ? (r.detailUrl.startsWith('http') ? r.detailUrl : `https://www.zillow.com${r.detailUrl}`) : null
   const base = id => shape(p, p.mode, {
