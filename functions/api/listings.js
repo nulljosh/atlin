@@ -135,7 +135,8 @@ export function zillowRows(p, r) {
   return [{
     ...base(r.zpid || r.plid || r.lotId), price,
     ...(shows.length && { openHouse: h.openHouse || String(r.flexFieldText || '').replace(/^Open: /, ''), openHouses: shows }),
-    beds: num(r.beds ?? h.bedrooms ?? r.minBeds), baths: num(r.baths ?? h.bathrooms ?? r.minBaths), sqft: num(r.area ?? h.livingArea ?? r.minArea),
+    // A building's from-price and minArea can describe different floor plans, so they cannot set its price per area.
+    beds: num(r.beds ?? h.bedrooms ?? r.minBeds), baths: num(r.baths ?? h.bathrooms ?? r.minBaths), sqft: num(r.area ?? h.livingArea),
     type: building ? 'condo' : typeOf(h.homeType || r.statusText || '', address)
   }]
 }
