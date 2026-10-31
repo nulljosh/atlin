@@ -95,7 +95,7 @@ console.log('listings api: ok')
   const { zillowRows } = await import('./listings.js')
   const p = { country: 'US', city: 'Austin', mode: 'rent', lat: 30.27, lng: -97.74 }
   const [b] = zillowRows(p, { plid: 'x1', detailUrl: '/apartments/austin-tx/lirica/CpXXHf/', price: '$2,206+/mo', address: '5211 E 7th St, Austin, TX', minBeds: 1, minBaths: 1, minArea: 691, latLong: { latitude: 30.25, longitude: -97.69 }, imgSrc: 'https://photos.zillowstatic.com/fp/a-p_e.jpg' })
-  assert.deepEqual([b.price, b.beds, b.baths, b.sqft, b.type, b.address, b.id], [2206, 1, 1, 691, 'condo', '5211 E 7th St', 'zw-x1'])
+  assert.deepEqual([b.price, b.beds, b.baths, b.sqft, b.type, b.address, b.id], [2206, 1, 1, 0, 'condo', '5211 E 7th St', 'zw-x1'], 'a building from-price cannot be paired with another plan’s minimum area')
   assert.equal(b.photo, 'https://photos.zillowstatic.com/fp/a-cc_ft_768.jpg')
   assert.equal(b.url, 'https://www.zillow.com/apartments/austin-tx/lirica/CpXXHf/')
   const [h] = zillowRows(p, { zpid: '5', price: '$1,415/mo', beds: 2, baths: 2, area: 1201, latLong: { latitude: 30.19, longitude: -97.83 }, hdpData: { homeInfo: { streetAddress: '8700 W Gate Blvd #24011', city: 'Austin', price: 1415, homeType: 'APARTMENT', daysOnZillow: 16 } } })
