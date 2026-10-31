@@ -74,8 +74,8 @@ export function generateListings(place, streets = [], mode = 'sale', count = 60)
     const type = pick(rand, propertyTypes)
     const anchor = pick(rand, streets)
     const street = anchor.name
-    // About a block either side of a real named street.
-    const jitter = 0.004
+    // Under a block from a real named street; wider put waterfront homes in the sea (#33).
+    const jitter = 0.0015
 
     let beds, baths, sqft, sizeFactor
     if (type === 'house') {
