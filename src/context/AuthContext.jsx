@@ -99,6 +99,8 @@ export function AuthProvider({ children }) {
       email,
       password,
       options: {
+        // The confirm link only verifies the address, it signs nobody in; landing on home looked like a failed login (#13).
+        emailRedirectTo: `${window.location.origin}/login`,
         data: {
           name,
           avatar: generatePixelArtSVG(),
