@@ -12,3 +12,7 @@ Open work only. Resume state lives in `docs/LOOP-HANDOFF.md`.
 - [ ] RentCast returns 403 (the account has no paid plan); pay for it or drop it
 - [ ] Mobile /browse is 2px wider than a 390px screen
 - [ ] Native iOS and Mac not yet tested against the Zillow and REW results
+
+## Ingested 2026-10-30
+- [ ] Needs Hermes' landing page
+- [ ] Splash animation should only be for apps, not on loading the website itself
