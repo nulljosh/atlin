@@ -5,7 +5,7 @@
 .site-footer-brand p { margin: 0; font-size: 17px; line-height: 24px; color: var(--text2, var(--muted)); }
 .site-footer-col { display: flex; flex-direction: column; gap: 8px; }
 .site-footer-col h4 { margin: 0 0 4px; font-size: 13px; line-height: 18px; font-weight: 600; color: var(--accent); letter-spacing: 0.02em; }
-.site-footer-col a { color: var(--text); text-decoration: none; font-size: 15px; line-height: 24px; }
+.site-footer-col a { display: flex; align-items: center; min-height: 44px; color: var(--text); text-decoration: none; font-size: 15px; line-height: 24px; }
 .site-footer-col a:hover { color: var(--accent); }
 .site-footer-legal { max-width: 1080px; margin: 0 auto; padding: 16px 20px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 12px; line-height: 16px; border-top: 1px solid var(--border); }
 .site-footer-scene { display: block; width: 100%; height: clamp(200px, 30vw, 360px); }
