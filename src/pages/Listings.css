@@ -112,7 +112,7 @@
 
 /* Phones: the map owns the top of the screen, the glass sheet rises from below. */
 @media (max-width: 700px) {
-  .page.browse { padding-inline: 0; padding-bottom: 0; }
+  .page.browse { padding-inline: 0; padding-bottom: 0; overflow-x: clip; }
   .browse-panel {
     width: 100%;
     max-height: none;
