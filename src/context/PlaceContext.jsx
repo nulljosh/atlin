@@ -3,6 +3,8 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { defaultPlace, streetsNear } from '../lib/geo'
 import { generateListings } from '../data/listings'
 
+const SALE_COUNTRIES = new Set(['US', 'CA'])
+
 const PlaceContext = createContext(null)
 const STORAGE_KEY = 'atlin-place'
 
@@ -20,7 +22,8 @@ export function PlaceProvider({ children }) {
   const [savedMode, setMode] = useState(() => localStorage.getItem('atlin-mode') || 'rent')
   // Sale listings exist only where a sale feed does (RentCast, US). Elsewhere the
   // app is rent only, rather than offering a toggle that shows invented homes.
-  const saleAvailable = place.countryCode === 'US'
+  // Sale rows come from Zillow in the US and Craigslist in the US and Canada (Vancouver: 120 sale rows, 2026-11-01).
+  const saleAvailable = SALE_COUNTRIES.has(place.countryCode)
   const mode = saleAvailable ? savedMode : 'rent'
   const [streets, setStreets] = useState([])
   const [streetsUnavailable, setStreetsUnavailable] = useState(false)

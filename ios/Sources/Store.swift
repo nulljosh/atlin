@@ -202,8 +202,8 @@ final class Store {
         sort == m.sort && dealsOnly == m.dealsOnly && freshOnly == m.freshOnly && minBeds == m.beds
     }
 
-    // Sale is offered only where a sale feed exists (US), the same rule as the web.
-    var saleAvailable: Bool { place.countryCode == "US" && modes.contains("sale") }
+    // Sale is offered only where a sale feed exists (Zillow in the US, Craigslist in the US and Canada), the same rule as the web.
+    var saleAvailable: Bool { ["US", "CA"].contains(place.countryCode) && modes.contains("sale") }
 
     var visible: [Listing] {
         let rows = listings.filter { l in
