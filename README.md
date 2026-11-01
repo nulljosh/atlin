@@ -1,9 +1,7 @@
 <img src="public/icon.svg" width="80">
 
-# Atlin
-
 ![version](https://img.shields.io/badge/version-v3.0.0-blue)
-![license](https://img.shields.io/badge/license-MIT-green) [![GitHub](https://img.shields.io/badge/GitHub-nulljosh%2Fatlin-black?logo=github)](https://github.com/nulljosh/atlin)
+![license](https://img.shields.io/badge/license-MIT-green)
 
 **Live:** https://atlin.jaybulb.com
 
