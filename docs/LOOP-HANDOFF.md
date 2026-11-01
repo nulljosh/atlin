@@ -1,4 +1,4 @@
-# Atlin loop handoff (2026-10-18, evening)
+# Atlin loop handoff (2026-10-31, evening)
 
 ## What the loop is
 
@@ -6,6 +6,7 @@ The App Store push for Atlin (ex-Brick, ex-Roost). It watches the review queue, 
 
 ## Where things stand
 
+- 2026-10-31: the landing hero backdrop is blurred and faded so the copy reads, and the H1 is the call to action Start anywhere, linking to listings. Live at atlin.jaybulb.com.
 - Build 9 (iOS and Mac 1.0.0) is WAITING_FOR_REVIEW on ASC app 6824157219. It adds Sign in with Apple, email sign-in, account deletion, synced saves, the location prompt, the blue folded-map icon and the privacy label.
 - Build 10 is built and compiles on iOS and Mac: native Google sign-in, profile, saved searches, Size filter, price drops, the alerts toggle, pin culling and the Mac fixes. It ships after build 9 clears. Mac Return-to-search works in a running app (Langley to Vancouver, 119 homes). Native Google sign-in has not been tested in a running app.
 - Walk score on every home (web live, native in build 10): Overpass counts within 800 m, capped and weighted in src/lib/walk.js, mirrored in ios/Sources/Walk.swift. Overpass refuses Cloudflare Workers (521), so the browser and the apps ask it directly; osm.ch is skipped because it only holds Switzerland. Seen in the running Mac app (Vancouver listing: 100, Very walkable, 30 transit stops, 6 schools).
@@ -18,7 +19,7 @@ The App Store push for Atlin (ex-Brick, ex-Roost). It watches the review queue, 
 - Native account QA on Mac against a local jaybulb-api (`npx wrangler dev --local`, launch the debug build with `-apiBase http://127.0.0.1:8787`, throwaway creds in the gitignored .env): email sign-in, restore on relaunch, delete account (row gone, signed out) and Forgot password (recover 200, notice shown) all pass. Apple and Google cannot be tested locally.
 - Sign-in sheet: Apple and Google are matching 48 point capsules with their marks (our own Apple button runs ASAuthorizationController), and Forgot password is in the native sheet. Ships in build 10.
 - Price history: functions/api/listings.js keeps a [day, price] series per home in `h/<key>` (one point per change, last 12) and sends `priceHistory` once a price has moved. Web shows a step line and rows (QA'd light and dark with injected data); native PriceHistory.swift (Swift Charts) compiles for build 10 but has not been seen in a running app. Real histories build up as the daily cache refreshes.
-- Listing sources today: Craigslist and HousingFeed (Vancouver 120 and 60). No REW or Zillow scraping.
+- Listing sources: Zillow (US rent and sale) and REW.ca (BC and Alberta rentals) are on in production. RentCast and HousingFeed still return 403, so US sale is Zillow and Craigslist only.
 - Zillow (US, rent and sale) and REW.ca (BC and Alberta rentals) are wired in functions/api/listings.js, both off until the Pages vars ZILLOW and REW are "on". Joshua: switch them on after build 9 clears. Both are free. Zillow reads the JSON its own search page asks for (async-create-search-page-state) straight from the Function: Austin gives 493 rentals and 503 sales in under a second; building pins carry their cheapest plan. REW reads two area pages a town and geocodes addresses through Photon, cached in KV (Vancouver: 40 cards, about 34 placed once the cache fills). Apify is at its monthly hard limit (HousingFeed paused) and Joshua said no to paying more. Probe: `/api/listings?...&zillowProbe=$ZILLOW_PROBE`, add `&source=rew` for REW (key in .env, sha256 in code).
 - Open houses come with Zillow (US sale pins): `openHouse` text plus `openHouses` times; web shows them on the card and the listing page, native in the card and detail (build 10). They appear once ZILLOW is on.
 - Baths filter (Any, 1+, 1.5+, 2+, 3+) on web (live) and native (build 10); homes with no bath count drop out once a minimum is set.
