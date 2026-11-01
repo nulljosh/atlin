@@ -58,7 +58,8 @@ struct Listing: Codable, Identifiable, Hashable, Sendable {
         guard sqft > 0 else { return nil }
         let area = imperial == false ? sqft / 10.7639 : sqft
         let unit = imperial == false ? "m²" : "sq ft"
-        return "\((price / area).formatted(.currency(code: currency).precision(.fractionLength(0)))) / \(unit)\(mode == "rent" ? " / mo" : "")"
+        // Rent per area is a few dollars, so it keeps cents ($1.40, not $1); a sale price per area does not need them.
+        return "\((price / area).formatted(.currency(code: currency).precision(.fractionLength(mode == "rent" ? 2 : 0)))) / \(unit)\(mode == "rent" ? " / mo" : "")"
     }
 
     var mortgageText: String? {

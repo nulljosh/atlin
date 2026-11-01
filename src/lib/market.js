@@ -70,13 +70,15 @@ export function marketFor(countryCode = '') {
 // Currencies with no minor unit: printing "¥1,200,000.00" is wrong.
 const zeroDecimal = new Set(['JPY', 'KRW', 'VND', 'IDR', 'CLP', 'ISK', 'HUF', 'TWD'])
 
-export function formatMoney(amount, currency, locale) {
+// digits: cents for small amounts like rent per square foot ($1.40, not $1); yen-style currencies stay whole.
+export function formatMoney(amount, currency, locale, digits = 0) {
+  const d = zeroDecimal.has(currency) ? 0 : digits
   return new Intl.NumberFormat(locale, {
     style: 'currency',
     currencyDisplay: 'narrowSymbol',
     currency,
-    maximumFractionDigits: 0,
-    minimumFractionDigits: 0
+    maximumFractionDigits: d,
+    minimumFractionDigits: d
   }).format(zeroDecimal.has(currency) ? Math.round(amount) : amount)
 }
 

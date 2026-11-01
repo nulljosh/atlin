@@ -44,7 +44,7 @@ export default function ListingDetail() {
   const fav = isFavorite(listing.id)
   const fmt = listingFormatters(listing, language, t)
   const money = n => formatMoney(n, listing.currency, language)
-  const perArea = listing.sqft > 0 ? money(listing.price / (listing.imperial ? listing.sqft : listing.sqft * 0.092903)) : ''
+  const perArea = listing.sqft > 0 ? formatMoney(listing.price / (listing.imperial ? listing.sqft : listing.sqft * 0.092903), listing.currency, language, listing.mode === 'rent' ? 2 : 0) : ''
   // ponytail: fixed 20% down, 30 years, 5.5%. An estimate, not a quote; a rate input if people ask.
   const r = 0.055 / 12
   const monthly = listing.mode === 'sale' ? (listing.price * 0.8 * r) / (1 - Math.pow(1 + r, -360)) : 0
