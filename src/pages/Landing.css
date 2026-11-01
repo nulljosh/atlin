@@ -5,19 +5,18 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  min-height: min(92svh, 920px);
+  min-height: 100svh;
   display: grid;
   place-items: center;
 }
 
-/* The app as the hero's wallpaper: clear and inert, fading into the page at the bottom. The copy sits on
-   its own glass card, so it reads in light and dark without dimming the app to mud. */
-.landing-app {
-  position: absolute; inset: 0; z-index: 0; pointer-events: none;
-  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
-}
+/* The real app is the hero's background: inert, blended into the page by a scrim behind the copy and a fade at the
+   bottom, drifting slower than the page (Landing.jsx). No card, no blur. */
+.landing-hero::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse 56% 48% at 50% 50%, var(--bg) 50%, transparent 100%); }
+.landing-hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 28%; z-index: 1; pointer-events: none; background: linear-gradient(transparent, var(--bg)); }
+.landing-app { position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .8; transform: translate3d(0, var(--py, 0), 0); will-change: transform; }
 .landing-app iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--bg2); }
+@media (max-width: 560px) { .landing-hero::before { background: radial-gradient(ellipse 120% 46% at 50% 50%, var(--bg) 62%, transparent 100%); } .landing-app { opacity: .6; } }
 
 .landing-hero-copy {
   position: relative;
@@ -28,13 +27,7 @@
   text-align: center;
   box-sizing: border-box;
   width: min(760px, calc(100% - 2 * var(--margin, 20px)));
-  margin: var(--s7) 0;
-  padding: var(--s7) var(--s5);
-  border-radius: var(--radius-card);
-  background: color-mix(in srgb, var(--bg) 78%, transparent);
-  -webkit-backdrop-filter: blur(24px) saturate(1.4);
-  backdrop-filter: blur(24px) saturate(1.4);
-  box-shadow: 0 0 0 0.5px color-mix(in srgb, var(--text, #000) 12%, transparent);
+  padding: var(--s7) 0;
 }
 
 .hero-icon { color: var(--accent); margin-bottom: var(--s5); }

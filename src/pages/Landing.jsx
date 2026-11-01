@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n, supportedLanguages } from '../i18n'
 import AtlinMark from '../components/AtlinMark'
@@ -13,11 +14,32 @@ const features = [
 export default function Landing() {
   const { t } = useI18n()
 
+  // Parallax: the app drifts at 0.45, the copy lifts at 0.2 and fades. Capture phase, in case the page scrolls in a wrapper.
+  useEffect(() => {
+    const bg = document.querySelector('.landing-app'), copy = document.querySelector('.landing-hero-copy')
+    if (!bg || !copy || matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
+    let t = 0, y = 0
+    const on = (e) => {
+      y = e.target === document ? window.scrollY : e.target.scrollTop || 0
+      if (t) return
+      t = requestAnimationFrame(() => {
+        t = 0
+        const h = window.innerHeight
+        if (y > h * 1.2) return
+        bg.style.setProperty('--py', `${y * 0.45}px`)
+        copy.style.transform = `translate3d(0, ${y * 0.2}px, 0)`
+        copy.style.opacity = String(Math.max(0, 1 - y / (h * 0.7)))
+      })
+    }
+    document.addEventListener('scroll', on, { passive: true, capture: true })
+    return () => { document.removeEventListener('scroll', on, { capture: true }); cancelAnimationFrame(t) }
+  }, [])
+
   return (
     <main className="landing">
-      {/* Hermes layout: the real app runs behind the hero, faded under the copy. */}
+      {/* The real app runs behind the hero, blended under the copy. */}
       <section className="landing-hero">
-        <div className="landing-app" aria-hidden="true">
+        <div className="landing-app" aria-hidden="true" inert="">
           <iframe src="/browse?embed" title={t('brand')} loading="lazy" tabIndex={-1} />
         </div>
         <div className="landing-hero-copy">
