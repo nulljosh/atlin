@@ -3,11 +3,12 @@
 @import url("../brand/tokens.css");
 
 :root {
+  --accent-solid: var(--accent); /* filled surfaces with white text; deeper in dark below */
   /* colour */
   --color-bg: #ffffff;
   --color-bg2: #f5f5f7;
   --color-text: #1d1d1f;
-  --color-secondary: rgba(29, 29, 31, 0.6);
+  --color-secondary: rgba(29, 29, 31, 0.64); /* 0.6 was 4.3 to 4.5:1 on white and the grey footer */
   --color-hairline: rgba(0, 0, 0, 0.1);
   --text3: rgba(29, 29, 31, 0.36);
   --green: #1a7f37;
@@ -39,6 +40,8 @@
     --color-hairline: rgba(255, 255, 255, 0.14);
     --text3: rgba(245, 245, 247, 0.36);
     --accent: #2997ff;
+    /* the dark accent is 3:1 under white; filled buttons and the band take this deeper blue (4.9:1) */
+    --accent-solid: #0a6fd8;
     --green: #30d158;
   }
 }

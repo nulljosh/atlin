@@ -23,7 +23,7 @@ export default function Footer() {
         </div>
         {columns.map(([title, links]) => (
           <nav key={title} className="site-footer-col" aria-label={title}>
-            <h4>{title}</h4>
+            <h2>{title}</h2>
             {links.map(([label, href]) => href.startsWith('/') && !href.endsWith('.html')
               ? <Link key={label} to={href}>{label}</Link>
               : <a key={label} href={href}>{label}</a>)}
