@@ -10,14 +10,14 @@
   place-items: center;
 }
 
-/* The app as the hero's backdrop: faded, inert, the copy reads on top. */
+/* The app as the hero's wallpaper: clear and inert, fading into the page at the bottom. The copy sits on
+   its own glass card, so it reads in light and dark without dimming the app to mud. */
 .landing-app {
-  position: absolute; inset: 0; z-index: 0; opacity: 0.4; pointer-events: none; filter: blur(3px);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 20%, #000 60%, transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 20%, #000 60%, transparent 100%);
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
 }
 .landing-app iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--bg2); }
-.landing-hero::after { content: ""; position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse 80% 55% at 50% 50%, color-mix(in srgb, var(--bg) 92%, transparent), color-mix(in srgb, var(--bg) 40%, transparent)); }
 
 .landing-hero-copy {
   position: relative;
@@ -26,8 +26,15 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  max-width: 760px;
-  padding: var(--s7) var(--margin);
+  box-sizing: border-box;
+  width: min(760px, calc(100% - 2 * var(--margin, 20px)));
+  margin: var(--s7) 0;
+  padding: var(--s7) var(--s5);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  backdrop-filter: blur(24px) saturate(1.4);
+  box-shadow: 0 0 0 0.5px color-mix(in srgb, var(--text, #000) 12%, transparent);
 }
 
 .hero-icon { color: var(--accent); margin-bottom: var(--s5); }
