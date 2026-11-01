@@ -6,7 +6,8 @@ import './Landing.css'
 const features = [
   ['feat2_search_title', 'feat2_search_body'],
   ['feat2_ask_title', 'feat2_ask_body'],
-  ['feat2_deal_title', 'feat2_deal_body']
+  ['feat2_deal_title', 'feat2_deal_body'],
+  ['feat2_save_title', 'feat2_save_body']
 ]
 
 export default function Landing() {
@@ -31,6 +32,10 @@ export default function Landing() {
       </section>
 
       <section className="landing-section landing-band">
+        <div className="band-head">
+          <p className="band-label">{t('how_label')}</p>
+          <h2>{t('how_title')}</h2>
+        </div>
         <div className="feature-grid">
           {features.map(([title, body]) => (
             <article key={title} className="feature">
@@ -42,7 +47,8 @@ export default function Landing() {
       </section>
 
       <section className="landing-cta">
-        <h2>{t('brand')}</h2>
+        <p className="band-label">{t('lang_label')}</p>
+        <h2>{t('lang_title')}</h2>
         <p>{t('lang_body', { n: supportedLanguages.length })}</p>
         <Link to="/browse" className="btn btn-primary">{t('listings')}</Link>
       </section>

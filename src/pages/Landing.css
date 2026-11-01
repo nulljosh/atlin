@@ -69,6 +69,11 @@
   overflow: hidden;
 }
 
+.band-head { text-align: center; padding: var(--s8, 64px) var(--s5) var(--s7); border-bottom: 1px solid rgba(255, 255, 255, 0.22); }
+.band-head h2 { font-size: clamp(2.5rem, 6vw, 5.5rem); line-height: 1; font-weight: 700; letter-spacing: -0.04em; color: #fff; max-width: 900px; margin: 0 auto; text-wrap: balance; }
+.band-label { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-bottom: var(--s4); color: rgba(255, 255, 255, 0.78); }
+.landing-cta .band-label { color: var(--text2); }
+
 .feature-grid { display: grid; grid-template-columns: 1fr; gap: 0; }
 
 .feature {
@@ -96,7 +101,8 @@
 .landing-footer a { color: var(--text2); }
 
 @media (min-width: 768px) {
-  .feature-grid { grid-template-columns: repeat(3, 1fr); }
-  .feature { border-bottom: 0; border-right: 1px solid rgba(255, 255, 255, 0.22); }
-  .feature:last-child { border-right: 0; }
+  .feature-grid { grid-template-columns: repeat(2, 1fr); }
+  .feature, .feature:last-child { border-bottom: 1px solid rgba(255, 255, 255, 0.22); }
+  .feature:nth-child(odd) { border-right: 1px solid rgba(255, 255, 255, 0.22); }
+  .feature:nth-last-child(-n+2) { border-bottom: 0; }
 }

@@ -32,7 +32,7 @@ export default function Footer() {
       </div>
       <div className="site-footer-legal">
         <span>© 2026 Joshua Trommel</span>
-        <span>Listings from Craigslist, HousingFeed and RentCast</span>
+        <span>Listings from Craigslist, Zillow and REW</span>
       </div>
       <FooterScene />
     </footer>

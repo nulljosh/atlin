@@ -14,7 +14,7 @@ Open work only. Resume state lives in `docs/LOOP-HANDOFF.md`.
 - [ ] Native iOS and Mac not yet tested against the Zillow and REW results
 
 ## Ingested 2026-10-30
-- [ ] Needs Hermes' landing page
+- [x] (11-01: live; band now opens with its heading, four ruled cells, a Language section in the house type, all from strings already in 27 languages; footer credits Craigslist, Zillow and REW, not the two dead feeds) Needs Hermes' landing page
 
 ## Ingested 2026-10-31
 - [x] (11-01: app backdrop now clear, copy on a glass card; checked at 390px light and dark) Hero wallpaper is still broken on mobile web: "Start anywhere" hero on atlin.jaybulb.com shows the blurred dark app behind it, nearly black (notes/attachments/2026-10-31/atlin-1.png). Joshua: "wtf why is this so difficult".
