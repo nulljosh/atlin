@@ -21,7 +21,7 @@ export default function Landing() {
         </div>
         <div className="landing-hero-copy">
           <AtlinMark className="hero-icon" size={72} />
-          <h1>{t('brand')}</h1>
+          <h1><Link to="/browse">{t('cta_title')}</Link></h1>
           <p>{t('landing_pitch')}</p>
           <div className="landing-buttons">
             <Link to="/browse" className="btn btn-primary">{t('listings')}</Link>
@@ -42,7 +42,7 @@ export default function Landing() {
       </section>
 
       <section className="landing-cta">
-        <h2>{t('cta_title')}</h2>
+        <h2>{t('brand')}</h2>
         <p>{t('lang_body', { n: supportedLanguages.length })}</p>
         <Link to="/browse" className="btn btn-primary">{t('listings')}</Link>
       </section>
