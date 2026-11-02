@@ -31,7 +31,8 @@ export function dropSharedPhotos(listings) {
 }
 
 export function cleanPhotos(l) {
-  const photos = (l.photos?.length ? l.photos : [l.photo]).filter(u => u && !promo.test(u))
+  // REW's own listing photos are often PNGs; they are real photos, not a manager's promo graphic
+  const photos = (l.photos?.length ? l.photos : [l.photo]).filter(u => u && (u.includes('assets-listings.rew.ca/') || !promo.test(u)))
   return { ...l, photos, photo: photos[0] || null }
 }
 

@@ -50,6 +50,8 @@ console.log('listings api: ok')
   assert.ok(c.url.startsWith('https://www.rew.ca/rentals/'))
   assert.ok(c.price > 500 && c.beds >= 0 && c.baths > 0 && c.sqft > 100, JSON.stringify(c))
   assert.ok(/, BC, /.test(c.title) && c.neighborhood && c.city === 'Vancouver' && c.kind)
+  const blank = rewCards(`<article class='displaycard'><a href="https://www.rew.ca/rentals/1/x" title="1 Main St, Vancouver, BC, V1V 1V1"></a><div class='displaycard-title'>$2,000</div><img itemprop="image" src="https://assets.rew.ca/assets/placeholders/listing_xlarge-abc.png"></article>`)
+  assert.equal(blank[0].photo, null, 'the no-photo placeholder is not a photo')
   console.log('rew cards: ok')
 }
 

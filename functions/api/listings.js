@@ -113,7 +113,8 @@ export function rewCards(html) {
       id: href[2], url: href[1], title: text(title), price,
       neighborhood: lists[0]?.[0] || '', city: lists[0]?.[1] || '',
       beds: fact(' bd'), baths: fact(' ba'), sqft: fact(' sf'), kind: wraps[1] || '',
-      photo: a.match(/<img itemprop="image"[^>]*src="([^"?]+)/)?.[1] || null
+      // a home with no photos shows REW's grey camera placeholder; leave it out so the map thumbnail stands in
+      photo: a.match(/<img itemprop="image"[^>]*src="([^"?]+)/)?.[1]?.replace(/^.*\/placeholders\/.*$/, '') || null
     }
   }).filter(Boolean)
 }

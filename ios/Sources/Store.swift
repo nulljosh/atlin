@@ -36,7 +36,8 @@ struct Listing: Codable, Identifiable, Hashable, Sendable {
     // Managers upload "Free Rent!" graphics as the first photo; a graphic is not a home.
     var withoutPromoPhotos: Listing {
         var l = self
-        l.photos = photos.filter { $0.range(of: #"promo|graphic|banner|free[-_ ]?rent|move[-_ ]?in|logo|flyer|incentive|rent[-_ ]?sync|[-_](\d{3,4})x\1\b|\.png(\?|$)"#, options: [.regularExpression, .caseInsensitive]) == nil }
+        // REW's own listing photos are often PNGs; they are real photos, not a manager's promo graphic.
+        l.photos = photos.filter { $0.contains("assets-listings.rew.ca/") || $0.range(of: #"promo|graphic|banner|free[-_ ]?rent|move[-_ ]?in|logo|flyer|incentive|rent[-_ ]?sync|[-_](\d{3,4})x\1\b|\.png(\?|$)"#, options: [.regularExpression, .caseInsensitive]) == nil }
         return l
     }
 
