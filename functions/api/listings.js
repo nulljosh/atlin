@@ -6,8 +6,7 @@ import { marketFor } from '../../src/lib/market.js'
 // ponytail: one entry per provider in PROVIDERS; idealista
 // (Spain/Italy/Portugal) is approval-gated, Repliers/SimplyRETS need a broker.
 
-// Rentals turn over in days, and every fresh lookup is billed per home (about
-// $2 per 1,000 on Apify's free plan), so a day of cache is the right trade.
+// Rentals turn over in days, and the feeds rate-limit us, so a day of cache is the right trade.
 const TTL = 24 * 3600
 const SQM = 10.7639
 
@@ -26,61 +25,6 @@ function shape(place, mode, x) {
     photo: null, photos: [], year: null, refNumber: '',
     ...x
   }
-}
-
-async function rentcast(env, p) {
-  if (!env.RENTCAST_KEY || p.country !== 'US') return []
-  const path = p.mode === 'rent' ? 'rental/long-term' : 'sale'
-  const url = `https://api.rentcast.io/v1/listings/${path}?latitude=${p.lat}&longitude=${p.lng}&radius=${p.radius}&status=Active&limit=100`
-  const res = await fetch(url, { headers: { 'X-Api-Key': env.RENTCAST_KEY }, signal: AbortSignal.timeout(15000) })
-  if (!res.ok) throw new Error(`rentcast ${res.status}`)
-  return (await res.json()).filter(r => r.latitude && r.longitude && r.price).map(r => shape(p, p.mode, {
-    id: `rc-${r.id}`.replace(/[^\w-]/g, '_'),
-    source: 'RentCast',
-    address: r.addressLine1 || r.formattedAddress,
-    neighborhood: r.city, city: r.city,
-    price: r.price, beds: num(r.bedrooms), baths: num(r.bathrooms), sqft: num(r.squareFootage),
-    type: typeOf(r.propertyType),
-    lat: r.latitude, lng: r.longitude,
-    year: r.yearBuilt || null, listedDaysAgo: r.daysOnMarket ?? days(r.listedDate),
-    refNumber: r.listingAgent?.name || ''
-  }))
-}
-
-// Rent only, 30 countries, run through Apify. Slow and billed per row, so it
-// is capped and the whole response is cached below.
-async function housingfeed(env, p) {
-  if (!env.APIFY_TOKEN || p.mode !== 'rent' || !p.city) return []
-  // HousingFeed says UK where ISO says GB.
-  const country = p.country === 'GB' ? 'UK' : p.country
-  const url = `https://api.apify.com/v2/acts/housingfeed~rental-listings-api/run-sync-get-dataset-items?token=${env.APIFY_TOKEN}`
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ country, city: p.city, maxItems: 60 }),
-    signal: AbortSignal.timeout(25000)
-  })
-  // 400 is how it answers a country outside its list: not covered, not broken.
-  if (res.status === 400) return []
-  // Apify's own reason (monthly limit, bad token) rides along in sources.
-  if (!res.ok) throw new Error(`housingfeed ${res.status} ${(await res.json().catch(() => ({}))).error?.type || ''}`.trim())
-  return (await res.json()).filter(r => r.lat && r.lng && (r.rent_min || r.rent_max)).map(r => {
-    // Property managers upload promo graphics ("Free Rent!") as the first photo; a graphic is not a home.
-    const photos = (r.images?.length ? r.images : [r.image]).filter(u => u && !promo.test(u))
-    return shape(p, 'rent', {
-      id: `hf-${r.id || r.listing_id}`.replace(/[^\w-]/g, '_'),
-      source: 'HousingFeed', url: r.url,
-      address: r.street || r.address,
-      neighborhood: r.city, city: r.city,
-      currency: r.currency || undefined,
-      price: r.rent_min || r.rent_max,
-      beds: num(r.beds), baths: num(r.baths), sqft: num(r.sqft_min || r.sqft_max),
-      type: typeOf(r.property_type || '', r.street || r.address),
-      lat: r.lat, lng: r.lng,
-      photo: photos[0] || null, photos,
-      listedDaysAgo: days(r.first_seen_at)
-    })
-  })
 }
 
 // Zillow (US, rent and sale) from the JSON its own search page asks for. Joshua chose to carry it
@@ -229,23 +173,6 @@ function km(a, b) {
   return Math.hypot(x, y) * 6371
 }
 
-// The feed indexes by town, so a neighbourhood search (Brookswood) comes back
-// empty. Ask for the neighbourhood, then its town, keep what is within reach,
-// nearest first.
-async function housingfeedNear(env, p) {
-  const names = [...new Set([p.city, townName(p.area)].filter(Boolean))]
-  let rows = []
-  for (const city of names) {
-    rows = await housingfeed(env, { ...p, city })
-    if (rows.length >= 5) break
-  }
-  return rows
-    .map(l => ({ l, d: km(p, l) }))
-    .filter(x => x.d <= 40)
-    .sort((a, b) => a.d - b.d)
-    .map(x => x.l)
-}
-
 // Craigslist: private landlords with real photos, every country it serves.
 // Read through the same JSON search craigslist.org's own pages use, nearest
 // area to the place, photo posts only. Rows are positional; tag 4 is images,
@@ -293,7 +220,8 @@ async function craigslist(env, p) {
     .slice(0, 120)
 }
 
-const PROVIDERS = [rentcast, housingfeedNear, craigslist, zillow, rew]
+// ponytail: RentCast and HousingFeed (Apify) were dropped 2026-11-01, both answered 403 with no paid plan; Craigslist covers rent and sale
+const PROVIDERS = [craigslist, zillow, rew]
 
 // Shared by /api/listings, /api/deals and /mcp, so the three can never disagree.
 export async function fetchListings(env, p) {

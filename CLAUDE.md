@@ -37,9 +37,7 @@ Cloudflare Pages project `roost` (infra name only: Pages projects cannot be rena
 npm run build && npx wrangler pages deploy dist --project-name=roost --branch=main
 ```
 
-Listing sources: Craigslist (no key, nearest area, photo posts only),
-HousingFeed via `APIFY_TOKEN` (rentals, 30 countries) and RentCast via
-`RENTCAST_KEY` (optional: the RentCast account has no plan, so it answers 403; Craigslist already covers US sale and rent, about 100 homes per city). Keys are Pages
+Listing sources: Craigslist (no key, nearest area, photo posts only, covers rent and sale), Zillow (US, off unless `ZILLOW` is on) and REW (BC). RentCast and HousingFeed (Apify) were dropped 2026-11-01: both answered 403 with no paid plan. Keys are Pages
 secrets, never in the bundle: `npx wrangler pages secret put <NAME> --project-name=roost`.
 Photo filters (ad cards, shared logos) live in `src/lib/format.js` and are mirrored in
 `ios/Sources/Store.swift`.
@@ -61,7 +59,7 @@ Photo filters (ad cards, shared logos) live in `src/lib/format.js` and are mirro
 - src/components/AskBar.jsx: the ask bar on /browse. Browse is public; no sign-in needed
 - src/lib/tools.js, functions/api/deals.js, functions/mcp.js: `/api/deals` and `/mcp` (search_deals, ask_atlin), shared tools
 - src/lib/modes.js: the one-tap deal modes, mirrored in ios/Sources/Store.swift (DealMode)
-- functions/api/listings.js: Live listings proxy (Craigslist, HousingFeed, RentCast), merged, deduped, 24h KV cache. Bump the cache key prefix when the row shape changes
+- functions/api/listings.js: Live listings proxy (Craigslist, Zillow, REW), merged, deduped, 24h KV cache. Bump the cache key prefix when the row shape changes
 - src/data/listings.js: Per-place seeded listing generation (MLS/IDX shape)
 - src/pages/: Landing, Login, Register, ForgotPassword, Listings, ListingDetail, Settings
 - ios/Sources/Auth.swift: native sign-in against jaybulb-api (Sign in with Apple, email and password, delete account, saved homes synced as the same id list the web keeps). Refresh token in the Keychain
