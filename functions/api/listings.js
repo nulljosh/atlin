@@ -202,7 +202,7 @@ async function craigslist(env, p) {
     }
     const [idx, lat, lng] = typeof geo === 'string' ? geo.split('~') : []
     const where = (decode.locationDescriptions?.[Number(String(idx).split(':')[1])] || near.a.ShortDescription).replace(/^city of /i, '').replace(/\b\w/g, c => c.toUpperCase())
-    const photos = images.map(t => `https://images.craigslist.org/${t.replace(/^\d+:/, '')}_600x450.jpg`)
+    const photos = images.map(t => `https://images.craigslist.org/${t.replace(/^\d+:/, '')}_1200x900.jpg`)
     return shape(p, p.mode, {
       id: `cl-${decode.minPostingId + idOff}`,
       source: 'Craigslist',
@@ -226,7 +226,7 @@ const PROVIDERS = [craigslist, zillow, rew]
 
 // Shared by /api/listings, /api/deals and /mcp, so the three can never disagree.
 export async function fetchListings(env, p) {
-  const key = `v5/${p.country}/${p.city}/${p.area}/${p.lat.toFixed(1)}/${p.lng.toFixed(1)}/${p.mode}`.toLowerCase()
+  const key = `v6/${p.country}/${p.city}/${p.area}/${p.lat.toFixed(1)}/${p.lng.toFixed(1)}/${p.mode}`.toLowerCase()
   const hit = await env.ATLIN_CACHE?.get(key)
   if (hit) return { body: JSON.parse(hit), ttl: TTL }
 

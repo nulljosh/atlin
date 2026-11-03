@@ -61,7 +61,8 @@ struct BrowseView: View {
             Map(position: $camera, interactionModes: drawing ? [] : .all) {
                 ForEach(pins) { l in
                     Annotation(l.priceText, coordinate: .init(latitude: l.lat, longitude: l.lng)) {
-                        PricePill(text: l.priceText)
+                        // A tap opens the home in the sheet, the same page the list opens.
+                        Button { store.opened = l } label: { PricePill(text: l.priceText) }.buttonStyle(.plain)
                     }
                     .annotationTitles(.hidden)
                 }
@@ -222,6 +223,10 @@ struct ListingSheet: View {
             .onChange(of: store.listings.count) { _, n in
                 // `-openFirst 1` jumps to the top listing, for screenshots.
                 if n > 0, path.isEmpty, UserDefaults.standard.bool(forKey: "openFirst"), let first = store.visible.first(where: { !$0.photos.isEmpty }) ?? store.visible.first { path = [first] }
+            }
+            .onChange(of: store.opened) { _, l in
+                guard let l else { return }
+                path = [l]; detent = .large; store.opened = nil
             }
             .refreshable { await store.load() }
             .sheet(isPresented: $showAccount) { AccountView() }
@@ -427,7 +432,7 @@ struct Photo: View {
     private var resized: URL? {
         guard let url, url.hasPrefix("http"),
               let q = url.addingPercentEncoding(withAllowedCharacters: .alphanumerics) else { return nil }
-        return URL(string: "https://wsrv.nl/?url=\(q)&w=\(width)&h=\(width * 11 / 16)&fit=cover&output=webp&q=72")
+        return URL(string: "https://wsrv.nl/?url=\(q)&w=\(width)&h=\(width * 11 / 16)&fit=cover&output=webp&q=82")
     }
 
     var body: some View {
@@ -455,7 +460,7 @@ struct ListingCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Space.s) {
-            Photo(url: listing.photos.first, width: 800, at: (listing.lat, listing.lng))
+            Photo(url: listing.photos.first, width: 1200, at: (listing.lat, listing.lng))
                 .aspectRatio(16.0 / 11.0, contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: Space.grouped, style: .continuous))
             HStack(spacing: Space.s) {

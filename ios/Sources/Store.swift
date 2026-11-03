@@ -168,6 +168,8 @@ final class Store {
     var freshOnly = false
     // A loop drawn on the map, as (lat, lng) points. Only homes inside it show.
     var area: [Point]? = nil
+    // A map pin tapped; the list sheet opens that home.
+    var opened: Listing? = nil
 
     // Saved searches in the same shape the web writes, so one list serves both.
     var searchID: String { "\(place.id)|\(mode)|\(minBeds)|0|\(maxPrice.map { String(Int($0)) } ?? "Infinity")|\(type ?? "all")\(minSqft > 0 ? "|\(Int(minSqft))" : "")" }

@@ -8,7 +8,7 @@ const rows = [1500, 1800, 2000, 2100, 2400, 3900].map((price, i) => ({
 }))
 const store = new Map()
 // the listings cache already holds a day of Vancouver rentals, so no live feed is asked
-const env = { ATLIN_CACHE: { get: async k => (k.startsWith('v5/') ? JSON.stringify({ listings: rows, sources: { cache: rows.length } }) : store.get(k) ?? null), put: async (k, v) => store.set(k, v) } }
+const env = { ATLIN_CACHE: { get: async k => (k.startsWith('v6/') ? JSON.stringify({ listings: rows, sources: { cache: rows.length } }) : store.get(k) ?? null), put: async (k, v) => store.set(k, v) } }
 globalThis.fetch = async url => {
   if (String(url).includes('nominatim')) return Response.json([{ lat: '49.28', lon: '-123.12', address: { city: 'Vancouver', country_code: 'ca' } }])
   return Response.json([])
