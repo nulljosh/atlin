@@ -8,6 +8,7 @@ v3.0.0, worldwide real estate browsing. Repo: https://github.com/nulljosh/atlin
 - System font only (`-apple-system`, SF Pro, Helvetica), no webfonts, no serif faces
 - 8 point grid (4, 8, 12, 16, 24, 32, 48), side margin 20, controls 48 tall capsules, radii cards 28 and grouped 20
 - Map markers stay as price pill SVGs
+- The list follows the map. Only a move the person made may search: `fitBounds` fires `moveend` too (`MapMoves`). Panning adds a city with `fromMap`, which skips the refit
 - No emojis
 - Name is Atlin (ex-Brick). Unchangeable leftovers: bundle ID `com.nulljosh.brick`, Pages project `roost`
 - Icon: a folded map with a pin, `Atlin.icon` (Icon Composer), regenerate with the brand skill

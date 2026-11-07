@@ -53,12 +53,19 @@ export function PlaceProvider({ children }) {
   // or no key is set, and then the sample homes below stand in, labeled as such.
   useEffect(() => {
     const controller = new AbortController()
-    setLive(null)
+    // Panning into a new city adds its homes to the ones on screen, so the pins never blink out.
+    // ponytail: the list grows while panning a long way; cap it if phones struggle.
+    const keep = place.fromMap
+    if (!keep) setLive(null)
     const q = new URLSearchParams({ lat: place.lat, lng: place.lng, country: place.countryCode || '', city: place.name, area: place.area || '', mode })
     fetch(`/api/listings?${q}`, { signal: controller.signal })
       .then(r => (r.ok ? r.json() : { listings: [] }))
-      .then(d => setLive(dropSharedPhotos((d.listings || []).map(cleanPhotos))))
-      .catch(err => { if (err.name !== 'AbortError') setLive([]) })
+      .then(d => {
+        const next = dropSharedPhotos((d.listings || []).map(cleanPhotos))
+        const seen = new Set(next.map(l => l.id))
+        setLive(prev => keep && prev ? [...next, ...prev.filter(l => l.mode === mode && !seen.has(l.id))] : next)
+      })
+      .catch(err => { if (err.name !== 'AbortError') setLive(prev => keep && prev ? prev : []) })
     return () => controller.abort()
   }, [place.id, mode])
 
@@ -69,7 +76,8 @@ export function PlaceProvider({ children }) {
   const listings = fetching ? [] : isLive ? live : generateListings(place, streets, mode)
 
   function setPlace(next) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+    const { fromMap, ...saved } = next
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(saved))
     setPlaceState(next)
   }
 

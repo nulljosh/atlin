@@ -1,5 +1,5 @@
 import 'leaflet/dist/leaflet.css'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, ZoomControl, Polygon, Polyline, useMap, useMapEvents } from 'react-leaflet'
 import { useNavigate } from 'react-router-dom'
 import L from 'leaflet'
@@ -72,17 +72,42 @@ function RecenterOn({ place, listings }) {
   const map = useMap()
   const first = listings[0]?.id
   useEffect(() => {
+    if (place.fromMap) return   // the person moved the map here; leave it where they put it
     if (!listings.length) map.setView([place.lat, place.lng], 12)
     // Keep the homes out from under the glass panel: left of it on desktop, above it on phones.
     else {
       const phone = window.innerWidth <= 700
       map.fitBounds(listings.map(l => [l.lat, l.lng]), {
-        paddingTopLeft: phone ? [24, 130] : [Math.min(640, window.innerWidth / 2), 100],
+        paddingTopLeft: phone ? [24, 130] : [Math.min(480, window.innerWidth / 2), 100],
         paddingBottomRight: phone ? [24, window.innerHeight * 0.64] : [48, 48],
         maxZoom: 14
       })
     }
-  }, [place.id, first, map])
+  }, [place.id, place.fromMap, first, map])
+  return null
+}
+
+// Reports moves the person made. fitBounds and setView also fire moveend, and those must not start a search.
+function MapMoves({ byPerson, onMove }) {
+  const map = useMap()
+  useEffect(() => {
+    const el = map.getContainer()
+    const mark = () => { byPerson.current = true }
+    el.addEventListener('pointerdown', mark)
+    el.addEventListener('wheel', mark, { passive: true })
+    return () => {
+      el.removeEventListener('pointerdown', mark)
+      el.removeEventListener('wheel', mark)
+    }
+  }, [map, byPerson])
+  useMapEvents({
+    moveend: () => {
+      if (!byPerson.current) return
+      byPerson.current = false
+      const b = map.getBounds()
+      onMove({ bounds: [[b.getSouth(), b.getWest()], [b.getNorth(), b.getEast()]], center: map.getCenter(), zoom: map.getZoom() })
+    }
+  })
   return null
 }
 
@@ -117,8 +142,16 @@ function DrawArea({ drawing, onDone }) {
   return trace.length > 1 ? <Polyline positions={trace} pathOptions={{ color: '#0071e3', weight: 3 }} /> : null
 }
 
-export default function MapView({ listings, frame = listings, favorites, place, area, onArea }) {
+export default function MapView({ listings, frame = listings, favorites, place, area, onArea, onMove }) {
   const { t } = useI18n()
+  const mapRef = useRef(null)
+  const byPerson = useRef(false)
+  const [noLocation, setNoLocation] = useState(false)
+  const locate = () => navigator.geolocation?.getCurrentPosition(
+    p => { setNoLocation(false); byPerson.current = true; mapRef.current?.flyTo([p.coords.latitude, p.coords.longitude], 13) },
+    () => setNoLocation(true),
+    { maximumAge: 60000, timeout: 10000 }
+  )
   const [drawing, setDrawing] = useState(false)
   const finish = useCallback(pts => { setDrawing(false); if (pts) onArea(pts) }, [onArea])
   const [dark, setDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches)
@@ -132,6 +165,7 @@ export default function MapView({ listings, frame = listings, favorites, place, 
   return (
     <div className="map-container">
       <MapContainer
+        ref={mapRef}
         center={[place.lat, place.lng]}
         zoom={12}
         scrollWheelZoom={true}
@@ -148,6 +182,7 @@ export default function MapView({ listings, frame = listings, favorites, place, 
         />}
         <ZoomControl position="bottomright" />
         <RecenterOn place={place} listings={frame} />
+        {onMove && <MapMoves byPerson={byPerson} onMove={onMove} />}
         {onArea && <DrawArea drawing={drawing} onDone={finish} />}
         {area && <Polygon positions={area} pathOptions={{ color: '#0071e3', weight: 2, fillOpacity: 0.08 }} />}
         <MapMarkers listings={listings} favorites={favorites} />
@@ -159,6 +194,11 @@ export default function MapView({ listings, frame = listings, favorites, place, 
           onClick={() => area ? onArea(null) : setDrawing(d => !d)}
         >
           {area ? t('clear_area') : drawing ? t('drawing_area') : t('draw_area')}
+        </button>
+      )}
+      {onMove && (
+        <button className="map-locate" onClick={locate} aria-label={t(noLocation ? 'location_unavailable' : 'current_location')} title={t(noLocation ? 'location_unavailable' : 'current_location')}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.4 2.6 2.9 10.4c-1 .4-.9 1.9.2 2.1l7.6 1.7 1.7 7.6c.2 1.1 1.7 1.2 2.1.2l7.8-18.5c.4-.9-.5-1.8-1.4-1.4Z"/></svg>
         </button>
       )}
     </div>

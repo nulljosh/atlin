@@ -69,3 +69,8 @@ export function insideArea([lat, lng], area) {
   }
   return inside
 }
+
+// Is a home inside the map's view? bounds is [[south, west], [north, east]].
+export function insideBounds({ lat, lng }, [[s, w], [n, e]]) {
+  return lat >= s && lat <= n && lng >= w && lng <= e
+}

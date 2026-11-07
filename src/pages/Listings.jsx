@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { filterListings } from '../lib/filterListings'
 import { useFilters } from '../context/FiltersContext'
 import { useFavorites } from '../context/FavoritesContext'
@@ -9,14 +9,15 @@ import MapView from '../components/MapView'
 import ListingCard from '../components/ListingCard'
 import AskBar from '../components/AskBar'
 import { scoreDeals } from '../lib/deals'
-import { insideArea } from '../lib/mapPins'
+import { insideArea, insideBounds } from '../lib/mapPins'
+import { placeAt } from '../lib/geo'
 import './Listings.css'
 
 export default function Listings() {
   const { filters } = useFilters()
   const { favorites, favoriteSet } = useFavorites()
-  const { place, listings, isLive, fetching, streetsUnavailable } = usePlace()
-  const { t } = useI18n()
+  const { place, setPlace, listings, isLive, fetching, streetsUnavailable } = usePlace()
+  const { t, language } = useI18n()
 
   const [askCount, setAskCount] = useState(0)
   // iPhone Safari runs out of memory drawing every card at once (and the landing
@@ -31,15 +32,36 @@ export default function Listings() {
   // A loop drawn on the map narrows the homes to inside it; a new place clears it.
   const [area, setArea] = useState(null)
   useEffect(() => setArea(null), [place.id])
-  const shownHomes = useMemo(
-    () => area ? filtered.filter(l => insideArea([l.lat, l.lng], area)) : filtered,
-    [filtered, area]
-  )
+  // The list follows the map. A refit from a search or a filter shows everything again.
+  const [view, setView] = useState(null)
+  useEffect(() => { if (!place.fromMap) setView(null) }, [place.id, place.fromMap, filtered])
+  const shownHomes = useMemo(() => {
+    const inArea = area ? filtered.filter(l => insideArea([l.lat, l.lng], area)) : filtered
+    return view ? inArea.filter(l => insideBounds(l, view)) : inArea
+  }, [filtered, area, view])
+
+  // Panning out of the place loads the city under the map. Nominatim allows one request a second, hence the wait.
+  const lookup = useRef(null)
+  useEffect(() => () => lookup.current?.abort(), [])
+  const onMove = useCallback(({ bounds, center, zoom }) => {
+    setView(bounds)
+    lookup.current?.abort()
+    if (area || zoom < 10 || !place.bbox) return
+    const [s, w, n, e] = place.bbox
+    if (center.lat > s && center.lat < n && center.lng > w && center.lng < e) return
+    const controller = lookup.current = new AbortController()
+    setTimeout(() => {
+      if (controller.signal.aborted) return
+      placeAt(center.lat, center.lng, language, controller.signal)
+        .then(next => { if (next && next.id !== place.id) setPlace({ ...next, fromMap: true }) })
+        .catch(() => {})
+    }, 1000)
+  }, [area, place.id, place.bbox, language, setPlace])
 
   return (
     <div className="page browse">
       {/* The map is the backdrop; everything else floats over it on glass. */}
-      <MapView listings={shownHomes} frame={filtered} favorites={favorites} place={place} area={area} onArea={setArea} />
+      <MapView listings={shownHomes} frame={filtered} favorites={favorites} place={place} area={area} onArea={setArea} onMove={onMove} />
       <div className="browse-panel">
       <AskBar resultCount={shownHomes.length} onAnswer={() => setAskCount(n => n + 1)} />
       <FilterBar resultCount={shownHomes.length} />

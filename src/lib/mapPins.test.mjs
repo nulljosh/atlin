@@ -1,5 +1,5 @@
 import assert from 'node:assert'
-import { visibleForZoom, capForZoom } from './mapPins.js'
+import { visibleForZoom, capForZoom, insideBounds } from './mapPins.js'
 
 const listings = Array.from({ length: 60 }, (_, i) => ({ id: i, lat: 49 + i / 1000, lng: -123 }))
 
@@ -40,3 +40,8 @@ assert.ok(!insideArea([49.28, -123.05], square), 'east of the loop is dropped')
 const u = [[0, 0], [0, 3], [3, 3], [3, 2], [1, 2], [1, 1], [3, 1], [3, 0]]
 assert.ok(!insideArea([2, 1.5], u), 'the notch of a U is outside')
 assert.ok(insideArea([2, 0.5], u), 'an arm of the U is inside')
+
+const view = [[49, -124], [50, -122]]
+assert.ok(insideBounds({ lat: 49.5, lng: -123 }, view), 'a home on screen stays in the list')
+assert.ok(!insideBounds({ lat: 48.9, lng: -123 }, view), 'a home south of the view leaves the list')
+assert.ok(!insideBounds({ lat: 49.5, lng: -121 }, view), 'a home east of the view leaves the list')

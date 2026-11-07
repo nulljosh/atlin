@@ -86,7 +86,7 @@
   --border: color-mix(in srgb, var(--color-text) 10%, transparent);
   position: relative;
   z-index: 1;
-  width: min(600px, 100%);
+  width: min(440px, 100%);
   max-height: calc(100dvh - var(--nav) - var(--s5));
   overflow-y: auto;
   overscroll-behavior: contain;

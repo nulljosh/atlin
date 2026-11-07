@@ -64,6 +64,17 @@ function toPlace(r) {
   }
 }
 
+// The city under a map position, shaped like a search result.
+export async function placeAt(lat, lng, language = 'en', signal) {
+  const url = `https://nominatim.openstreetmap.org/reverse?${new URLSearchParams({
+    lat, lon: lng, zoom: '10', format: 'jsonv2', addressdetails: '1', 'accept-language': language
+  })}`
+  const res = await fetch(url, { signal, headers: { Accept: 'application/json' } })
+  if (!res.ok) return null
+  const row = await res.json()
+  return row.boundingbox ? toPlace(row) : null
+}
+
 export async function searchPlaces(query, language = 'en', signal) {
   if (!query.trim()) return []
   const url = `${NOMINATIM}?${new URLSearchParams({

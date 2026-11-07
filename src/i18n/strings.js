@@ -60,6 +60,8 @@ export const en = {
   live_listings: 'Real rentals in Vancouver, live from the feed.',
   fetching_listings: 'Pulling live listings for {place}. The first look at a new place takes a few seconds.',
   draw_area: 'Draw',
+  current_location: 'Go to current location',
+  location_unavailable: 'Location unavailable',
   drawing_area: 'Trace a loop on the map',
   clear_area: 'Clear area',
   sample_listings: 'Sample listings generated for exploration. These are not homes for sale or rent.',
