@@ -30,6 +30,10 @@ struct BrowseView: View {
     @State private var camera: MapCameraPosition = .automatic
     @State private var lonSpan = 0.22
     @State private var mapWidth: Double = 390
+    // Where the app itself last moved the camera. A settle there is not a move the person made.
+    @State private var expected: CLLocationCoordinate2D?
+    @State private var lookup: Task<Void, Never>?
+    @State private var note: String?
 
     // Same rule as the web map (src/lib/mapPins.js): cap the pins by zoom, then drop any
     // pill that would sit on top of one already placed.
@@ -76,7 +80,7 @@ struct BrowseView: View {
                 }
             }
             .mapStyle(.standard(pointsOfInterest: .excludingAll))
-            .onMapCameraChange(frequency: .onEnd) { lonSpan = $0.region.span.longitudeDelta }
+            .onMapCameraChange(frequency: .onEnd) { cameraSettled($0.region) }
             .onGeometryChange(for: Double.self) { $0.size.width } action: { mapWidth = $0 }
             // While drawing, a finger or the pointer traces a loop; letting go keeps the homes inside it.
             .overlay {
@@ -94,19 +98,38 @@ struct BrowseView: View {
             .ignoresSafeArea()
         }
         .overlay(alignment: .topTrailing) {
-            Button {
-                if store.area != nil { store.area = nil } else { drawing.toggle() }
-            } label: {
-                Label(store.area != nil ? "Clear area" : drawing ? "Trace a loop on the map" : "Draw",
-                      systemImage: store.area != nil ? "xmark" : "scribble")
-                    .font(.subheadline.weight(.semibold))
-                    .padding(.horizontal, Space.m)
-                    .frame(height: Space.control)
-                    .foregroundStyle(drawing ? .white : .primary)
-                    .background(drawing ? Color.accentColor : .clear, in: Capsule())
-                    .glassPill()
+            VStack(alignment: .trailing, spacing: Space.s) {
+                Button {
+                    if store.area != nil { store.area = nil } else { drawing.toggle() }
+                } label: {
+                    Label(store.area != nil ? "Clear area" : drawing ? "Trace a loop on the map" : "Draw",
+                          systemImage: store.area != nil ? "xmark" : "scribble")
+                        .font(.subheadline.weight(.semibold))
+                        .padding(.horizontal, Space.m)
+                        .frame(height: Space.control)
+                        .foregroundStyle(drawing ? .white : .primary)
+                        .background(drawing ? Color.accentColor : .clear, in: Capsule())
+                        .glassPill()
+                }
+                .buttonStyle(.plain)
+                Button(action: locate) {
+                    Image(systemName: "location.fill")
+                        .font(.body.weight(.semibold))
+                        .frame(width: Space.control, height: Space.control)
+                        .glassPill()
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Current location")
+                if let note {
+                    Text(note)
+                        .font(.footnote)
+                        .multilineTextAlignment(.trailing)
+                        .padding(.horizontal, Space.m)
+                        .padding(.vertical, Space.s)
+                        .frame(maxWidth: 260, alignment: .trailing)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Space.grouped))
+                }
             }
-            .buttonStyle(.plain)
             .padding(Space.m)
         }
     }
@@ -119,6 +142,12 @@ struct BrowseView: View {
                 if let here = await Locator().current() { store.place = here }
             }
             .task(id: "\(store.place.id)-\(store.mode)") {
+                // A town reached by panning adds its homes and leaves the camera where the person put it.
+                if store.fromMap {
+                    store.fromMap = false
+                    await store.load(merge: true)
+                    return
+                }
                 store.listings = []
                 // On iPhone the list sheet covers the bottom half, so aim a little south of the town.
                 #if os(iOS)
@@ -126,10 +155,54 @@ struct BrowseView: View {
                 #else
                 let lift = 0.0
                 #endif
-                camera = .region(.init(center: .init(latitude: store.place.lat - lift, longitude: store.place.lng),
-                                       span: .init(latitudeDelta: 0.22, longitudeDelta: 0.22)))
+                let target = CLLocationCoordinate2D(latitude: store.place.lat - lift, longitude: store.place.lng)
+                expected = target
+                camera = .region(.init(center: target, span: .init(latitudeDelta: 0.22, longitudeDelta: 0.22)))
                 await store.load()
             }
+    }
+
+    // Every settled camera sets the list to the screen. Only a move the person made may look up a new town.
+    private func cameraSettled(_ r: MKCoordinateRegion) {
+        lonSpan = r.span.longitudeDelta
+        let h = r.span.latitudeDelta / 2, w = r.span.longitudeDelta / 2
+        store.view = Bounds(s: r.center.latitude - h, n: r.center.latitude + h, w: r.center.longitude - w, e: r.center.longitude + w)
+        let byApp = expected.map { abs($0.latitude - r.center.latitude) < 0.002 && abs($0.longitude - r.center.longitude) < 0.002 } ?? false
+        expected = nil
+        if !byApp { personMoved(to: r.center, lonSpan: r.span.longitudeDelta) }
+    }
+
+    // Nominatim allows one request a second, so wait a second after the move before asking.
+    private func personMoved(to c: CLLocationCoordinate2D, lonSpan span: Double) {
+        lookup?.cancel()
+        // Zoomed out past zoom 10, drawing a loop, or still inside the town: nothing to load (same rules as Listings.jsx).
+        guard span <= 360.0 / 1024, store.area == nil else { return }
+        if let b = store.place.bounds, b.contains(c.latitude, c.longitude) { return }
+        lookup = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(1))
+            guard !Task.isCancelled else { return }
+            guard let next = await store.reverse(lat: c.latitude, lng: c.longitude),
+                  next.name != store.place.name || next.countryCode != store.place.countryCode else { return }
+            store.fromMap = true
+            store.place = next
+        }
+    }
+
+    // The round location button: one fix, then the camera goes there and the town under it loads.
+    private func locate() {
+        Task { @MainActor in
+            let locator = Locator()
+            guard let loc = await locator.fix() else {
+                note = locator.denied ? "Location is off for Atlin. Turn it on in Settings to find homes near you." : "Could not find your location."
+                return
+            }
+            note = nil
+            let c = loc.coordinate
+            let span = 360.0 / 8192
+            expected = c
+            camera = .region(.init(center: c, span: .init(latitudeDelta: span, longitudeDelta: span)))
+            personMoved(to: c, lonSpan: span)
+        }
     }
 
     #if os(iOS)

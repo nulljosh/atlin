@@ -98,6 +98,12 @@ extension Listing {
     }
 }
 
+// South, north, west, east. Same box the web keeps as place.bbox.
+struct Bounds: Codable, Hashable, Sendable {
+    let s, n, w, e: Double
+    func contains(_ lat: Double, _ lng: Double) -> Bool { lat >= s && lat <= n && lng >= w && lng <= e }
+}
+
 struct Place: Codable, Hashable, Identifiable, Sendable {
     var id: String { "\(lat),\(lng)" }
     let name: String
@@ -107,6 +113,7 @@ struct Place: Codable, Hashable, Identifiable, Sendable {
     let countryCode: String
     // The town a neighbourhood belongs to; the listing feeds index by town.
     var area: String? = nil
+    var bounds: Bounds? = nil
 
     static let start = Place(name: "Vancouver", detail: "British Columbia, Canada", lat: 49.2827, lng: -123.1207, countryCode: "CA")
 }
@@ -129,6 +136,7 @@ private struct NominatimHit: Decodable {
     let lat: String
     let lon: String
     let address: Address?
+    let boundingbox: [String]?
 }
 
 typealias Point = (lat: Double, lng: Double)
@@ -170,6 +178,10 @@ final class Store {
     var area: [Point]? = nil
     // A map pin tapped; the list sheet opens that home.
     var opened: Listing? = nil
+    // The map as the person left it. The list shows the homes on screen; nil until the camera first settles.
+    var view: Bounds? = nil
+    // Set just before a place comes from a pan: its homes merge into the ones on screen and the camera stays put.
+    var fromMap = false
 
     // Saved searches in the same shape the web writes, so one list serves both.
     var searchID: String { "\(place.id)|\(mode)|\(minBeds)|0|\(maxPrice.map { String(Int($0)) } ?? "Infinity")|\(type ?? "all")\(minSqft > 0 ? "|\(Int(minSqft))" : "")" }
@@ -213,6 +225,7 @@ final class Store {
             (minBeds == 0 || l.beds >= Double(minBeds)) && (minBaths == 0 || l.baths >= minBaths) && (minSqft == 0 || l.sqft >= minSqft) && (type == nil || l.type == type) && (maxPrice == nil || l.price <= maxPrice!)
                 && (!dealsOnly || l.deal >= 5) && (!freshOnly || (l.listedDaysAgo ?? 99) <= 7)
                 && (area.map { insideArea((l.lat, l.lng), $0) } ?? true)
+                && (view?.contains(l.lat, l.lng) ?? true)
         }
         // Screenshots only: homes with a real photo first, so the store images are not placeholders.
         // Homes with a real photo come first, same as the web; the sort orders each group.
@@ -259,7 +272,8 @@ final class Store {
         if isSaved(l) { saved.removeAll { $0.id == l.id } } else { saved.insert(l, at: 0) }
     }
 
-    func load() async {
+    // merge: a pan into a new city keeps the homes already on screen and adds these.
+    func load(merge: Bool = false) async {
         var c = URLComponents(string: Self.api)!
         c.queryItems = [
             .init(name: "lat", value: String(place.lat)), .init(name: "lng", value: String(place.lng)),
@@ -281,13 +295,19 @@ final class Store {
                 for u in Set(h.photos) { uses[u, default: []].insert(building) }
             }
             homes = homes.map { var h = $0; h.photos = h.photos.filter { (uses[$0]?.count ?? 0) < 3 }; return h }
+            if merge {
+                let seen = Set(homes.map(\.id))
+                homes += listings.filter { !seen.contains($0.id) }
+            }
             listings = Self.rankByDeal(homes)
             if let m = feed.modes, !m.isEmpty { modes = m }
         } catch is CancellationError {
         } catch {
             if (error as? URLError)?.code == .cancelled { return }
-            listings = []
-            failed = true
+            if !merge {
+                listings = []
+                failed = true
+            }
         }
     }
 
@@ -318,14 +338,32 @@ final class Store {
         req.setValue("Atlin/1.0 (atlin.jaybulb.com)", forHTTPHeaderField: "User-Agent")
         guard let (data, _) = try? await URLSession.shared.data(for: req),
               let hits = try? JSONDecoder().decode([NominatimHit].self, from: data) else { return [] }
-        return hits.compactMap { h in
-            guard let lat = Double(h.lat), let lng = Double(h.lon) else { return nil }
-            let name = h.name ?? h.display_name.components(separatedBy: ",").first ?? h.display_name
-            let detail = [h.address?.state, h.address?.country].compactMap { $0 }.joined(separator: ", ")
-            let a = h.address
-            return Place(name: name, detail: detail, lat: lat, lng: lng, countryCode: (a?.country_code ?? "").uppercased(),
-                         area: a?.city ?? a?.town ?? a?.municipality ?? a?.village)
-        }
+        return hits.compactMap { place(from: $0) }
+    }
+
+    // Reverse lookup for the town under a panned map: the same request as placeAt in src/lib/geo.js.
+    func reverse(lat: Double, lng: Double) async -> Place? {
+        var c = URLComponents(string: "https://nominatim.openstreetmap.org/reverse")!
+        c.queryItems = [
+            .init(name: "lat", value: String(lat)), .init(name: "lon", value: String(lng)),
+            .init(name: "zoom", value: "10"), .init(name: "format", value: "jsonv2"), .init(name: "addressdetails", value: "1")
+        ]
+        var req = URLRequest(url: c.url!)
+        req.setValue("Atlin/1.0 (atlin.jaybulb.com)", forHTTPHeaderField: "User-Agent")
+        guard let (data, res) = try? await URLSession.shared.data(for: req), (res as? HTTPURLResponse)?.statusCode == 200,
+              let hit = try? JSONDecoder().decode(NominatimHit.self, from: data) else { return nil }
+        return place(from: hit)
+    }
+
+    private func place(from h: NominatimHit) -> Place? {
+        guard let lat = Double(h.lat), let lng = Double(h.lon) else { return nil }
+        let name = h.name ?? h.display_name.components(separatedBy: ",").first ?? h.display_name
+        let detail = [h.address?.state, h.address?.country].compactMap { $0 }.joined(separator: ", ")
+        let a = h.address
+        let box = h.boundingbox?.compactMap { Double($0) } ?? []
+        let bounds = box.count == 4 ? Bounds(s: box[0], n: box[1], w: box[2], e: box[3]) : nil
+        return Place(name: name, detail: detail, lat: lat, lng: lng, countryCode: (a?.country_code ?? "").uppercased(),
+                     area: a?.city ?? a?.town ?? a?.municipality ?? a?.village, bounds: bounds)
     }
 
     private func save<T: Encodable>(_ value: T, _ key: String) {

@@ -9,4 +9,3 @@ Open work only. Resume state lives in `docs/LOOP-HANDOFF.md`.
 ## Listings and QA
 
 ## Ingested 2026-11-06
-- [ ] Bring the web map to the native app: list follows the map, new cities load on pan, current location button.
