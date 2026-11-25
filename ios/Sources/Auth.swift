@@ -283,7 +283,7 @@ struct AccountView: View {
                             apple.start({ auth.prepareApple($0) }) { r in Task { await auth.finishApple(r) } }
                         } label: {
                             HStack(spacing: Space.s) {
-                                Image(systemName: "applelogo").font(.system(size: 17, weight: .medium))
+                                Image(systemName: "applelogo").font(.system(.body, weight: .medium))
                                 Text("Continue with Apple").font(.body.weight(.medium))
                             }
                             .foregroundStyle(scheme == .dark ? .black : .white)

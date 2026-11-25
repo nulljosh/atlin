@@ -113,7 +113,7 @@ struct BrowseView: View {
                 }
                 .buttonStyle(.plain)
                 Button(action: locate) {
-                    Image(systemName: "location.fill")
+                    Image(systemName: "location.fill").accessibilityLabel("Current location")
                         .font(.body.weight(.semibold))
                         .frame(width: Space.control, height: Space.control)
                         .glassPill()
